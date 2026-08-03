@@ -1,0 +1,14 @@
+# Java / Spring Boot
+academix-backend/target/
+academix-backend/.idea/
+academix-backend/*.iml
+academix-backend/.mvn/
+
+# React / Node
+academix-frontend/node_modules/
+academix-frontend/build/
+academix-frontend/.env
+
+# General
+.DS_Store
+*.log
