@@ -1,6 +1,6 @@
 package com.academix.academix_backend.dto;
 
-public class AuthResposne {
+public class AuthResponse {
   
     private String token;
     private String email;
