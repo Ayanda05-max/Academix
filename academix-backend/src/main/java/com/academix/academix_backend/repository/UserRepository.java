@@ -6,7 +6,7 @@ import com.academix.academix_backend.model.User;
 import java.util.List;
 import java.util.Optional;
 
-
+@Repository
 public interface UserRepository extends JpaRepository<User, Long> {
  
     public Optional<User> findByEmail(String email); //finds a user when they log in using their email.
