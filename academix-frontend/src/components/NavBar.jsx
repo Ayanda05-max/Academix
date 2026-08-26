@@ -1,16 +1,14 @@
-function Navbar() {
-  return (
-    <nav className="navbar">
-      <div className="logo">🎓 Academix</div>
+import { Link } from "react-router-dom";
 
-      <div className="nav-links">
-        <a href="/">Dashboard</a>
-        <a href="/courses">Courses</a>
-        <a href="/my-courses">My Courses</a>
-        <a href="/login">Login</a>
-      </div>
+function NavBar() {
+  return (
+    <nav>
+      <Link to="/">Dashboard</Link>
+      <Link to="/courses">Courses</Link>
+      <Link to="/my-courses">My Courses</Link>
+      <Link to="/login">Login</Link>
     </nav>
   );
 }
 
-export default Navbar;
+export default NavBar;
