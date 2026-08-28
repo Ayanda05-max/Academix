@@ -1,6 +1,6 @@
 function CourseCard(props) {
   return (
-    <div>
+    <div className="course-card">
       <h3>{props.name}</h3>
       <p>{props.description}</p>
       <button>View Course</button>
