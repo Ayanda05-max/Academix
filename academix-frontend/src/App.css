@@ -42,3 +42,32 @@
 .course-card button:hover {
   transform: translateY(-2px);
 }
+
+.login-page {
+  width: 350px;
+  margin: 60px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 10px;
+}
+
+.login-page h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-page form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-page input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.login-page button {
+  padding: 10px;
+}
