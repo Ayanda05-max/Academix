@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.academix.academix_backend.model.User;
 import com.academix.academix_backend.repository.UserRepository;
+import com.academix.academix_backend.security.JwtUtil;
 
 
 @Service
@@ -19,6 +20,9 @@ public class AuthService {
 
  @Autowired
  private PasswordEncoder passwordEncoder;
+
+ @Autowired 
+ private JwtUtil jwtUtil;
  
  @Transactional
  //Registration for a new user to the system
@@ -49,6 +53,6 @@ public String login(String email, String password){
     throw new RuntimeException("Invalid password!");
  }
 
-  return "Login Successful.";
+  return jwtUtil.generateToken(user.getEmail(), user.getRole());
 }
 }
