@@ -8,11 +8,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
+import org.springframework.beans.factory.annotation.Autowired;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
+    
+    @Autowired 
+    private JwtFilter jwtFilter;
+    
     @Bean 
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -28,6 +31,8 @@ public class SecurityConfig {
               .requestMatchers("/api/auth/**").permitAll()
               .anyRequest().authenticated()
            );
+        http.addFilterBefore(jwtFilter, 
+            org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         
            return http.build();
     }
