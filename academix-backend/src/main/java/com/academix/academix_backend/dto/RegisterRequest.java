@@ -1,12 +1,22 @@
 package com.academix.academix_backend.dto;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 public class RegisterRequest {
-  
-    private String firstName;
+   @JsonProperty("firstName")
+   private String firstName;
+   
+   @JsonProperty("lastName")
    private String lastName;
+
+   @JsonProperty("email")
    private String email;
+
+   @JsonProperty("password")
    private String password;
-   private String role;  
+
+   @JsonProperty("role")
+   private String role; 
+   
+   
 
    public String getFirstName(){
     return firstName;
