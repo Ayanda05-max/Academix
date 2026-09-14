@@ -142,3 +142,52 @@
 .admin-card p {
   margin-bottom: 15px;
 }
+
+.quiz-page {
+  padding: 40px;
+}
+
+.quiz-page h1 {
+  margin-bottom: 10px;
+}
+
+.quiz-page > p {
+  margin-bottom: 30px;
+}
+
+.quiz-form {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.quiz-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.quiz-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.quiz-list {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.quiz-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 250px;
+}
+
+.quiz-card button {
+  margin-right: 10px;
+  margin-top: 10px;
+}
