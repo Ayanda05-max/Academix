@@ -28,10 +28,10 @@ protected void doFilterInternal( HttpServletRequest request, HttpServletResponse
            if(jwtUtil.isTokenValid(token)){
               String email = jwtUtil.extractEmail(token);
 
-              UsernamePasswordAuthenticationToken authentication = 
-              new UsernamePasswordAuthenticationToken(
-                email, null, Collections.emptyList());
-
+            String role = jwtUtil.extractRole(token);
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, null, Collections.singletonList(
+              new org.springframework.security.core.authority.SimpleGrantedAuthority(role)
+            ));
              SecurityContextHolder.getContext()
                   .setAuthentication(authentication);
               
