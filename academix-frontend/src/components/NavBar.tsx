@@ -7,6 +7,7 @@ function NavBar() {
       <Link to="/register">Register</Link>
       <Link to="/lecturer">Lecturer Dashboard</Link>
       <Link to="/quiz">Quiz Management</Link>
+      <Link to="/admin">Admin Panel</Link>
     </nav>
   );
 }
