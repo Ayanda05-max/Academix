@@ -100,3 +100,18 @@
 .register-page button {
   padding: 10px;
 }
+
+.lecturer-dashboard {
+  padding: 40px;
+}
+
+.dashboard-card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.dashboard-card button {
+  margin-top: 10px;
+}
