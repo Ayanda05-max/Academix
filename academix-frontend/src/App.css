@@ -290,3 +290,32 @@ input {
   border: 1px solid #ccc;
   border-radius: 6px;
 }
+
+.admin-section {
+  margin-top: 35px;
+  margin-bottom: 40px;
+}
+
+.admin-section h2 {
+  margin-bottom: 20px;
+}
+
+.admin-list {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.admin-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.admin-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  min-width: 200px;
+}
