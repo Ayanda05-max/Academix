@@ -256,3 +256,37 @@ input {
     box-sizing: border-box;
   }
 }
+
+.submissions-section {
+  margin-top: 40px;
+}
+
+.submissions-section h2 {
+  margin-bottom: 20px;
+}
+
+.submission-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.submission-card h3 {
+  margin-top: 0;
+}
+
+.submission-card p {
+  color: #555;
+}
+
+.submission-card input {
+  display: block;
+  margin-top: 8px;
+  padding: 10px;
+  width: 150px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
