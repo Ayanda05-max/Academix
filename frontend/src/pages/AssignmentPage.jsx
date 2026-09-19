@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import './AssignmentPage.css'
 
 function AssignmentPage() {
@@ -15,7 +16,7 @@ function AssignmentPage() {
           <h2>Database Design Assignment</h2>
 
           <p><strong>Course:</strong> Information Management</p>
-          <p><strong>Due Date:</strong> 20 September 2026</p>
+          <p><strong>Due Date:</strong> 20 October 2026</p>
           <p><strong>Status:</strong> Not Submitted</p>
 
           <p className="assignment-description">
@@ -23,14 +24,19 @@ function AssignmentPage() {
             structure based on the given requirements.
           </p>
 
-          <button>View Assignment</button>
+          <Link
+            to="/assignment/database"
+            className="assignment-button"
+          >
+            View Assignment
+          </Link>
         </div>
 
         <div className="assignment-card">
           <h2>Programming Task</h2>
 
           <p><strong>Course:</strong> Computer Science</p>
-          <p><strong>Due Date:</strong> 23 September 2026</p>
+          <p><strong>Due Date:</strong> 23 October 2026</p>
           <p><strong>Status:</strong> Submitted</p>
 
           <p className="assignment-description">
@@ -38,14 +44,19 @@ function AssignmentPage() {
             source code.
           </p>
 
-          <button>View Assignment</button>
+          <Link
+            to="/assignment/programming"
+            className="assignment-button"
+          >
+            View Assignment
+          </Link>
         </div>
 
         <div className="assignment-card">
           <h2>Discrete Mathematics Test</h2>
 
           <p><strong>Course:</strong> Mathematics</p>
-          <p><strong>Due Date:</strong> 28 September 2026</p>
+          <p><strong>Due Date:</strong> 28 October 2026</p>
           <p><strong>Status:</strong> Upcoming</p>
 
           <p className="assignment-description">
@@ -53,7 +64,12 @@ function AssignmentPage() {
             and mathematical structures.
           </p>
 
-          <button>View Assignment</button>
+          <Link
+            to="/assignment/mathematics"
+            className="assignment-button"
+          >
+            View Assignment
+          </Link>
         </div>
 
       </div>
@@ -62,3 +78,4 @@ function AssignmentPage() {
 }
 
 export default AssignmentPage
+

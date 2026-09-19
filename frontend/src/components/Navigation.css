@@ -1,0 +1,40 @@
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 30px;
+  background-color: #2563eb;
+  color: white;
+}
+
+.navigation h2 {
+  margin: 0;
+}
+
+.navigation-links {
+  display: flex;
+  gap: 20px;
+}
+
+.navigation-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.navigation-links a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 800px) {
+  .navigation {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .navigation-links {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}

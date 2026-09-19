@@ -1,67 +1,63 @@
-.assignment-page {
+.assignment-detail {
   min-height: 100vh;
   padding: 30px;
   background-color: #f5f7fb;
   color: #1f2937;
 }
 
-.assignment-page h1 {
+.assignment-detail h1 {
   margin-bottom: 8px;
   font-size: 32px;
 }
 
-.assignment-intro {
+.assignment-course {
   margin-bottom: 30px;
   color: #6b7280;
 }
 
-.assignment-list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  max-width: 900px;
-}
-
-.assignment-card {
+.assignment-info {
   background-color: white;
   padding: 24px;
+  margin-bottom: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.assignment-card h2 {
+.assignment-info h2 {
   margin-bottom: 15px;
-  font-size: 22px;
+  font-size: 21px;
 }
 
-.assignment-card p {
+.assignment-info p {
   margin: 8px 0;
   color: #6b7280;
 }
 
-.assignment-description {
-  margin-top: 18px !important;
-  line-height: 1.6;
+.assignment-info ul {
+  padding-left: 20px;
 }
 
-.assignment-button {
-  display: inline-block;
+.assignment-info li {
+  margin-bottom: 8px;
+  color: #6b7280;
+}
+
+.assignment-info button {
   margin-top: 15px;
   padding: 10px 18px;
+  border: none;
   border-radius: 6px;
   background-color: #2563eb;
   color: white;
-  text-decoration: none;
   cursor: pointer;
 }
 
-.assignment-button:hover {
+.assignment-info button:hover {
   background-color: #1d4ed8;
 }
 
 @media (max-width: 800px) {
-  .assignment-page {
+  .assignment-detail {
     padding: 20px;
   }
 }
-
