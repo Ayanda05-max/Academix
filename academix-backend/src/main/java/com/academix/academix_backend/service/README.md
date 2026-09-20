@@ -10,6 +10,7 @@ This is the brain of the backend.
 FILES TO CREATE IN THIS FOLDER:
 - AuthService.java
 - CourseService.java
+- UserService.java
 - EnrollmentService.java
 - AssessmentService.java
 - GradeService.java
