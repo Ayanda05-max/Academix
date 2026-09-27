@@ -17,6 +17,7 @@ import com.academix.academix_backend.dto.GradeResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
 
 
 @Service
@@ -91,6 +92,7 @@ public class GradeService {
         if (grades.isEmpty()) {
             return null;
         }
+    
 
         double sum = 0;
         for (Grade grade : grades) {
@@ -106,8 +108,27 @@ public class GradeService {
     if (totalMarks != null && marksAwarded > totalMarks.doubleValue()) {
         throw new IllegalArgumentException("Marks awarded cannot exceed total marks for this assignment!");
     }
+     
     
+
 }
+    public List<GradeResponse> getGradesByStudent(Long studentId) {
+        List<Grade> grades = gradeRepository.findByStudentId(studentId);
+        List<GradeResponse> responses = new ArrayList<>();
+        for (Grade grade : grades) {
+            responses.add(mapToResponse(grade));
+        }
+        return responses;
+    }
+
+    public List<GradeResponse> getGradesByCourse(Long courseId) {
+        List<Grade> grades = gradeRepository.findByCourseId(courseId);
+        List<GradeResponse> responses = new ArrayList<>();
+        for (Grade grade : grades) {
+            responses.add(mapToResponse(grade));
+        }
+        return responses;
+    }
     private GradeResponse mapToResponse(Grade grade) {
         GradeResponse response = new GradeResponse();
         response.setId(grade.getId());
@@ -119,5 +140,7 @@ public class GradeService {
         response.setGradedAt(grade.getGradedAt());
         return response;
     }
+
+
 }
     
