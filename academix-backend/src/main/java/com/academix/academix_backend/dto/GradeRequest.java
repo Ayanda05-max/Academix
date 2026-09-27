@@ -3,14 +3,14 @@ package com.academix.academix_backend.dto;
 public class GradeRequest {
   
     private Long submissionId;
-    private Double marksAwarded;
+    private Integer marksAwarded;
     private String feedback;
 
     public Long getSubmissionId(){
         return submissionId;
     }
 
-    public Double getMarksAwarded(){
+    public Integer getMarksAwarded(){
         return marksAwarded;
     }
 
@@ -22,7 +22,7 @@ public class GradeRequest {
         this.submissionId = submissionId;
     }
 
-    public void setMarksAwarded(Double marksAwarded){
+    public void setMarksAwarded(Integer marksAwarded){
         this.marksAwarded = marksAwarded;
     }
 
