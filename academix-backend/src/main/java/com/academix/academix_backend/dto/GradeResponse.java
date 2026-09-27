@@ -8,7 +8,7 @@ public class GradeResponse {
     private Long submissionId;
     private Long studentId;
     private Long courseId;
-    private Double marksAwarded;
+    private Integer marksAwarded;
     private String feedback;
     private LocalDateTime gradedAt;
 
@@ -29,7 +29,7 @@ public class GradeResponse {
         return courseId;
     }
 
-    public Double getMarksAwarded(){
+    public Integer getMarksAwarded(){
         return marksAwarded;
     }
 
@@ -57,7 +57,7 @@ public class GradeResponse {
         this.submissionId = submissionId;
     }
 
-    public void setMarksAwarded(Double marksAwarded){
+    public void setMarksAwarded(Integer marksAwarded){
         this.marksAwarded = marksAwarded;
     }
 
