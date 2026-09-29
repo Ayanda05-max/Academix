@@ -11,14 +11,15 @@ import com.academix.academix_backend.repository.NotificationRepository;
 import com.academix.academix_backend.repository.UserRepository;
 import com.academix.academix_backend.repository.EnrollmentRepository;
 import com.academix.academix_backend.repository.AssignmentRepository;
-
 import com.academix.academix_backend.model.Notification;
 import com.academix.academix_backend.model.User;
 import com.academix.academix_backend.model.Enrollment;
 import com.academix.academix_backend.model.Assignment;
+import com.academix.academix_backend.dto.NotificationResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
 
 @Service 
 public class NotificationService {
@@ -92,6 +93,35 @@ public class NotificationService {
             }
         }
     }
+    public List<NotificationResponse> getNotificationsForUser(Long userId) {
+    List<Notification> notifications = notificationRepository.findByUserId(userId);
+    List<NotificationResponse> responses = new ArrayList<>();
+    for (Notification notification : notifications) {
+        responses.add(mapToResponse(notification));
+    }
+    return responses;
+}
+
+@Transactional
+public NotificationResponse markAsRead(Long id) {
+    Notification notification = notificationRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Notification not found!"));
+
+    notification.setRead(true);
+    Notification updated = notificationRepository.save(notification);
+
+    return mapToResponse(updated);
+}
+
+private NotificationResponse mapToResponse(Notification notification) {
+    NotificationResponse response = new NotificationResponse();
+    response.setId(notification.getId());
+    response.setMessage(notification.getMessage());
+    response.setType(notification.getType());
+    response.setRead(notification.isRead());
+    response.setCreatedAt(notification.getCreatedAt());
+    return response;
+}
 
      private void createAndSend(User user, String message, String type){
         Notification notification = new Notification();
