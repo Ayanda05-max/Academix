@@ -36,6 +36,12 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
+    <!-- Spring mail -->
+    
+	<dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-mail</artifactId>
+    </dependency>
 
     <!-- Spring Data JPA -->
     <dependency>
