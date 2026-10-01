@@ -1,0 +1,321 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  color: #222;
+}
+
+nav {
+  display: flex;
+  gap: 20px;
+  padding: 18px 30px;
+  background-color: #1f2937;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  color: #1f2937;
+}
+
+button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #1d4ed8;
+}
+
+input {
+  font-size: 14px;
+}
+
+/* LOGIN */
+
+.login-page {
+  width: 350px;
+  margin: 60px auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.login-page h1 {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.login-page form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-page input {
+  padding: 11px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* REGISTER */
+
+.register-page {
+  width: 350px;
+  margin: 60px auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.register-page h1 {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.register-page form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.register-page input {
+  padding: 11px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* LECTURER DASHBOARD */
+
+.lecturer-dashboard {
+  padding: 40px;
+}
+
+.lecturer-dashboard > p {
+  margin-bottom: 30px;
+  color: #555;
+}
+
+.dashboard-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.dashboard-card {
+  background-color: white;
+  padding: 22px;
+  border-radius: 10px;
+  width: 250px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.dashboard-card p {
+  color: #555;
+  line-height: 1.5;
+}
+
+/* QUIZ PAGE */
+
+.quiz-page {
+  padding: 40px;
+}
+
+.quiz-page > p {
+  color: #555;
+  margin-bottom: 30px;
+}
+
+.quiz-form {
+  background-color: white;
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.quiz-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.quiz-form input {
+  padding: 11px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.quiz-list {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.quiz-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 250px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.quiz-card h3 {
+  margin-top: 0;
+}
+
+.quiz-card p {
+  color: #555;
+}
+
+.quiz-card button {
+  margin-right: 8px;
+  margin-top: 8px;
+}
+
+/* ADMIN PANEL */
+
+.admin-panel {
+  padding: 40px;
+}
+
+.admin-panel > p {
+  color: #555;
+  margin-bottom: 30px;
+}
+
+.admin-users {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.admin-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 250px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.admin-card h3 {
+  margin-top: 0;
+}
+
+.admin-card p {
+  color: #555;
+  line-height: 1.5;
+}
+
+/* RESPONSIVE DESIGN */
+
+@media (max-width: 700px) {
+  nav {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .login-page,
+  .register-page {
+    width: auto;
+    margin: 30px 20px;
+  }
+
+  .lecturer-dashboard,
+  .quiz-page,
+  .admin-panel {
+    padding: 20px;
+  }
+
+  .dashboard-card,
+  .quiz-card,
+  .admin-card {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+.submissions-section {
+  margin-top: 40px;
+}
+
+.submissions-section h2 {
+  margin-bottom: 20px;
+}
+
+.submission-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.submission-card h3 {
+  margin-top: 0;
+}
+
+.submission-card p {
+  color: #555;
+}
+
+.submission-card input {
+  display: block;
+  margin-top: 8px;
+  padding: 10px;
+  width: 150px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.admin-section {
+  margin-top: 35px;
+  margin-bottom: 40px;
+}
+
+.admin-section h2 {
+  margin-bottom: 20px;
+}
+
+.admin-list {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.admin-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.admin-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  min-width: 200px;
+}
