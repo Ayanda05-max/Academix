@@ -1,9 +1,9 @@
-package com.academix.backend.service;
+package com.academix.academix_backend.service;
 
-import com.academix.backend.model.Lesson;
-import com.academix.backend.model.Progress;
-import com.academix.backend.repository.LessonRepository;
-import com.academix.backend.repository.ProgressRepository;
+import com.academix.academix_backend.model.Lesson;
+import com.academix.academix_backend.model.Progress;
+import com.academix.academix_backend.repository.LessonRepository;
+import com.academix.academix_backend.repository.ProgressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

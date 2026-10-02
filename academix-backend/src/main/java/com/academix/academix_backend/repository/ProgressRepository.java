@@ -1,6 +1,6 @@
-package com.academix.backend.repository;
+package com.academix.academix_backend.repository;
 
-import com.academix.backend.model.Progress;
+import com.academix.academix_backend.model.Progress;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

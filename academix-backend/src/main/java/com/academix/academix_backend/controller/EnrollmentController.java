@@ -1,7 +1,7 @@
-package com.academix.backend.controller;
+package com.academix.academix_backend.controller;
 
-import com.academix.backend.model.Enrollment;
-import com.academix.backend.service.EnrollmentService;
+import com.academix.academix_backend.model.Enrollment;
+import com.academix.academix_backend.service.EnrollmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

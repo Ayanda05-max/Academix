@@ -1,7 +1,7 @@
-package com.academix.backend.controller;
+package com.academix.academix_backend.controller;
 
-import com.academix.backend.model.Course;
-import com.academix.backend.service.CourseService;
+import com.academix.academix_backend.model.Course;
+import com.academix.academix_backend.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
