@@ -1,4 +1,4 @@
-package com.academix.backend.model;
+package com.academix.academix_backend.model;
 
 
 
