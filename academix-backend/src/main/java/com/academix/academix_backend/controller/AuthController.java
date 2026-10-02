@@ -10,6 +10,7 @@ import com.academix.academix_backend.service.AuthService;
 import com.academix.academix_backend.model.User;
 import com.academix.academix_backend.dto.RegisterRequest;
 import com.academix.academix_backend.dto.LoginRequest;
+import com.academix.academix_backend.dto.UserResponse;
 
 
  @RestController
@@ -21,16 +22,24 @@ public class AuthController {
     
    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/register")
-        public User register(@RequestBody RegisterRequest request){
-        return authService.register(
-            request.getFirstName(),
-            request.getLastName(),
-            request.getEmail(),
-            request.getPassword(),
-            request.getRole()
-        ); 
-        
-    }
+    public UserResponse register(@RequestBody RegisterRequest request){
+    User user = authService.register(
+        request.getFirstName(),
+        request.getLastName(),
+        request.getEmail(),
+        request.getPassword(),
+        request.getRole()
+    );
+    return new UserResponse(
+        user.getId(),
+        user.getFirstName(),
+        user.getLastName(),
+        user.getEmail(),
+        user.getRole(),
+        user.getCreatedAt()
+    );
+} 
+    
 
     @PostMapping("/login")
     public String login(@RequestBody LoginRequest request){

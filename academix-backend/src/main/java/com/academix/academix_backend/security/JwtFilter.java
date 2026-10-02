@@ -23,7 +23,7 @@ protected void doFilterInternal( HttpServletRequest request, HttpServletResponse
         String authHeader = request.getHeader("Authorization");
 
         if(authHeader != null && authHeader.startsWith("Bearer ")){
-           String token = authHeader.substring(7);
+          String token = authHeader.substring(7).replaceAll("\\s", "");
 
            if(jwtUtil.isTokenValid(token)){
               String email = jwtUtil.extractEmail(token);

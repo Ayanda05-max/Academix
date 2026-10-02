@@ -41,7 +41,14 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
             .requestMatchers("/api/auth/login").permitAll()
             .requestMatchers("/api/auth/register").hasAuthority("ADMIN")
             .anyRequest().authenticated()
-        );
+        )
+        .exceptionHandling(ex -> ex.authenticationEntryPoint((req, res, e) -> {
+           res.setStatus(401);
+           res.setContentType("application/json");
+           res.getWriter().write("{\"error\":\"Unauthorized\"}");
+}));
+
+    
     http.addFilterBefore(jwtFilter,
         org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
     return http.build();
