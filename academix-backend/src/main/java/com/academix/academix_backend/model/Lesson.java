@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
+
 @Entity
 @Table(name = "lessons")
 @Data
@@ -36,6 +37,7 @@ public class Lesson {
     @Column(name = "duration_minutes")
     private Integer durationMinutes; // For video lessons
 
+    @Builder.Default
     @Column(name = "is_free_preview")
     private Boolean isFreePreview = false;
 

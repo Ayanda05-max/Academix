@@ -35,57 +35,52 @@ public class GradeService {
     @Autowired 
     private NotificationService notificationService;
 
-    @Transactional 
-    public GradeResponse recordGrade(GradeRequest request){
-         Submission submission = submissionRepository.findById(request.getSubmissionId())
+   @Transactional
+public GradeResponse recordGrade(GradeRequest request) {
+    Submission submission = submissionRepository.findById(request.getSubmissionId())
+            .orElseThrow(() -> new RuntimeException("Submission not found!"));
+
+    Assignment assignment = submission.getAssignment();
+
+    validateMarks(request.getMarksAwarded(), assignment.getTotalMarks());
+
+    Grade grade = new Grade();
+    grade.setSubmissionId(submission.getId());
+    grade.setStudentId(submission.getStudentId().getId());
+    grade.setCourseId(assignment.getCourseId().getId());
+    grade.setMarksAwarded(request.getMarksAwarded());
+    grade.setFeedback(request.getFeedback());
+    grade.setGradedAt(LocalDateTime.now());
+
+    Grade savedGrade = gradeRepository.save(grade);
+
+    notificationService.notifyGradeReleased(savedGrade.getStudentId(), savedGrade.getCourseId());
+
+    return mapToResponse(savedGrade);
+}
+
+@Transactional
+public GradeResponse updateGrade(Long id, GradeRequest request) {
+
+    Grade grade = gradeRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Grade not found!"));
+
+    if (request.getMarksAwarded() != null) {
+        Submission submission = submissionRepository.findById(grade.getSubmissionId())
                 .orElseThrow(() -> new RuntimeException("Submission not found!"));
 
-        Assignment assignment = assignmentRepository.findById(submission.getAssignmentId())
-                .orElseThrow(() -> new RuntimeException("Assignment not found!"));
-
-        validateMarks(request.getMarksAwarded(), assignment.getTotalMarks());
-
-        Grade grade = new Grade();
-        grade.setSubmissionId(submission.getId());
-        grade.setStudentId(submission.getStudentId());
-        grade.setCourseId(assignment.getCourseId());
+        validateMarks(request.getMarksAwarded(), submission.getAssignment().getTotalMarks());
         grade.setMarksAwarded(request.getMarksAwarded());
+    }
+
+    if (request.getFeedback() != null) {
         grade.setFeedback(request.getFeedback());
-        grade.setGradedAt(LocalDateTime.now());
-
-        Grade savedGrade = gradeRepository.save(grade);
-
-        notificationService.notifyGradeReleased(grade.getStudentId(), grade.getCourseId());
-
-        return mapToResponse(savedGrade);
     }
 
-    @Transactional
-    public GradeResponse updateGrade(Long id, GradeRequest request) {
+    Grade updatedGrade = gradeRepository.save(grade);
 
-        Grade grade = gradeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Grade not found!"));
-
-        if (request.getMarksAwarded() != null) {
-            Assignment assignment = assignmentRepository.findById(
-                    submissionRepository.findById(grade.getSubmissionId())
-                            .orElseThrow(() -> new RuntimeException("Submission not found!"))
-                            .getAssignmentId())
-                    .orElseThrow(() -> new RuntimeException("Assignment not found!"));
-
-            validateMarks(request.getMarksAwarded(), assignment.getTotalMarks());
-            grade.setMarksAwarded(request.getMarksAwarded());
-        }
-
-        if (request.getFeedback() != null) {
-            grade.setFeedback(request.getFeedback());
-        }
-
-        Grade updatedGrade = gradeRepository.save(grade);
-
-        return mapToResponse(updatedGrade);
-    }
-
+    return mapToResponse(updatedGrade);
+}
     public Double getAverageForCourse(Long courseId) {
         List<Grade> grades = gradeRepository.findByCourseId(courseId);
 

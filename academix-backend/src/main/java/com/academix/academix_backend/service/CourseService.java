@@ -40,7 +40,7 @@ public class CourseService {
         existingCourse.setCategory(updatedCourse.getCategory());
         existingCourse.setInstructorId(updatedCourse.getInstructorId());
         existingCourse.setInstructorName(updatedCourse.getInstructorName());
-        existingCourse.setUpdatedAt(updatedCourse.getUpdatedAt());
+        existingCourse.setUpdatedAt(LocalDateTime.now());
 
         return courseRepository.save(existingCourse);
    }

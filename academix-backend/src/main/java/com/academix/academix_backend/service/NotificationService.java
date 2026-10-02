@@ -33,7 +33,7 @@ public class NotificationService {
      @Autowired 
      private JavaMailSender mailSender;
 
-      @Autowired
+    @Autowired
     private EnrollmentRepository enrollmentRepository;
 
     @Autowired
@@ -82,7 +82,7 @@ public class NotificationService {
                 LocalDateTime.now(), tomorrow);
 
         for (Assignment assignment : dueSoon) {
-            List<Enrollment> enrollments = enrollmentRepository.findByCourseId(assignment.getCourseId());
+           List<Enrollment> enrollments = enrollmentRepository.findByCourseId(assignment.getCourseId().getId());
 
             String message = "Reminder: \"" + assignment.getTitle() + "\" is due soon.";
 

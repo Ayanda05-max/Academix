@@ -27,7 +27,7 @@ public class AssessmentService {
     }
 
     public List<Assignment> getAssignmentsByCourse(Long courseId) {
-        return assignmentRepository.findByCourseId(courseId);
+        return assignmentRepository.findByCourse_Id(courseId);
     }
 
     public Assignment getAssignmentById(Long id) {

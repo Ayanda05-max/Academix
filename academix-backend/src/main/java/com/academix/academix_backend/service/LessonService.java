@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 @Service
 public class LessonService {
@@ -27,12 +28,12 @@ public class LessonService {
     public Optional<Lesson> getLessonById(Long id) {
         return lessonRepository.findById(id);
     }
-    public Lesson addLessonToCourse(Long courseId, Lesson lesson) {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found with this id: " + courseId));
-        course.addLesson(lesson);
-        courseRepository.save(course);
-        return lesson;
-    }
+   public Lesson addLessonToCourse(Long courseId, Lesson lesson) {
+    Course course = courseRepository.findById(courseId)
+            .orElseThrow(() -> new RuntimeException("Course not found with this id: " + courseId));
+    lesson.setCourse(course);
+    return lessonRepository.save(lesson);
+}
 
     public Lesson updateLesson(Long id, Lesson updatedLesson) {
         Lesson existingLesson = lessonRepository.findById(id).orElseThrow(() -> new RuntimeException("Lesson not found with id: " + id ));
@@ -42,7 +43,7 @@ public class LessonService {
         existingLesson.setContentUrl(updatedLesson.getContentUrl());
         existingLesson.setOrderNumber(updatedLesson.getOrderNumber());
         existingLesson.setDurationMinutes(updatedLesson.getDurationMinutes());
-        existingLesson.setUpdatedAt(updatedLesson.getUpdatedAt());
+          existingLesson.setUpdatedAt(LocalDateTime.now());
 
         return lessonRepository.save(existingLesson);
     }

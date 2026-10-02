@@ -1,7 +1,7 @@
-package com.academix.backend.controller;
+package com.academix.academix_backend.controller;
 
-import com.academix.backend.model.Progress;
-import com.academix.backend.service.ProgressService;
+import com.academix.academix_backend.model.Progress;
+import com.academix.academix_backend.service.ProgressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
