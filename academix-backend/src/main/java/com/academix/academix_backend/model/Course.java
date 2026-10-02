@@ -1,19 +1,9 @@
-package com.academix.backend.model;
-
-
+package com.academix.academix_backend.model;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "courses")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Course {
 
     @Id
@@ -23,44 +13,40 @@ public class Course {
     @Column(nullable = false)
     private String title;
 
-    @Column(length = 2000)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     private String category;
 
-    @Enumerated(EnumType.STRING)
-    private CourseStatus status; // DRAFT, PUBLISHED, ARCHIVED
+    @Column(nullable = false)
+    private String status;
 
-    @Column(name = "instructor_id", nullable = false)
-    private Long instructorId; // References User.id
+    @ManyToOne
+    @JoinColumn(name = "instructor_id", nullable = false)
+    private User instructor;
 
-    @Column(name = "instructor_name")
-    private String instructorName; // Denormalized for convenience
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
-    // One course has many lessons (cascade delete)
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("orderNumber ASC")
-    private List<Lesson> lessons = new ArrayList<>();
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
-    public void addLesson(Lesson lesson) {
-        lessons.add(lesson);
-        lesson.setCourse(this);
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public void removeLesson(Lesson lesson) {
-        lessons.remove(lesson);
-        lesson.setCourse(null);
-    }
+    public User getInstructor() { return instructor; }
+    public void setInstructor(User instructor) { this.instructor = instructor; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
