@@ -2,9 +2,11 @@ package com.academix.academix_backend.service;
 
 import com.academix.academix_backend.model.Course;
 import com.academix.academix_backend.model.CourseStatus;
+import com.academix.academix_backend.model.EnrollmentStatus;
 import com.academix.academix_backend.model.Lesson;
 import com.academix.academix_backend.model.User;
 import com.academix.academix_backend.repository.CourseRepository;
+import com.academix.academix_backend.repository.EnrollmentRepository;
 import com.academix.academix_backend.repository.LessonRepository;
 import com.academix.academix_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,24 +25,25 @@ public class LessonService {
     private final LessonRepository lessonRepository;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     @Autowired
     public LessonService(LessonRepository lessonRepository,
                          CourseRepository courseRepository,
-                         UserRepository userRepository) {
+                         UserRepository userRepository,
+                         EnrollmentRepository enrollmentRepository) {
         this.lessonRepository = lessonRepository;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
+        this.enrollmentRepository = enrollmentRepository;
     }
 
-    // Staff see lessons of any course; students only if the course is PUBLISHED
-    // TODO: also require that the student is enrolled once enrollment is tested
+    
+
     @Transactional(readOnly = true)
-    public List<Lesson> getLessons(Long courseId, boolean isStaff) {
+    public List<Lesson> getLessons(Long courseId, String email, String role) {
         Course course = findCourse(courseId);
-        if (!isStaff && course.getStatus() != CourseStatus.PUBLISHED) {
-            throw new AccessDeniedException("Course is not available");
-        }
+        checkCanRead(course, email, role);
         return course.getLessons().stream()
                 .sorted(Comparator.comparing(Lesson::getOrderNumber,
                         Comparator.nullsLast(Comparator.naturalOrder())))
@@ -48,14 +51,14 @@ public class LessonService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Lesson> getLesson(Long courseId, Long lessonId, boolean isStaff) {
+    public Optional<Lesson> getLesson(Long courseId, Long lessonId, String email, String role) {
         Course course = findCourse(courseId);
-        if (!isStaff && course.getStatus() != CourseStatus.PUBLISHED) {
-            throw new AccessDeniedException("Course is not available");
-        }
+        checkCanRead(course, email, role);
         return lessonRepository.findById(lessonId)
                 .filter(l -> l.getCourse().getId().equals(courseId));
     }
+
+  
 
     @Transactional
     public Lesson addLesson(Long courseId, Lesson lesson, String email, boolean isAdmin) {
@@ -90,6 +93,8 @@ public class LessonService {
         lessonRepository.delete(existing);
     }
 
+    
+
     private Course findCourse(Long courseId) {
         return courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
@@ -104,7 +109,27 @@ public class LessonService {
         return lesson;
     }
 
-    // A lecturer may only change lessons of their own courses
+    
+    private void checkCanRead(Course course, String email, String role) {
+        if ("ADMIN".equals(role)) return;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        if ("LECTURER".equals(role)) {
+            if (!user.getId().equals(course.getInstructorId())) {
+                throw new AccessDeniedException("You can only view lessons of your own courses");
+            }
+            return;
+        }
+        boolean enrolled = course.getStatus() == CourseStatus.PUBLISHED
+                && enrollmentRepository.findByStudentIdAndCourseId(user.getId(), course.getId())
+                        .filter(e -> e.getStatus() == EnrollmentStatus.ACTIVE)
+                        .isPresent();
+        if (!enrolled) {
+            throw new AccessDeniedException("You are not enrolled in this course");
+        }
+    }
+
+  
     private void checkCanModify(Course course, String email, boolean isAdmin) {
         if (isAdmin) return;
         User user = userRepository.findByEmail(email)

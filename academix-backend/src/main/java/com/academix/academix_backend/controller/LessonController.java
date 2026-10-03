@@ -21,25 +21,20 @@ public class LessonController {
         this.lessonService = lessonService;
     }
 
-    private boolean has(Authentication auth, String authority) {
-        return auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(authority));
-    }
-
-    private boolean isStaff(Authentication auth) {
-        return has(auth, "ADMIN") || has(auth, "LECTURER");
+    private String role(Authentication auth) {
+        return auth.getAuthorities().iterator().next().getAuthority();
     }
 
     @GetMapping
     public List<Lesson> getLessons(@PathVariable Long courseId, Authentication auth) {
-        return lessonService.getLessons(courseId, isStaff(auth));
+        return lessonService.getLessons(courseId, auth.getName(), role(auth));
     }
 
     @GetMapping("/{lessonId}")
     public ResponseEntity<Lesson> getLesson(@PathVariable Long courseId,
                                             @PathVariable Long lessonId,
                                             Authentication auth) {
-        return lessonService.getLesson(courseId, lessonId, isStaff(auth))
+        return lessonService.getLesson(courseId, lessonId, auth.getName(), role(auth))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -48,20 +43,23 @@ public class LessonController {
     @PostMapping
     public Lesson addLesson(@PathVariable Long courseId, @RequestBody Lesson lesson,
                             Authentication auth) {
-        return lessonService.addLesson(courseId, lesson, auth.getName(), has(auth, "ADMIN"));
+        return lessonService.addLesson(courseId, lesson, auth.getName(),
+                "ADMIN".equals(role(auth)));
     }
 
     @PreAuthorize("hasAnyAuthority('LECTURER','ADMIN')")
     @PutMapping("/{lessonId}")
     public Lesson updateLesson(@PathVariable Long courseId, @PathVariable Long lessonId,
                                @RequestBody Lesson lesson, Authentication auth) {
-        return lessonService.updateLesson(courseId, lessonId, lesson, auth.getName(), has(auth, "ADMIN"));
+        return lessonService.updateLesson(courseId, lessonId, lesson, auth.getName(),
+                "ADMIN".equals(role(auth)));
     }
 
     @PreAuthorize("hasAnyAuthority('LECTURER','ADMIN')")
     @DeleteMapping("/{lessonId}")
     public void deleteLesson(@PathVariable Long courseId, @PathVariable Long lessonId,
                              Authentication auth) {
-        lessonService.deleteLesson(courseId, lessonId, auth.getName(), has(auth, "ADMIN"));
+        lessonService.deleteLesson(courseId, lessonId, auth.getName(),
+                "ADMIN".equals(role(auth)));
     }
 }
