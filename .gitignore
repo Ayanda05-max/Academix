@@ -11,4 +11,5 @@ academix-frontend/.env
 
 # General
 .DS_Store
-*.logacademix-backend/src/main/resources/application.properties
+*.log
+academix-backend/src/main/resources/application.properties
