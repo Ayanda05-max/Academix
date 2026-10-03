@@ -1,142 +1,153 @@
 package com.academix.academix_backend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.academix.academix_backend.repository.NotificationRepository;
-import com.academix.academix_backend.repository.UserRepository;
-import com.academix.academix_backend.repository.EnrollmentRepository;
-import com.academix.academix_backend.repository.AssignmentRepository;
+import com.academix.academix_backend.dto.NotificationResponse;
+import com.academix.academix_backend.model.Assignment;
+import com.academix.academix_backend.model.Enrollment;
+import com.academix.academix_backend.model.EnrollmentStatus;
 import com.academix.academix_backend.model.Notification;
 import com.academix.academix_backend.model.User;
-import com.academix.academix_backend.model.Enrollment;
-import com.academix.academix_backend.model.Assignment;
-import com.academix.academix_backend.dto.NotificationResponse;
+import com.academix.academix_backend.repository.AssignmentRepository;
+import com.academix.academix_backend.repository.EnrollmentRepository;
+import com.academix.academix_backend.repository.NotificationRepository;
+import com.academix.academix_backend.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-@Service 
+@Service
 public class NotificationService {
-     
-     @Autowired 
-     private NotificationRepository notificationRepository;
 
-     @Autowired 
-     private UserRepository userRepository;
+    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
-     @Autowired 
-     private JavaMailSender mailSender;
+    private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
+    private final JavaMailSender mailSender;
+    private final EnrollmentRepository enrollmentRepository;
+    private final AssignmentRepository assignmentRepository;
 
-    @Autowired
-    private EnrollmentRepository enrollmentRepository;
+    public NotificationService(NotificationRepository notificationRepository,
+                               UserRepository userRepository,
+                               JavaMailSender mailSender,
+                               EnrollmentRepository enrollmentRepository,
+                               AssignmentRepository assignmentRepository) {
+        this.notificationRepository = notificationRepository;
+        this.userRepository = userRepository;
+        this.mailSender = mailSender;
+        this.enrollmentRepository = enrollmentRepository;
+        this.assignmentRepository = assignmentRepository;
+    }
 
-    @Autowired
-    private AssignmentRepository assignmentRepository;
-
-
-     @Transactional
-     public void notifyGradeReleased(Long studentId, Long courseId){
+    @Transactional
+    public void notifyGradeReleased(Long studentId, Long courseId) {
         User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        String message = "Your grade for course " + courseId + " has been released.";
+        createAndSend(student, message, "GRADE_RELEASED");
+    }
 
-                String message = "Your grade for course " + courseId + " has been released.";
+    @Transactional
+    public void notifyEnrollment(Long studentId, Long courseId) {
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        String message = "You have successfully enrolled in course " + courseId + ".";
+        createAndSend(student, message, "ENROLLMENT");
+    }
 
-                createAndSend(student, message, "GRADE_RELEASED");
-     }
-
-     @Transactional 
-     public void notifyEnrollment(Long studentId, Long courseId){
-       User student = userRepository.findById(studentId)
-           .orElseThrow(() -> new RuntimeException("User not found"));
-
-           String message = "You have successfully enrolled in course " + courseId + ".";
-
-           createAndSend(student, message, "ENROLLMENT");
-     }
-
-     @Transactional
-     public void notifyNewAssignment(Long courseId, String assignmentTitle){
-         List<Enrollment> enrollments = enrollmentRepository.findByCourseId(courseId);
-
+    @Transactional
+    public void notifyNewAssignment(Long courseId, String assignmentTitle) {
+        List<Enrollment> enrollments = enrollmentRepository.findByCourseId(courseId);
         String message = "A new assignment \"" + assignmentTitle + "\" has been posted for course " + courseId + ".";
-
         for (Enrollment enrollment : enrollments) {
-            User student = userRepository.findById(enrollment.getStudentId())
-                    .orElseThrow(() -> new RuntimeException("User not found!"));
-            createAndSend(student, message, "NEW_ASSIGNMENT");
+            if (enrollment.getStatus() != EnrollmentStatus.ACTIVE) {
+                continue;
+            }
+            userRepository.findById(enrollment.getStudentId())
+                    .ifPresent(student -> createAndSend(student, message, "NEW_ASSIGNMENT"));
         }
     }
+
     @Transactional
     @Scheduled(cron = "0 0 8 * * *")
     public void notifyDeadlineReminder() {
-
-        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
-
-        List<Assignment> dueSoon = assignmentRepository.findByDueDateBetween(
-                LocalDateTime.now(), tomorrow);
-
+        LocalDateTime now = LocalDateTime.now();
+        List<Assignment> dueSoon = assignmentRepository.findByDueDateBetween(now, now.plusDays(1));
         for (Assignment assignment : dueSoon) {
-           List<Enrollment> enrollments = enrollmentRepository.findByCourseId(assignment.getCourseId().getId());
-
+            List<Enrollment> enrollments = enrollmentRepository.findByCourseId(assignment.getCourseId().getId());
             String message = "Reminder: \"" + assignment.getTitle() + "\" is due soon.";
-
             for (Enrollment enrollment : enrollments) {
-                User student = userRepository.findById(enrollment.getStudentId())
-                        .orElseThrow(() -> new RuntimeException("User not found!"));
-                createAndSend(student, message, "DEADLINE_REMINDER");
+                if (enrollment.getStatus() != EnrollmentStatus.ACTIVE) {
+                    continue;
+                }
+                userRepository.findById(enrollment.getStudentId())
+                        .ifPresent(student -> createAndSend(student, message, "DEADLINE_REMINDER"));
             }
         }
     }
-    public List<NotificationResponse> getNotificationsForUser(Long userId) {
-    List<Notification> notifications = notificationRepository.findByUserId(userId);
-    List<NotificationResponse> responses = new ArrayList<>();
-    for (Notification notification : notifications) {
-        responses.add(mapToResponse(notification));
+
+    public List<NotificationResponse> getNotificationsForUser(String email) {
+        User caller = findCaller(email);
+        List<Notification> notifications = notificationRepository.findByUserIdOrderByCreatedAtDesc(caller.getId());
+        List<NotificationResponse> responses = new ArrayList<>();
+        for (Notification notification : notifications) {
+            responses.add(mapToResponse(notification));
+        }
+        return responses;
     }
-    return responses;
-}
 
-@Transactional
-public NotificationResponse markAsRead(Long id) {
-    Notification notification = notificationRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Notification not found!"));
+    @Transactional
+    public NotificationResponse markAsRead(Long id, String email) {
+        User caller = findCaller(email);
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
+        if (!notification.getUserId().equals(caller.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your notification");
+        }
+        notification.setRead(true);
+        return mapToResponse(notificationRepository.save(notification));
+    }
 
-    notification.setRead(true);
-    Notification updated = notificationRepository.save(notification);
+    private User findCaller(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+    }
 
-    return mapToResponse(updated);
-}
+    private NotificationResponse mapToResponse(Notification notification) {
+        NotificationResponse response = new NotificationResponse();
+        response.setId(notification.getId());
+        response.setMessage(notification.getMessage());
+        response.setType(notification.getType());
+        response.setRead(notification.isRead());
+        response.setCreatedAt(notification.getCreatedAt());
+        return response;
+    }
 
-private NotificationResponse mapToResponse(Notification notification) {
-    NotificationResponse response = new NotificationResponse();
-    response.setId(notification.getId());
-    response.setMessage(notification.getMessage());
-    response.setType(notification.getType());
-    response.setRead(notification.isRead());
-    response.setCreatedAt(notification.getCreatedAt());
-    return response;
-}
-
-     private void createAndSend(User user, String message, String type){
+    private void createAndSend(User user, String message, String type) {
         Notification notification = new Notification();
         notification.setUserId(user.getId());
         notification.setMessage(message);
         notification.setType(type);
         notificationRepository.save(notification);
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(user.getEmail());
-        mailMessage.setSubject("Academix Notification");
-        mailMessage.setText(message);
-        mailSender.send(mailMessage);
-
-     }
-
-
+        try {
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setTo(user.getEmail());
+            mailMessage.setSubject("Academix Notification");
+            mailMessage.setText(message);
+            mailSender.send(mailMessage);
+        } catch (MailException e) {
+            log.error("Failed to send email to {}: {}", user.getEmail(), e.getMessage());
+        }
+    }
 }

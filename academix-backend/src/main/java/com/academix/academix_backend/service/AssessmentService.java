@@ -13,6 +13,8 @@ import com.academix.academix_backend.repository.CourseRepository;
 import com.academix.academix_backend.repository.EnrollmentRepository;
 import com.academix.academix_backend.repository.QuizRepository;
 import com.academix.academix_backend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -24,25 +26,28 @@ import java.util.Optional;
 @Service
 public class AssessmentService {
 
+    private static final Logger log = LoggerFactory.getLogger(AssessmentService.class);
+
     private final AssignmentRepository assignmentRepository;
     private final QuizRepository quizRepository;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final NotificationService notificationService;
 
     public AssessmentService(AssignmentRepository assignmentRepository,
                              QuizRepository quizRepository,
                              CourseRepository courseRepository,
                              UserRepository userRepository,
-                             EnrollmentRepository enrollmentRepository) {
+                             EnrollmentRepository enrollmentRepository,
+                             NotificationService notificationService) {
         this.assignmentRepository = assignmentRepository;
         this.quizRepository = quizRepository;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.enrollmentRepository = enrollmentRepository;
+        this.notificationService = notificationService;
     }
-
-   
 
     public AssignmentResponse createAssignment(AssignmentRequest request, String email, boolean isAdmin) {
         if (request.getCourseId() == null) throw bad("courseId is required");
@@ -55,7 +60,6 @@ public class AssessmentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Course not found with id: " + request.getCourseId()));
 
-        // A lecturer may only add assignments to their own courses
         if (!isAdmin) {
             User user = findUser(email);
             if (!user.getId().equals(course.getInstructorId())) {
@@ -69,10 +73,16 @@ public class AssessmentService {
         assignment.setDescription(request.getDescription().trim());
         assignment.setDueDate(request.getDueDate());
         assignment.setTotalMarks(request.getTotalMarks());
-        return toResponse(assignmentRepository.save(assignment));
+        Assignment saved = assignmentRepository.save(assignment);
+
+        try {
+            notificationService.notifyNewAssignment(course.getId(), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Assignment saved but notification failed: {}", e.getMessage());
+        }
+        return toResponse(saved);
     }
 
-    // Admin: any course. Lecturer: own course. Student: enrolled in a published course.
     public List<AssignmentResponse> getAssignmentsForCourse(Long courseId, String email, String role) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -80,7 +90,7 @@ public class AssessmentService {
         User user = findUser(email);
 
         if ("ADMIN".equals(role)) {
-          
+
         } else if ("LECTURER".equals(role)) {
             if (!user.getId().equals(course.getInstructorId())) {
                 throw new AccessDeniedException("You can only view assignments of your own courses");
@@ -95,8 +105,6 @@ public class AssessmentService {
                 .map(this::toResponse)
                 .toList();
     }
-
-
 
     public Assignment createAssignment(Assignment assignment) {
         return assignmentRepository.save(assignment);
@@ -114,8 +122,6 @@ public class AssessmentService {
         return result.get();
     }
 
-  
-
     public Quiz createQuiz(Quiz quiz) {
         return quizRepository.save(quiz);
     }
@@ -132,7 +138,6 @@ public class AssessmentService {
         return result.get();
     }
 
-
     public int calculateQuizScore(Quiz quiz, List<String> studentAnswers, List<String> correctAnswers) {
         int score = 0;
         for (int i = 0; i < correctAnswers.size(); i++) {
@@ -142,8 +147,6 @@ public class AssessmentService {
         }
         return score;
     }
-
-
 
     private User findUser(String email) {
         return userRepository.findByEmail(email)
