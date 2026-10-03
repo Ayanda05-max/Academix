@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "courses")
@@ -38,9 +39,12 @@ public class Course {
     @Column(name = "instructor_name")
     private String instructorName;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<Lesson> lessons = new ArrayList<>();
+   @JsonIgnore
+   @ToString.Exclude
+   @EqualsAndHashCode.Exclude
+   @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+   @Builder.Default
+   private List<Lesson> lessons = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
