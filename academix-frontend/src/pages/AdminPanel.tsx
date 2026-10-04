@@ -20,26 +20,26 @@ type Course = {
 
 type Enrollment = {
   id: number;
-  student: string;
-  course: string;
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  courseId: number;
+  courseTitle: string;
+  enrolledAt: string;
+  status: string;
 };
 
 function AdminPanel() {
   const [users, setUsers] = useState<User[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
-
-  // Enrollments are still local for now
-  const [enrollments, setEnrollments] = useState<Enrollment[]>([
-    { id: 1, student: "Thabo", course: "Programming" },
-  ]);
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
 
   const [courseName, setCourseName] = useState<string>("");
   const [studentName, setStudentName] = useState<string>("");
   const [enrollmentCourse, setEnrollmentCourse] = useState<string>("");
 
   useEffect(() => {
-    // Load users from the backend
-    async function loadUsers() {
+    async function loadData() {
       const token = localStorage.getItem("token");
 
       if (!token) {
@@ -48,43 +48,56 @@ function AdminPanel() {
       }
 
       try {
-        const response = await fetch("/api/users", {
+        // Load users
+        const usersResponse = await fetch("/api/users", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setUsers(data);
+        if (usersResponse.ok) {
+          const usersData = await usersResponse.json();
+          setUsers(usersData);
         } else {
           alert("Could not load users");
         }
-      } catch (error) {
-        alert("ERROR: " + String(error));
-      }
-    }
 
-    // Load courses from the backend
-    async function loadCourses() {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        return;
-      }
-
-      try {
-        const response = await fetch("/api/courses", {
+        // Load courses
+        const coursesResponse = await fetch("/api/courses", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setCourses(data);
+        if (coursesResponse.ok) {
+          const coursesData: Course[] = await coursesResponse.json();
+          setCourses(coursesData);
+
+          // Load enrollments for every course
+          const allEnrollments: Enrollment[] = [];
+
+          for (const course of coursesData) {
+            const enrollmentResponse = await fetch(
+              `/api/enrollments/course/${course.id}`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            if (enrollmentResponse.ok) {
+              const enrollmentData: Enrollment[] =
+                await enrollmentResponse.json();
+
+              allEnrollments.push(...enrollmentData);
+            }
+          }
+
+          setEnrollments(allEnrollments);
         } else {
           alert("Could not load courses");
         }
@@ -93,8 +106,7 @@ function AdminPanel() {
       }
     }
 
-    loadUsers();
-    loadCourses();
+    loadData();
   }, []);
 
   // Delete a user from the backend/database
@@ -165,51 +177,52 @@ function AdminPanel() {
     }
   }
 
- // Delete a course from the backend/database
-async function deleteCourse(id: number) {
-  const token = localStorage.getItem("token");
+  // Delete a course from the backend/database
+  async function deleteCourse(id: number) {
+    const token = localStorage.getItem("token");
 
-  if (!token) {
-    alert("You must log in first");
-    return;
-  }
-
-  try {
-    const response = await fetch(`/api/courses/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      setCourses(courses.filter((course) => course.id !== id));
-      alert("Course deleted successfully");
-    } else {
-      alert("Could not delete course");
+    if (!token) {
+      alert("You must log in first");
+      return;
     }
-  } catch (error) {
-    alert("ERROR: " + String(error));
-  }
-}
 
-  // Add an enrollment locally for now
+    try {
+      const response = await fetch(`/api/courses/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setCourses(courses.filter((course) => course.id !== id));
+
+        setEnrollments(
+          enrollments.filter(
+            (enrollment) => enrollment.courseId !== id
+          )
+        );
+
+        alert("Course deleted successfully");
+      } else {
+        alert("Could not delete course");
+      }
+    } catch (error) {
+      alert("ERROR: " + String(error));
+    }
+  }
+
+  // Enrollment creation is still local for now.
+  // We will connect this after course publishing is handled.
   function addEnrollment(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const newEnrollment: Enrollment = {
-      id: Date.now(),
-      student: studentName,
-      course: enrollmentCourse,
-    };
-
-    setEnrollments([...enrollments, newEnrollment]);
-
-    setStudentName("");
-    setEnrollmentCourse("");
+    alert(
+      "Enrollment creation will be connected after course publishing is set up."
+    );
   }
 
-  // Delete an enrollment locally for now
+  // Enrollment deletion will be connected next
   function deleteEnrollment(id: number) {
     setEnrollments(
       enrollments.filter((enrollment) => enrollment.id !== id)
@@ -264,7 +277,10 @@ async function deleteCourse(id: number) {
             <div className="admin-card" key={course.id}>
               <h3>{course.title}</h3>
 
-              <p>Category: {course.category || "Not specified"}</p>
+              <p>
+                Category: {course.category || "Not specified"}
+              </p>
+
               <p>Status: {course.status}</p>
 
               {course.instructorName && (
@@ -296,7 +312,9 @@ async function deleteCourse(id: number) {
             type="text"
             placeholder="Course Name"
             value={enrollmentCourse}
-            onChange={(event) => setEnrollmentCourse(event.target.value)}
+            onChange={(event) =>
+              setEnrollmentCourse(event.target.value)
+            }
             required
           />
 
@@ -306,9 +324,11 @@ async function deleteCourse(id: number) {
         <div className="admin-list">
           {enrollments.map((enrollment) => (
             <div className="admin-card" key={enrollment.id}>
-              <h3>{enrollment.student}</h3>
+              <h3>{enrollment.studentName}</h3>
 
-              <p>Course: {enrollment.course}</p>
+              <p>Email: {enrollment.studentEmail}</p>
+              <p>Course: {enrollment.courseTitle}</p>
+              <p>Status: {enrollment.status}</p>
 
               <button
                 onClick={() => deleteEnrollment(enrollment.id)}
