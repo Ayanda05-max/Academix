@@ -26,8 +26,6 @@ type Enrollment = {
 
 function AdminPanel() {
   const [users, setUsers] = useState<User[]>([]);
-
-  // Courses will now be loaded from the backend
   const [courses, setCourses] = useState<Course[]>([]);
 
   // Enrollments are still local for now
@@ -127,27 +125,48 @@ function AdminPanel() {
     }
   }
 
-  // Add a course locally for now
-  // We will connect this to POST /api/courses next
-  function addCourse(event: React.FormEvent<HTMLFormElement>) {
+  // Add a course to the backend/database
+  async function addCourse(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const newCourse: Course = {
-      id: Date.now(),
-      title: courseName,
-      description: "",
-      category: "",
-      status: "DRAFT",
-      instructorId: null,
-      instructorName: null,
-    };
+    const token = localStorage.getItem("token");
 
-    setCourses([...courses, newCourse]);
-    setCourseName("");
+    if (!token) {
+      alert("You must log in first");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/courses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: courseName,
+          description: "",
+          category: "",
+        }),
+      });
+
+      if (response.ok) {
+        const newCourse: Course = await response.json();
+
+        setCourses([...courses, newCourse]);
+        setCourseName("");
+
+        alert("Course added successfully");
+      } else {
+        alert("Could not add course");
+      }
+    } catch (error) {
+      alert("ERROR: " + String(error));
+    }
   }
 
   // Delete a course locally for now
-  // We will connect this to DELETE /api/courses/{id} later
+  // We will connect this to the backend next
   function deleteCourse(id: number) {
     setCourses(courses.filter((course) => course.id !== id));
   }
