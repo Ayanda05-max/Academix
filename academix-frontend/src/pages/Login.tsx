@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  const navigate = useNavigate();
 
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -26,6 +29,9 @@ function Login() {
         localStorage.setItem("token", token);
 
         alert("Login successful");
+
+        // Go to the home page after successful login
+        navigate("/");
       } else {
         alert("Invalid email or password");
       }
