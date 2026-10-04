@@ -165,11 +165,33 @@ function AdminPanel() {
     }
   }
 
-  // Delete a course locally for now
-  // We will connect this to the backend next
-  function deleteCourse(id: number) {
-    setCourses(courses.filter((course) => course.id !== id));
+ // Delete a course from the backend/database
+async function deleteCourse(id: number) {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    alert("You must log in first");
+    return;
   }
+
+  try {
+    const response = await fetch(`/api/courses/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      setCourses(courses.filter((course) => course.id !== id));
+      alert("Course deleted successfully");
+    } else {
+      alert("Could not delete course");
+    }
+  } catch (error) {
+    alert("ERROR: " + String(error));
+  }
+}
 
   // Add an enrollment locally for now
   function addEnrollment(event: React.FormEvent<HTMLFormElement>) {
