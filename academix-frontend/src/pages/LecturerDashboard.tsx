@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Submission = {
   id: number;
@@ -7,7 +7,20 @@ type Submission = {
   grade: string;
 };
 
+type Course = {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  status: string;
+  instructorId: number | null;
+  instructorName: string | null;
+};
+
 function LecturerDashboard() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [courseError, setCourseError] = useState<string>("");
+
   const [submissions, setSubmissions] = useState<Submission[]>([
     {
       id: 1,
@@ -22,6 +35,36 @@ function LecturerDashboard() {
       grade: "",
     },
   ]);
+
+  useEffect(() => {
+    async function loadCourses() {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setCourseError("You must be logged in to view courses.");
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/courses", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data: Course[] = await response.json();
+          setCourses(data);
+        } else {
+          setCourseError("Could not load courses.");
+        }
+      } catch (error) {
+        setCourseError("ERROR: " + String(error));
+      }
+    }
+
+    loadCourses();
+  }, []);
 
   function handleGrade(id: number, grade: string) {
     const updatedSubmissions = submissions.map((submission) =>
@@ -43,7 +86,6 @@ function LecturerDashboard() {
         <div className="dashboard-card">
           <h3>Manage Courses</h3>
           <p>View and manage the courses you are teaching.</p>
-          <button>Manage Courses</button>
         </div>
 
         <div className="dashboard-card">
@@ -57,6 +99,36 @@ function LecturerDashboard() {
           <p>Review student work and record grades.</p>
           <button>Grade Students</button>
         </div>
+      </div>
+
+      <div className="courses-section">
+        <h2>Courses</h2>
+
+        {courseError && <p>{courseError}</p>}
+
+        {courses.length === 0 && !courseError && (
+          <p>No courses available.</p>
+        )}
+
+        {courses.map((course) => (
+          <div className="course-card" key={course.id}>
+            <h3>{course.title}</h3>
+
+            <p>
+              Category: {course.category || "Not specified"}
+            </p>
+
+            <p>Status: {course.status}</p>
+
+            <p>
+              Instructor: {course.instructorName || "Not assigned"}
+            </p>
+
+            {course.description && (
+              <p>Description: {course.description}</p>
+            )}
+          </div>
+        ))}
       </div>
 
       <div className="submissions-section">
