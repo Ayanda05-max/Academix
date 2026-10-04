@@ -35,7 +35,7 @@ function AdminPanel() {
   const [studentName, setStudentName] = useState<string>("");
   const [enrollmentCourse, setEnrollmentCourse] = useState<string>("");
 
-  // Load real users from the Spring Boot backend
+  // Load users from the backend when the Admin Panel opens
   useEffect(() => {
     async function loadUsers() {
       const token = localStorage.getItem("token");
@@ -67,11 +67,36 @@ function AdminPanel() {
     loadUsers();
   }, []);
 
-  function deleteUser(id: number) {
-    // We will connect this to the backend next
-    setUsers(users.filter((user) => user.id !== id));
+  // Delete a user from the backend/database
+  async function deleteUser(id: number) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("You must log in first");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/users/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Remove the deleted user from the page
+        setUsers(users.filter((user) => user.id !== id));
+        alert("User deleted successfully");
+      } else {
+        alert("Could not delete user");
+      }
+    } catch (error) {
+      alert("ERROR: " + String(error));
+    }
   }
 
+  // Add a course locally for now
   function addCourse(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -84,10 +109,12 @@ function AdminPanel() {
     setCourseName("");
   }
 
+  // Delete a course locally for now
   function deleteCourse(id: number) {
     setCourses(courses.filter((course) => course.id !== id));
   }
 
+  // Add an enrollment locally for now
   function addEnrollment(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -98,10 +125,12 @@ function AdminPanel() {
     };
 
     setEnrollments([...enrollments, newEnrollment]);
+
     setStudentName("");
     setEnrollmentCourse("");
   }
 
+  // Delete an enrollment locally for now
   function deleteEnrollment(id: number) {
     setEnrollments(
       enrollments.filter((enrollment) => enrollment.id !== id)
@@ -113,6 +142,7 @@ function AdminPanel() {
       <h1>Admin Panel</h1>
       <p>Manage users, courses and student enrollments.</p>
 
+      {/* USERS */}
       <section className="admin-section">
         <h2>Manage Users</h2>
 
@@ -134,6 +164,7 @@ function AdminPanel() {
         </div>
       </section>
 
+      {/* COURSES */}
       <section className="admin-section">
         <h2>Manage Courses</h2>
 
@@ -162,6 +193,7 @@ function AdminPanel() {
         </div>
       </section>
 
+      {/* ENROLLMENTS */}
       <section className="admin-section">
         <h2>Manage Enrollments</h2>
 
@@ -189,9 +221,12 @@ function AdminPanel() {
           {enrollments.map((enrollment) => (
             <div className="admin-card" key={enrollment.id}>
               <h3>{enrollment.student}</h3>
+
               <p>Course: {enrollment.course}</p>
 
-              <button onClick={() => deleteEnrollment(enrollment.id)}>
+              <button
+                onClick={() => deleteEnrollment(enrollment.id)}
+              >
                 Remove Enrollment
               </button>
             </div>
