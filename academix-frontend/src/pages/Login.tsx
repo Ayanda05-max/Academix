@@ -4,13 +4,34 @@ function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  function handleLogin(event: React.FormEvent<HTMLFormElement>) {
+  async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    console.log("Email:", email);
-    console.log("Password:", password);
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-    alert("Login information submitted");
+      if (response.ok) {
+        const token = await response.text();
+
+        // Save the JWT token in the browser
+        localStorage.setItem("token", token);
+
+        alert("Login successful");
+      } else {
+        alert("Invalid email or password");
+      }
+    } catch (error) {
+      alert("ERROR: " + String(error));
+    }
   }
 
   return (

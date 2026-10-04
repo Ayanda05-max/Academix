@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type User = {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
+  email: string;
   role: string;
 };
 
@@ -18,10 +20,7 @@ type Enrollment = {
 };
 
 function AdminPanel() {
-  const [users, setUsers] = useState<User[]>([
-    { id: 1, name: "Thabo", role: "Student" },
-    { id: 2, name: "Naledi", role: "Lecturer" },
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
 
   const [courses, setCourses] = useState<Course[]>([
     { id: 1, name: "Programming" },
@@ -36,10 +35,68 @@ function AdminPanel() {
   const [studentName, setStudentName] = useState<string>("");
   const [enrollmentCourse, setEnrollmentCourse] = useState<string>("");
 
-  function deleteUser(id: number) {
-    setUsers(users.filter((user) => user.id !== id));
+  // Load users from the backend when the Admin Panel opens
+  useEffect(() => {
+    async function loadUsers() {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("You must log in first");
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/users", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUsers(data);
+        } else {
+          alert("Could not load users");
+        }
+      } catch (error) {
+        alert("ERROR: " + String(error));
+      }
+    }
+
+    loadUsers();
+  }, []);
+
+  // Delete a user from the backend/database
+  async function deleteUser(id: number) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("You must log in first");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/users/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Remove the deleted user from the page
+        setUsers(users.filter((user) => user.id !== id));
+        alert("User deleted successfully");
+      } else {
+        alert("Could not delete user");
+      }
+    } catch (error) {
+      alert("ERROR: " + String(error));
+    }
   }
 
+  // Add a course locally for now
   function addCourse(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -52,10 +109,12 @@ function AdminPanel() {
     setCourseName("");
   }
 
+  // Delete a course locally for now
   function deleteCourse(id: number) {
     setCourses(courses.filter((course) => course.id !== id));
   }
 
+  // Add an enrollment locally for now
   function addEnrollment(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -71,6 +130,7 @@ function AdminPanel() {
     setEnrollmentCourse("");
   }
 
+  // Delete an enrollment locally for now
   function deleteEnrollment(id: number) {
     setEnrollments(
       enrollments.filter((enrollment) => enrollment.id !== id)
@@ -80,16 +140,20 @@ function AdminPanel() {
   return (
     <div className="admin-panel">
       <h1>Admin Panel</h1>
-
       <p>Manage users, courses and student enrollments.</p>
 
+      {/* USERS */}
       <section className="admin-section">
         <h2>Manage Users</h2>
 
         <div className="admin-list">
           {users.map((user) => (
             <div className="admin-card" key={user.id}>
-              <h3>{user.name}</h3>
+              <h3>
+                {user.firstName} {user.lastName}
+              </h3>
+
+              <p>Email: {user.email}</p>
               <p>Role: {user.role}</p>
 
               <button onClick={() => deleteUser(user.id)}>
@@ -100,6 +164,7 @@ function AdminPanel() {
         </div>
       </section>
 
+      {/* COURSES */}
       <section className="admin-section">
         <h2>Manage Courses</h2>
 
@@ -128,6 +193,7 @@ function AdminPanel() {
         </div>
       </section>
 
+      {/* ENROLLMENTS */}
       <section className="admin-section">
         <h2>Manage Enrollments</h2>
 
@@ -155,6 +221,7 @@ function AdminPanel() {
           {enrollments.map((enrollment) => (
             <div className="admin-card" key={enrollment.id}>
               <h3>{enrollment.student}</h3>
+
               <p>Course: {enrollment.course}</p>
 
               <button
