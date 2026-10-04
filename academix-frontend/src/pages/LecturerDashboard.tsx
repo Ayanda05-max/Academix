@@ -21,6 +21,10 @@ function LecturerDashboard() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [courseError, setCourseError] = useState<string>("");
 
+  const [courseName, setCourseName] = useState<string>("");
+  const [courseCategory, setCourseCategory] = useState<string>("");
+  const [courseDescription, setCourseDescription] = useState<string>("");
+
   const [submissions, setSubmissions] = useState<Submission[]>([
     {
       id: 1,
@@ -37,34 +41,78 @@ function LecturerDashboard() {
   ]);
 
   useEffect(() => {
-    async function loadCourses() {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setCourseError("You must be logged in to view courses.");
-        return;
-      }
-
-      try {
-        const response = await fetch("/api/courses", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data: Course[] = await response.json();
-          setCourses(data);
-        } else {
-          setCourseError("Could not load courses.");
-        }
-      } catch (error) {
-        setCourseError("ERROR: " + String(error));
-      }
-    }
-
     loadCourses();
   }, []);
+
+  async function loadCourses() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setCourseError("You must be logged in to view courses.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/courses", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data: Course[] = await response.json();
+        setCourses(data);
+        setCourseError("");
+      } else {
+        setCourseError("Could not load courses.");
+      }
+    } catch (error) {
+      setCourseError("ERROR: " + String(error));
+    }
+  }
+
+  async function addCourse(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("You must be logged in.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/courses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: courseName,
+          description: courseDescription,
+          category: courseCategory,
+        }),
+      });
+
+      if (response.ok) {
+        const newCourse: Course = await response.json();
+
+        setCourses([...courses, newCourse]);
+
+        setCourseName("");
+        setCourseCategory("");
+        setCourseDescription("");
+
+        alert("Course created successfully");
+      } else {
+        const message = await response.text();
+        alert("Could not create course: " + message);
+      }
+    } catch (error) {
+      alert("ERROR: " + String(error));
+    }
+  }
 
   function handleGrade(id: number, grade: string) {
     const updatedSubmissions = submissions.map((submission) =>
@@ -102,7 +150,33 @@ function LecturerDashboard() {
       </div>
 
       <div className="courses-section">
-        <h2>Courses</h2>
+        <h2>Manage Courses</h2>
+
+        <form onSubmit={addCourse}>
+          <input
+            type="text"
+            placeholder="Course name"
+            value={courseName}
+            onChange={(event) => setCourseName(event.target.value)}
+            required
+          />
+
+          <input
+            type="text"
+            placeholder="Category"
+            value={courseCategory}
+            onChange={(event) => setCourseCategory(event.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="Description"
+            value={courseDescription}
+            onChange={(event) => setCourseDescription(event.target.value)}
+          />
+
+          <button type="submit">Add Course</button>
+        </form>
 
         {courseError && <p>{courseError}</p>}
 
@@ -138,9 +212,7 @@ function LecturerDashboard() {
           <div className="submission-card" key={submission.id}>
             <h3>{submission.student}</h3>
 
-            <p>
-              Assignment: {submission.assignment}
-            </p>
+            <p>Assignment: {submission.assignment}</p>
 
             <label>Grade:</label>
 
