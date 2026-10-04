@@ -235,6 +235,44 @@ function LecturerDashboard() {
     }
   }
 
+  async function publishCourse(courseId: number) {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    alert("You must be logged in.");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `/api/courses/${courseId}/publish`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.ok) {
+      const updatedCourse: Course = await response.json();
+
+      setCourses((currentCourses) =>
+        currentCourses.map((course) =>
+          course.id === courseId ? updatedCourse : course
+        )
+      );
+
+      alert("Course published successfully");
+    } else {
+      const message = await response.text();
+      alert("Could not publish course: " + message);
+    }
+  } catch (error) {
+    alert("ERROR: " + String(error));
+  }
+}
+
   function handleGrade(id: number, grade: string) {
     const updatedSubmissions = submissions.map((submission) =>
       submission.id === id
@@ -322,6 +360,13 @@ function LecturerDashboard() {
             {course.description && (
               <p>Description: {course.description}</p>
             )}
+
+            {course.instructorId === lecturerId &&
+  course.status === "DRAFT" && (
+    <button onClick={() => publishCourse(course.id)}>
+      Publish Course
+    </button>
+  )}
 
             {course.instructorId === lecturerId && (
               <div>
