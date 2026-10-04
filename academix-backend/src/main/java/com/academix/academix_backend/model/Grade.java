@@ -24,7 +24,7 @@ private Long courseId;
 @Column(nullable = false)
 private Integer marksAwarded;
 
-@Column
+@Column(columnDefinition = "TEXT")
 private String feedback;
 
 @Column(nullable = false)

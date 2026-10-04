@@ -1,9 +1,13 @@
 package com.academix.academix_backend.controller;
-import com.academix.academix_backend.model.Assignment;
-import com.academix.academix_backend.model.Quiz;
-import com.academix.academix_backend.model.Submission;
+
+import com.academix.academix_backend.dto.AssignmentRequest;
+import com.academix.academix_backend.dto.AssignmentResponse;
+import com.academix.academix_backend.dto.SubmissionRequest;
+import com.academix.academix_backend.dto.SubmissionResponse;
 import com.academix.academix_backend.service.AssessmentService;
 import com.academix.academix_backend.service.SubmissionService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,38 +24,37 @@ public class AssessmentController {
         this.submissionService = submissionService;
     }
 
+    private String role(Authentication auth) {
+        return auth.getAuthorities().iterator().next().getAuthority();
+    }
 
-
+    @PreAuthorize("hasAnyAuthority('LECTURER','ADMIN')")
     @PostMapping("/assignments")
-    public Assignment createAssignment(@RequestBody Assignment assignment) {
-        return assessmentService.createAssignment(assignment);
+    public AssignmentResponse createAssignment(@RequestBody AssignmentRequest request, Authentication auth) {
+        return assessmentService.createAssignment(request, auth.getName(), "ADMIN".equals(role(auth)));
     }
 
     @GetMapping("/assignments/course/{id}")
-    public List<Assignment> getAssignmentsByCourse(@PathVariable Long id) {
-        return assessmentService.getAssignmentsByCourse(id);
+    public List<AssignmentResponse> getAssignmentsByCourse(@PathVariable Long id, Authentication auth) {
+        return assessmentService.getAssignmentsForCourse(id, auth.getName(), role(auth));
     }
 
+    @PreAuthorize("hasAuthority('STUDENT')")
     @PostMapping("/assignments/{id}/submit")
-    public Submission submitAssignment(@PathVariable Long id, @RequestBody Submission submission) {
-        submission.setAssignment(assessmentService.getAssignmentById(id));
-        return submissionService.submitAssignment(submission);
+    public SubmissionResponse submitAssignment(@PathVariable Long id,
+                                               @RequestBody SubmissionRequest request,
+                                               Authentication auth) {
+        return submissionService.submit(id, request, auth.getName());
     }
 
+    @PreAuthorize("hasAnyAuthority('LECTURER','ADMIN')")
     @GetMapping("/assignments/{id}/submissions")
-    public List<Submission> getSubmissionsForAssignment(@PathVariable Long id) {
-        return submissionService.getSubmissionsByAssignment(id);
+    public List<SubmissionResponse> getSubmissionsForAssignment(@PathVariable Long id, Authentication auth) {
+        return submissionService.getSubmissionsForAssignment(id, auth.getName(), role(auth));
     }
-
-
-
-    @PostMapping("/quizzes")
-    public Quiz createQuiz(@RequestBody Quiz quiz) {
-        return assessmentService.createQuiz(quiz);
-    }
-
-    @GetMapping("/quizzes/course/{id}")
-    public List<Quiz> getQuizzesByCourse(@PathVariable Long id) {
-        return assessmentService.getQuizzesByCourse(id);
+    @PreAuthorize("hasAuthority('STUDENT')")
+    @GetMapping("/submissions/me")
+    public List<SubmissionResponse> getMySubmissions(Authentication auth) {
+        return submissionService.getMySubmissions(auth.getName());
     }
 }

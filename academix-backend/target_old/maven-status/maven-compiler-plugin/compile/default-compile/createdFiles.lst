@@ -1,0 +1,4 @@
+com\academix\academix_backend\controller\AssessmentController.class
+com\academix\academix_backend\config\MailConfig.class
+com\academix\academix_backend\AcademixBackendApplication.class
+com\academix\academix_backend\config\CorsConfig.class

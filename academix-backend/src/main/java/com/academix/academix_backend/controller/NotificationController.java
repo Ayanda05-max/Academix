@@ -1,28 +1,34 @@
 package com.academix.academix_backend.controller;
 
-import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.academix.academix_backend.service.NotificationService;
 import com.academix.academix_backend.dto.NotificationResponse;
+import com.academix.academix_backend.service.NotificationService;
 
 import java.util.List;
 
-@RestController 
+@RestController
 @RequestMapping("/api/notifications")
 public class NotificationController {
 
-    @Autowired 
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
-    @GetMapping("/{userId}")
-    public List<NotificationResponse> getNotificationsForUser(@PathVariable Long userId){
-        return notificationService.getNotificationsForUser(userId);
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
+
+    @GetMapping
+    public List<NotificationResponse> getMyNotifications(Authentication authentication) {
+        return notificationService.getNotificationsForUser(authentication.getName());
     }
 
     @PutMapping("/{id}/read")
-    public NotificationResponse markAsRead(@PathVariable Long id){
-        return notificationService.markAsRead(id);
+    public NotificationResponse markAsRead(@PathVariable Long id, Authentication authentication) {
+        return notificationService.markAsRead(id, authentication.getName());
     }
-
 }

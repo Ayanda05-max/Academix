@@ -1,7 +1,7 @@
 package com.academix.academix_backend.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime; // for the day the user created the account
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name = "users")
 public class User {
@@ -18,7 +18,8 @@ public class User {
 
     @Column(unique = true, nullable = false)
     private String email;
-
+    
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
