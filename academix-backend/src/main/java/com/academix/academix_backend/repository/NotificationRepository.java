@@ -5,11 +5,8 @@ import org.springframework.stereotype.Repository;
 import com.academix.academix_backend.model.Notification;
 import java.util.List;
 
-
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    List<Notification> findByUserId(Long userId);
-
-    
-} 
+    List<Notification> findByUserIdOrderByCreatedAtDesc(Long userId);
+}

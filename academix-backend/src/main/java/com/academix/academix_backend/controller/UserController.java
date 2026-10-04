@@ -1,42 +1,49 @@
 package com.academix.academix_backend.controller;
 
-import org.springframework.web.bind.annotation.RestController ;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.academix.academix_backend.service.UserService;
-import com.academix.academix_backend.model.User;
 import com.academix.academix_backend.dto.RegisterRequest;
-import java.util.List; 
+import com.academix.academix_backend.dto.UserResponse;
+import com.academix.academix_backend.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
-@RestController 
+@RestController
 @RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
+    private boolean isAdmin(Authentication auth) {
+        return auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ADMIN"));
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    public List<User> getAllUsers(){
-        return userService.getAllUsers();
+    public List<UserResponse> getAllUsers() {
+        return userService.listUsers();
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id){
-        return userService.getUserById(id);
+    public UserResponse getUserById(@PathVariable Long id, Authentication auth) {
+        return userService.getUser(id, auth.getName(), isAdmin(auth));
     }
+
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable Long id, @RequestBody RegisterRequest request){
-        return userService.updateUser(id, request.getFirstName(), request.getLastName(), request.getEmail());
+    public UserResponse updateUser(@PathVariable Long id,
+                                   @RequestBody RegisterRequest request,
+                                   Authentication auth) {
+        return userService.updateUser(id, request.getFirstName(), request.getLastName(),
+                request.getEmail(), auth.getName(), isAdmin(auth));
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id){
-        userService.deleteUser(id);
+    public void deleteUser(@PathVariable Long id, Authentication auth) {
+        userService.deleteUser(id, auth.getName());
     }
-    
 }

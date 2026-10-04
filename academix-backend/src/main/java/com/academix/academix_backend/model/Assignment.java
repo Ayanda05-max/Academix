@@ -31,8 +31,8 @@ public class Assignment {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Course getCourse() { return course; }
-    public void setCourse(Course course) { this.course = course; }
+    public Course getCourseId() { return course; }
+    public void setCourse(Course courseId) { this.course = courseId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

@@ -50,7 +50,11 @@ private boolean isTokenExpired(String token){
     return extractAllClaims(token).getExpiration().before(new Date());
 }
 public boolean isTokenValid(String token){
-    return !isTokenExpired(token);
+    try {
+        return !isTokenExpired(token);
+    } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+        return false;
+    }
 }
 
 }

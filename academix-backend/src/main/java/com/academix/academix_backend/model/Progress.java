@@ -25,9 +25,11 @@ public class Progress {
     @Column(name = "lesson_id", nullable = false)
     private Long lessonId;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean completed = false;
-
+    
+    
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
