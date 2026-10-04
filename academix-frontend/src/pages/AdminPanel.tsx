@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type User = {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
+  email: string;
   role: string;
 };
 
@@ -18,10 +20,7 @@ type Enrollment = {
 };
 
 function AdminPanel() {
-  const [users, setUsers] = useState<User[]>([
-    { id: 1, name: "Thabo", role: "Student" },
-    { id: 2, name: "Naledi", role: "Lecturer" },
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
 
   const [courses, setCourses] = useState<Course[]>([
     { id: 1, name: "Programming" },
@@ -36,7 +35,40 @@ function AdminPanel() {
   const [studentName, setStudentName] = useState<string>("");
   const [enrollmentCourse, setEnrollmentCourse] = useState<string>("");
 
+  // Load real users from the Spring Boot backend
+  useEffect(() => {
+    async function loadUsers() {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("You must log in first");
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/users", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUsers(data);
+        } else {
+          alert("Could not load users");
+        }
+      } catch (error) {
+        alert("ERROR: " + String(error));
+      }
+    }
+
+    loadUsers();
+  }, []);
+
   function deleteUser(id: number) {
+    // We will connect this to the backend next
     setUsers(users.filter((user) => user.id !== id));
   }
 
@@ -66,7 +98,6 @@ function AdminPanel() {
     };
 
     setEnrollments([...enrollments, newEnrollment]);
-
     setStudentName("");
     setEnrollmentCourse("");
   }
@@ -80,7 +111,6 @@ function AdminPanel() {
   return (
     <div className="admin-panel">
       <h1>Admin Panel</h1>
-
       <p>Manage users, courses and student enrollments.</p>
 
       <section className="admin-section">
@@ -89,7 +119,11 @@ function AdminPanel() {
         <div className="admin-list">
           {users.map((user) => (
             <div className="admin-card" key={user.id}>
-              <h3>{user.name}</h3>
+              <h3>
+                {user.firstName} {user.lastName}
+              </h3>
+
+              <p>Email: {user.email}</p>
               <p>Role: {user.role}</p>
 
               <button onClick={() => deleteUser(user.id)}>
@@ -157,9 +191,7 @@ function AdminPanel() {
               <h3>{enrollment.student}</h3>
               <p>Course: {enrollment.course}</p>
 
-              <button
-                onClick={() => deleteEnrollment(enrollment.id)}
-              >
+              <button onClick={() => deleteEnrollment(enrollment.id)}>
                 Remove Enrollment
               </button>
             </div>
