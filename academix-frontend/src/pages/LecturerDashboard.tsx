@@ -42,24 +42,35 @@ type Submission = {
 
 function LecturerDashboard() {
   const [courses, setCourses] = useState<Course[]>([]);
-  const [lessons, setLessons] = useState<Record<number, Lesson[]>>({});
+  const [lessons, setLessons] =
+    useState<Record<number, Lesson[]>>({});
   const [assignments, setAssignments] =
     useState<Record<number, Assignment[]>>({});
   const [submissions, setSubmissions] =
     useState<Record<number, Submission[]>>({});
 
-  const [courseError, setCourseError] = useState<string>("");
+  // Grading
+  const [gradeMarks, setGradeMarks] =
+    useState<Record<number, string>>({});
+  const [gradeFeedback, setGradeFeedback] =
+    useState<Record<number, string>>({});
+
+  const [courseError, setCourseError] =
+    useState<string>("");
 
   // Course form
-  const [courseName, setCourseName] = useState<string>("");
-  const [courseCategory, setCourseCategory] = useState<string>("");
+  const [courseName, setCourseName] =
+    useState<string>("");
+  const [courseCategory, setCourseCategory] =
+    useState<string>("");
   const [courseDescription, setCourseDescription] =
     useState<string>("");
 
   // Lesson form
   const [selectedCourseId, setSelectedCourseId] =
     useState<string>("");
-  const [lessonTitle, setLessonTitle] = useState<string>("");
+  const [lessonTitle, setLessonTitle] =
+    useState<string>("");
   const [lessonDescription, setLessonDescription] =
     useState<string>("");
 
@@ -75,7 +86,9 @@ function LecturerDashboard() {
   const [assignmentTotalMarks, setAssignmentTotalMarks] =
     useState<string>("");
 
-  const lecturerId = Number(localStorage.getItem("userId"));
+  const lecturerId = Number(
+    localStorage.getItem("userId")
+  );
 
   const lecturerCourses = courses.filter(
     (course) => course.instructorId === lecturerId
@@ -90,7 +103,9 @@ function LecturerDashboard() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      setCourseError("You must be logged in to view courses.");
+      setCourseError(
+        "You must be logged in to view courses."
+      );
       return;
     }
 
@@ -107,8 +122,8 @@ function LecturerDashboard() {
         setCourses(data);
         setCourseError("");
 
-        // Load lessons and assignments only for courses
-        // owned by this lecturer
+        // Load lessons and assignments only
+        // for courses owned by this lecturer
         for (const course of data) {
           if (course.instructorId === lecturerId) {
             await loadLessons(course.id);
@@ -150,7 +165,10 @@ function LecturerDashboard() {
         }));
       }
     } catch (error) {
-      console.error("Could not load lessons:", error);
+      console.error(
+        "Could not load lessons:",
+        error
+      );
     }
   }
 
@@ -173,7 +191,8 @@ function LecturerDashboard() {
       );
 
       if (response.ok) {
-        const data: Assignment[] = await response.json();
+        const data: Assignment[] =
+          await response.json();
 
         setAssignments((currentAssignments) => ({
           ...currentAssignments,
@@ -190,12 +209,17 @@ function LecturerDashboard() {
         );
       }
     } catch (error) {
-      console.error("Could not load assignments:", error);
+      console.error(
+        "Could not load assignments:",
+        error
+      );
     }
   }
 
   // Load submissions for one assignment
-  async function loadSubmissions(assignmentId: number) {
+  async function loadSubmissions(
+    assignmentId: number
+  ) {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -213,7 +237,8 @@ function LecturerDashboard() {
       );
 
       if (response.ok) {
-        const data: Submission[] = await response.json();
+        const data: Submission[] =
+          await response.json();
 
         setSubmissions((currentSubmissions) => ({
           ...currentSubmissions,
@@ -225,7 +250,10 @@ function LecturerDashboard() {
         );
       }
     } catch (error) {
-      console.error("Could not load submissions:", error);
+      console.error(
+        "Could not load submissions:",
+        error
+      );
     }
   }
 
@@ -257,7 +285,8 @@ function LecturerDashboard() {
       });
 
       if (response.ok) {
-        const newCourse: Course = await response.json();
+        const newCourse: Course =
+          await response.json();
 
         setCourses((currentCourses) => [
           ...currentCourses,
@@ -271,7 +300,10 @@ function LecturerDashboard() {
         alert("Course created successfully");
       } else {
         const message = await response.text();
-        alert("Could not create course: " + message);
+
+        alert(
+          "Could not create course: " + message
+        );
       }
     } catch (error) {
       alert("ERROR: " + String(error));
@@ -314,9 +346,12 @@ function LecturerDashboard() {
       );
 
       if (response.ok) {
-        const newLesson: Lesson = await response.json();
+        const newLesson: Lesson =
+          await response.json();
 
-        const courseId = Number(selectedCourseId);
+        const courseId = Number(
+          selectedCourseId
+        );
 
         setLessons((currentLessons) => ({
           ...currentLessons,
@@ -329,10 +364,15 @@ function LecturerDashboard() {
         setLessonTitle("");
         setLessonDescription("");
 
-        alert(`Lesson "${newLesson.title}" added successfully`);
+        alert(
+          `Lesson "${newLesson.title}" added successfully`
+        );
       } else {
         const message = await response.text();
-        alert("Could not add lesson: " + message);
+
+        alert(
+          "Could not add lesson: " + message
+        );
       }
     } catch (error) {
       alert("ERROR: " + String(error));
@@ -340,7 +380,9 @@ function LecturerDashboard() {
   }
 
   // Publish a course
-  async function publishCourse(courseId: number) {
+  async function publishCourse(
+    courseId: number
+  ) {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -360,11 +402,14 @@ function LecturerDashboard() {
       );
 
       if (response.ok) {
-        const updatedCourse: Course = await response.json();
+        const updatedCourse: Course =
+          await response.json();
 
         setCourses((currentCourses) =>
           currentCourses.map((course) =>
-            course.id === courseId ? updatedCourse : course
+            course.id === courseId
+              ? updatedCourse
+              : course
           )
         );
 
@@ -372,7 +417,9 @@ function LecturerDashboard() {
       } else {
         const message = await response.text();
 
-        alert("Could not publish course: " + message);
+        alert(
+          "Could not publish course: " + message
+        );
       }
     } catch (error) {
       alert("ERROR: " + String(error));
@@ -398,45 +445,64 @@ function LecturerDashboard() {
     }
 
     if (Number(assignmentTotalMarks) <= 0) {
-      alert("Total marks must be greater than 0.");
+      alert(
+        "Total marks must be greater than 0."
+      );
       return;
     }
 
     try {
-      const response = await fetch("/api/assignments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          courseId: Number(assignmentCourseId),
-          title: assignmentTitle,
-          description: assignmentDescription,
-          dueDate: assignmentDueDate,
-          totalMarks: Number(assignmentTotalMarks),
-        }),
-      });
+      const response = await fetch(
+        "/api/assignments",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            courseId: Number(
+              assignmentCourseId
+            ),
+            title: assignmentTitle,
+            description:
+              assignmentDescription,
+            dueDate: assignmentDueDate,
+            totalMarks: Number(
+              assignmentTotalMarks
+            ),
+          }),
+        }
+      );
 
       if (response.ok) {
         const newAssignment: Assignment =
           await response.json();
 
-        const courseId = Number(assignmentCourseId);
+        const courseId = Number(
+          assignmentCourseId
+        );
 
-        setAssignments((currentAssignments) => ({
-          ...currentAssignments,
-          [courseId]: [
-            ...(currentAssignments[courseId] || []),
-            newAssignment,
-          ],
-        }));
+        setAssignments(
+          (currentAssignments) => ({
+            ...currentAssignments,
+            [courseId]: [
+              ...(currentAssignments[
+                courseId
+              ] || []),
+              newAssignment,
+            ],
+          })
+        );
 
-        // New assignment starts with no submissions
-        setSubmissions((currentSubmissions) => ({
-          ...currentSubmissions,
-          [newAssignment.id]: [],
-        }));
+        // New assignment starts with
+        // no submissions
+        setSubmissions(
+          (currentSubmissions) => ({
+            ...currentSubmissions,
+            [newAssignment.id]: [],
+          })
+        );
 
         setAssignmentCourseId("");
         setAssignmentTitle("");
@@ -450,7 +516,104 @@ function LecturerDashboard() {
       } else {
         const message = await response.text();
 
-        alert("Could not create assignment: " + message);
+        alert(
+          "Could not create assignment: " +
+            message
+        );
+      }
+    } catch (error) {
+      alert("ERROR: " + String(error));
+    }
+  }
+
+  // Grade a real student submission
+  async function gradeSubmission(
+    submissionId: number,
+    assignmentId: number,
+    totalMarks: number
+  ) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("You must be logged in.");
+      return;
+    }
+
+    const marksText =
+      gradeMarks[submissionId];
+
+    if (
+      marksText === undefined ||
+      marksText === ""
+    ) {
+      alert("Please enter marks.");
+      return;
+    }
+
+    const marks = Number(marksText);
+
+    if (
+      Number.isNaN(marks) ||
+      marks < 0 ||
+      marks > totalMarks
+    ) {
+      alert(
+        `Marks must be between 0 and ${totalMarks}.`
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "/api/grades",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            submissionId: submissionId,
+            marksAwarded: marks,
+            feedback:
+              gradeFeedback[submissionId] ||
+              "",
+          }),
+        }
+      );
+
+      if (response.ok) {
+        await response.json();
+
+        alert(
+          "Submission graded successfully"
+        );
+
+        // Reload this assignment's
+        // submissions so status becomes GRADED
+        await loadSubmissions(
+          assignmentId
+        );
+
+        // Clear grading form
+        setGradeMarks((current) => ({
+          ...current,
+          [submissionId]: "",
+        }));
+
+        setGradeFeedback((current) => ({
+          ...current,
+          [submissionId]: "",
+        }));
+      } else {
+        const message =
+          await response.text();
+
+        alert(
+          "Could not grade submission: " +
+            message
+        );
       }
     } catch (error) {
       alert("ERROR: " + String(error));
@@ -462,24 +625,33 @@ function LecturerDashboard() {
       <h1>Lecturer Dashboard</h1>
 
       <p>
-        Manage courses, assignments, submissions and student
-        grades.
+        Manage courses, assignments,
+        submissions and student grades.
       </p>
 
       <div className="dashboard-cards">
         <div className="dashboard-card">
           <h3>Manage Courses</h3>
-          <p>View and manage the courses you are teaching.</p>
+          <p>
+            View and manage the courses you
+            are teaching.
+          </p>
         </div>
 
         <div className="dashboard-card">
           <h3>Assignments</h3>
-          <p>Create assignments for your courses.</p>
+          <p>
+            Create assignments for your
+            courses.
+          </p>
         </div>
 
         <div className="dashboard-card">
           <h3>Submissions</h3>
-          <p>View assignments submitted by students.</p>
+          <p>
+            View assignments submitted by
+            students.
+          </p>
         </div>
       </div>
 
@@ -493,7 +665,9 @@ function LecturerDashboard() {
             placeholder="Course name"
             value={courseName}
             onChange={(event) =>
-              setCourseName(event.target.value)
+              setCourseName(
+                event.target.value
+              )
             }
             required
           />
@@ -503,7 +677,9 @@ function LecturerDashboard() {
             placeholder="Category"
             value={courseCategory}
             onChange={(event) =>
-              setCourseCategory(event.target.value)
+              setCourseCategory(
+                event.target.value
+              )
             }
           />
 
@@ -512,64 +688,97 @@ function LecturerDashboard() {
             placeholder="Description"
             value={courseDescription}
             onChange={(event) =>
-              setCourseDescription(event.target.value)
+              setCourseDescription(
+                event.target.value
+              )
             }
           />
 
-          <button type="submit">Add Course</button>
+          <button type="submit">
+            Add Course
+          </button>
         </form>
 
-        {courseError && <p>{courseError}</p>}
-
-        {courses.length === 0 && !courseError && (
-          <p>No courses available.</p>
+        {courseError && (
+          <p>{courseError}</p>
         )}
 
+        {courses.length === 0 &&
+          !courseError && (
+            <p>No courses available.</p>
+          )}
+
         {courses.map((course) => (
-          <div className="course-card" key={course.id}>
+          <div
+            className="course-card"
+            key={course.id}
+          >
             <h3>{course.title}</h3>
 
             <p>
-              Category: {course.category || "Not specified"}
+              Category:{" "}
+              {course.category ||
+                "Not specified"}
             </p>
 
             <p>Status: {course.status}</p>
 
             <p>
               Instructor:{" "}
-              {course.instructorName || "Not assigned"}
+              {course.instructorName ||
+                "Not assigned"}
             </p>
 
             {course.description && (
-              <p>Description: {course.description}</p>
+              <p>
+                Description:{" "}
+                {course.description}
+              </p>
             )}
 
-            {course.instructorId === lecturerId &&
-              course.status === "DRAFT" && (
+            {course.instructorId ===
+              lecturerId &&
+              course.status ===
+                "DRAFT" && (
                 <button
-                  onClick={() => publishCourse(course.id)}
+                  onClick={() =>
+                    publishCourse(
+                      course.id
+                    )
+                  }
                 >
                   Publish Course
                 </button>
               )}
 
-            {course.instructorId === lecturerId && (
+            {course.instructorId ===
+              lecturerId && (
               <div>
                 <h4>Lessons</h4>
 
                 {!lessons[course.id] ||
-                lessons[course.id].length === 0 ? (
-                  <p>No lessons added yet.</p>
+                lessons[course.id]
+                  .length === 0 ? (
+                  <p>
+                    No lessons added yet.
+                  </p>
                 ) : (
                   lessons[course.id].map(
                     (lesson, index) => (
-                      <div key={lesson.id}>
+                      <div
+                        key={lesson.id}
+                      >
                         <p>
-                          {index + 1}. {lesson.title}
+                          {index + 1}.{" "}
+                          {lesson.title}
                         </p>
 
                         {lesson.description && (
-                          <p>{lesson.description}</p>
+                          <p>
+                            {
+                              lesson.description
+                            }
+                          </p>
                         )}
                       </div>
                     )
@@ -578,22 +787,44 @@ function LecturerDashboard() {
 
                 <h4>Assignments</h4>
 
-                {!assignments[course.id] ||
-                assignments[course.id].length === 0 ? (
-                  <p>No assignments created yet.</p>
+                {!assignments[
+                  course.id
+                ] ||
+                assignments[course.id]
+                  .length === 0 ? (
+                  <p>
+                    No assignments created
+                    yet.
+                  </p>
                 ) : (
-                  assignments[course.id].map(
+                  assignments[
+                    course.id
+                  ].map(
                     (assignment) => (
-                      <div key={assignment.id}>
+                      <div
+                        key={
+                          assignment.id
+                        }
+                      >
                         <p>
-                          <strong>{assignment.title}</strong>
+                          <strong>
+                            {
+                              assignment.title
+                            }
+                          </strong>
                         </p>
 
-                        <p>{assignment.description}</p>
+                        <p>
+                          {
+                            assignment.description
+                          }
+                        </p>
 
                         <p>
                           Total Marks:{" "}
-                          {assignment.totalMarks}
+                          {
+                            assignment.totalMarks
+                          }
                         </p>
 
                         <p>
@@ -616,16 +847,20 @@ function LecturerDashboard() {
       <div className="lessons-section">
         <h2>Add Lesson</h2>
 
-        {lecturerCourses.length === 0 ? (
+        {lecturerCourses.length ===
+        0 ? (
           <p>
-            You do not have any courses to add lessons to.
+            You do not have any courses to
+            add lessons to.
           </p>
         ) : (
           <form onSubmit={addLesson}>
             <select
               value={selectedCourseId}
               onChange={(event) =>
-                setSelectedCourseId(event.target.value)
+                setSelectedCourseId(
+                  event.target.value
+                )
               }
               required
             >
@@ -633,14 +868,16 @@ function LecturerDashboard() {
                 Select your course
               </option>
 
-              {lecturerCourses.map((course) => (
-                <option
-                  key={course.id}
-                  value={course.id}
-                >
-                  {course.title}
-                </option>
-              ))}
+              {lecturerCourses.map(
+                (course) => (
+                  <option
+                    key={course.id}
+                    value={course.id}
+                  >
+                    {course.title}
+                  </option>
+                )
+              )}
             </select>
 
             <input
@@ -648,7 +885,9 @@ function LecturerDashboard() {
               placeholder="Lesson title"
               value={lessonTitle}
               onChange={(event) =>
-                setLessonTitle(event.target.value)
+                setLessonTitle(
+                  event.target.value
+                )
               }
               required
             />
@@ -656,9 +895,13 @@ function LecturerDashboard() {
             <input
               type="text"
               placeholder="Lesson description"
-              value={lessonDescription}
+              value={
+                lessonDescription
+              }
               onChange={(event) =>
-                setLessonDescription(event.target.value)
+                setLessonDescription(
+                  event.target.value
+                )
               }
             />
 
@@ -673,17 +916,22 @@ function LecturerDashboard() {
       <div className="assignments-section">
         <h2>Create Assignment</h2>
 
-        {lecturerCourses.length === 0 ? (
+        {lecturerCourses.length ===
+        0 ? (
           <p>
-            You do not have any courses to create assignments
-            for.
+            You do not have any courses to
+            create assignments for.
           </p>
         ) : (
-          <form onSubmit={createAssignment}>
+          <form
+            onSubmit={createAssignment}
+          >
             <select
               value={assignmentCourseId}
               onChange={(event) =>
-                setAssignmentCourseId(event.target.value)
+                setAssignmentCourseId(
+                  event.target.value
+                )
               }
               required
             >
@@ -691,14 +939,16 @@ function LecturerDashboard() {
                 Select your course
               </option>
 
-              {lecturerCourses.map((course) => (
-                <option
-                  key={course.id}
-                  value={course.id}
-                >
-                  {course.title}
-                </option>
-              ))}
+              {lecturerCourses.map(
+                (course) => (
+                  <option
+                    key={course.id}
+                    value={course.id}
+                  >
+                    {course.title}
+                  </option>
+                )
+              )}
             </select>
 
             <input
@@ -706,7 +956,9 @@ function LecturerDashboard() {
               placeholder="Assignment title"
               value={assignmentTitle}
               onChange={(event) =>
-                setAssignmentTitle(event.target.value)
+                setAssignmentTitle(
+                  event.target.value
+                )
               }
               required
             />
@@ -714,7 +966,9 @@ function LecturerDashboard() {
             <input
               type="text"
               placeholder="Assignment description"
-              value={assignmentDescription}
+              value={
+                assignmentDescription
+              }
               onChange={(event) =>
                 setAssignmentDescription(
                   event.target.value
@@ -729,7 +983,9 @@ function LecturerDashboard() {
               type="datetime-local"
               value={assignmentDueDate}
               onChange={(event) =>
-                setAssignmentDueDate(event.target.value)
+                setAssignmentDueDate(
+                  event.target.value
+                )
               }
               required
             />
@@ -738,7 +994,9 @@ function LecturerDashboard() {
               type="number"
               min="1"
               placeholder="Total marks"
-              value={assignmentTotalMarks}
+              value={
+                assignmentTotalMarks
+              }
               onChange={(event) =>
                 setAssignmentTotalMarks(
                   event.target.value
@@ -758,61 +1016,195 @@ function LecturerDashboard() {
       <div className="submissions-section">
         <h2>Student Submissions</h2>
 
-        {lecturerCourses.map((course) => (
-          <div key={course.id}>
-            <h3>{course.title}</h3>
+        {lecturerCourses.map(
+          (course) => (
+            <div key={course.id}>
+              <h3>{course.title}</h3>
 
-            {!assignments[course.id] ||
-            assignments[course.id].length === 0 ? (
-              <p>No assignments for this course.</p>
-            ) : (
-              assignments[course.id].map(
-                (assignment) => (
-                  <div key={assignment.id}>
-                    <h4>{assignment.title}</h4>
+              {!assignments[
+                course.id
+              ] ||
+              assignments[course.id]
+                .length === 0 ? (
+                <p>
+                  No assignments for this
+                  course.
+                </p>
+              ) : (
+                assignments[
+                  course.id
+                ].map(
+                  (assignment) => (
+                    <div
+                      key={
+                        assignment.id
+                      }
+                    >
+                      <h4>
+                        {
+                          assignment.title
+                        }
+                      </h4>
 
-                    {!submissions[assignment.id] ||
-                    submissions[assignment.id].length ===
-                      0 ? (
-                      <p>No submissions yet.</p>
-                    ) : (
-                      submissions[assignment.id].map(
-                        (submission) => (
-                          <div
-                            className="submission-card"
-                            key={submission.id}
-                          >
-                            <h4>
-                              {submission.studentName}
-                            </h4>
+                      {!submissions[
+                        assignment.id
+                      ] ||
+                      submissions[
+                        assignment.id
+                      ].length === 0 ? (
+                        <p>
+                          No submissions
+                          yet.
+                        </p>
+                      ) : (
+                        submissions[
+                          assignment.id
+                        ].map(
+                          (
+                            submission
+                          ) => (
+                            <div
+                              className="submission-card"
+                              key={
+                                submission.id
+                              }
+                            >
+                              <h4>
+                                {
+                                  submission.studentName
+                                }
+                              </h4>
 
-                            <p>
-                              Status: {submission.status}
-                            </p>
-
-                            <p>
-                              Submitted:{" "}
-                              {new Date(
-                                submission.submittedAt
-                              ).toLocaleString()}
-                            </p>
-
-                            {submission.fileUrl && (
                               <p>
-                                Submission:{" "}
-                                {submission.fileUrl}
+                                Status:{" "}
+                                {
+                                  submission.status
+                                }
                               </p>
-                            )}
-                          </div>
+
+                              <p>
+                                Submitted:{" "}
+                                {new Date(
+                                  submission.submittedAt
+                                ).toLocaleString()}
+                              </p>
+
+                              {submission.fileUrl && (
+                                <p>
+                                  Submission:{" "}
+                                  <a
+                                    href={
+                                      submission.fileUrl
+                                    }
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    {
+                                      submission.fileUrl
+                                    }
+                                  </a>
+                                </p>
+                              )}
+
+                              {submission.status !==
+                                "GRADED" && (
+                                <div className="grading-section">
+                                  <h5>
+                                    Grade
+                                    Submission
+                                  </h5>
+
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max={
+                                      assignment.totalMarks
+                                    }
+                                    placeholder={`Marks out of ${assignment.totalMarks}`}
+                                    value={
+                                      gradeMarks[
+                                        submission
+                                          .id
+                                      ] || ""
+                                    }
+                                    onChange={(
+                                      event
+                                    ) =>
+                                      setGradeMarks(
+                                        (
+                                          current
+                                        ) => ({
+                                          ...current,
+                                          [submission.id]:
+                                            event
+                                              .target
+                                              .value,
+                                        })
+                                      )
+                                    }
+                                  />
+
+                                  <input
+                                    type="text"
+                                    placeholder="Feedback"
+                                    value={
+                                      gradeFeedback[
+                                        submission
+                                          .id
+                                      ] || ""
+                                    }
+                                    onChange={(
+                                      event
+                                    ) =>
+                                      setGradeFeedback(
+                                        (
+                                          current
+                                        ) => ({
+                                          ...current,
+                                          [submission.id]:
+                                            event
+                                              .target
+                                              .value,
+                                        })
+                                      )
+                                    }
+                                  />
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      gradeSubmission(
+                                        submission.id,
+                                        assignment.id,
+                                        assignment.totalMarks
+                                      )
+                                    }
+                                  >
+                                    Grade
+                                    Submission
+                                  </button>
+                                </div>
+                              )}
+
+                              {submission.status ===
+                                "GRADED" && (
+                                <p>
+                                  This
+                                  submission has
+                                  been graded.
+                                </p>
+                              )}
+                            </div>
+                          )
                         )
-                      )
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )
                 )
-              )
-            )}
-          </div>
-        ))}
+              )}
+            </div>
+          )
+        )}
       </div>
     </div>
   );
