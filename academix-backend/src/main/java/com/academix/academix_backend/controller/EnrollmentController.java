@@ -1,5 +1,5 @@
 package com.academix.academix_backend.controller;
-
+import com.academix.academix_backend.dto.EnrollmentResponse;
 import com.academix.academix_backend.model.Enrollment;
 import com.academix.academix_backend.service.EnrollmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +37,14 @@ public class EnrollmentController {
         enrollmentService.unenrollStudent(studentId, courseId);
     }
 
-    @GetMapping("/enrollments/student/{id}")
-    public List<Enrollment> getEnrollmentsByStudent(@PathVariable Long id, Authentication auth) {
-        return enrollmentService.getEnrollmentsByStudent(id, auth.getName(), isAdmin(auth));
+      @GetMapping("/enrollments/student/{id}")
+    public List<EnrollmentResponse> getEnrollmentsByStudent(@PathVariable Long id, Authentication auth) {
+        return enrollmentService.getEnrollmentResponsesByStudent(id, auth.getName(), isAdmin(auth));
     }
 
     @PreAuthorize("hasAnyAuthority('LECTURER','ADMIN')")
     @GetMapping("/enrollments/course/{id}")
-    public List<Enrollment> getEnrollmentsByCourse(@PathVariable Long id, Authentication auth) {
-        return enrollmentService.getEnrollmentsByCourse(id, auth.getName(), isAdmin(auth));
+    public List<EnrollmentResponse> getEnrollmentsByCourse(@PathVariable Long id, Authentication auth) {
+        return enrollmentService.getEnrollmentResponsesByCourse(id, auth.getName(), isAdmin(auth));
     }
 }

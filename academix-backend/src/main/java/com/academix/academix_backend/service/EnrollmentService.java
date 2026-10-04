@@ -1,5 +1,6 @@
 package com.academix.academix_backend.service;
 
+import com.academix.academix_backend.dto.EnrollmentResponse;
 import com.academix.academix_backend.model.Course;
 import com.academix.academix_backend.model.CourseStatus;
 import com.academix.academix_backend.model.Enrollment;
@@ -83,6 +84,7 @@ public class EnrollmentService {
         enrollmentRepository.delete(enrollment);
     }
 
+   
     public List<Enrollment> getEnrollmentsByStudent(Long studentId, String email, boolean isAdmin) {
         if (!isAdmin) {
             User user = userRepository.findByEmail(email)
@@ -94,6 +96,7 @@ public class EnrollmentService {
         return enrollmentRepository.findByStudentId(studentId);
     }
 
+    
     public List<Enrollment> getEnrollmentsByCourse(Long courseId, String email, boolean isAdmin) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -106,5 +109,31 @@ public class EnrollmentService {
             }
         }
         return enrollmentRepository.findByCourseId(courseId);
+    }
+
+   
+
+    public List<EnrollmentResponse> getEnrollmentResponsesByStudent(Long studentId, String email, boolean isAdmin) {
+        return getEnrollmentsByStudent(studentId, email, isAdmin).stream()
+                .map(this::toResponse).toList();
+    }
+
+    public List<EnrollmentResponse> getEnrollmentResponsesByCourse(Long courseId, String email, boolean isAdmin) {
+        return getEnrollmentsByCourse(courseId, email, isAdmin).stream()
+                .map(this::toResponse).toList();
+    }
+
+    private EnrollmentResponse toResponse(Enrollment e) {
+        User student = userRepository.findById(e.getStudentId()).orElse(null);
+        Course course = courseRepository.findById(e.getCourseId()).orElse(null);
+        return new EnrollmentResponse(
+                e.getId(),
+                e.getStudentId(),
+                student == null ? null : student.getFirstName() + " " + student.getLastName(),
+                student == null ? null : student.getEmail(),
+                e.getCourseId(),
+                course == null ? null : course.getTitle(),
+                e.getEnrolledAt(),
+                e.getStatus() == null ? null : e.getStatus().name());
     }
 }

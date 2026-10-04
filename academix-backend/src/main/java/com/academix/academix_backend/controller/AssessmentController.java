@@ -52,4 +52,9 @@ public class AssessmentController {
     public List<SubmissionResponse> getSubmissionsForAssignment(@PathVariable Long id, Authentication auth) {
         return submissionService.getSubmissionsForAssignment(id, auth.getName(), role(auth));
     }
+    @PreAuthorize("hasAuthority('STUDENT')")
+    @GetMapping("/submissions/me")
+    public List<SubmissionResponse> getMySubmissions(Authentication auth) {
+        return submissionService.getMySubmissions(auth.getName());
+    }
 }

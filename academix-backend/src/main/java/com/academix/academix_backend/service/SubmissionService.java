@@ -139,4 +139,12 @@ public class SubmissionService {
                 s.getSubmittedAt(),
                 s.getStatus());
     }
+      
+    public List<SubmissionResponse> getMySubmissions(String email) {
+        User student = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        return submissionRepository.findByStudentId(student.getId()).stream()
+                .map(this::toResponse)
+                .toList();
+    }
 }

@@ -180,7 +180,7 @@ public class GradeService {
         return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
     }
 
-    private GradeResponse mapToResponse(Grade grade) {
+       private GradeResponse mapToResponse(Grade grade) {
         GradeResponse response = new GradeResponse();
         response.setId(grade.getId());
         response.setSubmissionId(grade.getSubmissionId());
@@ -189,6 +189,15 @@ public class GradeService {
         response.setMarksAwarded(grade.getMarksAwarded());
         response.setFeedback(grade.getFeedback());
         response.setGradedAt(grade.getGradedAt());
+
+        submissionRepository.findById(grade.getSubmissionId()).ifPresent(submission -> {
+            Assignment assignment = submission.getAssignment();
+            response.setAssignmentId(assignment.getId());
+            response.setAssignmentTitle(assignment.getTitle());
+            response.setTotalMarks(assignment.getTotalMarks());
+        });
+        userRepository.findById(grade.getStudentId()).ifPresent(user ->
+                response.setStudentName(user.getFirstName() + " " + user.getLastName()));
         return response;
     }
 }
