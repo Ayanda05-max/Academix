@@ -10,7 +10,12 @@ type User = {
 
 type Course = {
   id: number;
-  name: string;
+  title: string;
+  description: string;
+  category: string;
+  status: string;
+  instructorId: number | null;
+  instructorName: string | null;
 };
 
 type Enrollment = {
@@ -22,11 +27,10 @@ type Enrollment = {
 function AdminPanel() {
   const [users, setUsers] = useState<User[]>([]);
 
-  const [courses, setCourses] = useState<Course[]>([
-    { id: 1, name: "Programming" },
-    { id: 2, name: "Physics" },
-  ]);
+  // Courses will now be loaded from the backend
+  const [courses, setCourses] = useState<Course[]>([]);
 
+  // Enrollments are still local for now
   const [enrollments, setEnrollments] = useState<Enrollment[]>([
     { id: 1, student: "Thabo", course: "Programming" },
   ]);
@@ -35,8 +39,8 @@ function AdminPanel() {
   const [studentName, setStudentName] = useState<string>("");
   const [enrollmentCourse, setEnrollmentCourse] = useState<string>("");
 
-  // Load users from the backend when the Admin Panel opens
   useEffect(() => {
+    // Load users from the backend
     async function loadUsers() {
       const token = localStorage.getItem("token");
 
@@ -64,7 +68,35 @@ function AdminPanel() {
       }
     }
 
+    // Load courses from the backend
+    async function loadCourses() {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/courses", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setCourses(data);
+        } else {
+          alert("Could not load courses");
+        }
+      } catch (error) {
+        alert("ERROR: " + String(error));
+      }
+    }
+
     loadUsers();
+    loadCourses();
   }, []);
 
   // Delete a user from the backend/database
@@ -85,7 +117,6 @@ function AdminPanel() {
       });
 
       if (response.ok) {
-        // Remove the deleted user from the page
         setUsers(users.filter((user) => user.id !== id));
         alert("User deleted successfully");
       } else {
@@ -97,12 +128,18 @@ function AdminPanel() {
   }
 
   // Add a course locally for now
+  // We will connect this to POST /api/courses next
   function addCourse(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const newCourse: Course = {
       id: Date.now(),
-      name: courseName,
+      title: courseName,
+      description: "",
+      category: "",
+      status: "DRAFT",
+      instructorId: null,
+      instructorName: null,
     };
 
     setCourses([...courses, newCourse]);
@@ -110,6 +147,7 @@ function AdminPanel() {
   }
 
   // Delete a course locally for now
+  // We will connect this to DELETE /api/courses/{id} later
   function deleteCourse(id: number) {
     setCourses(courses.filter((course) => course.id !== id));
   }
@@ -183,7 +221,14 @@ function AdminPanel() {
         <div className="admin-list">
           {courses.map((course) => (
             <div className="admin-card" key={course.id}>
-              <h3>{course.name}</h3>
+              <h3>{course.title}</h3>
+
+              <p>Category: {course.category || "Not specified"}</p>
+              <p>Status: {course.status}</p>
+
+              {course.instructorName && (
+                <p>Instructor: {course.instructorName}</p>
+              )}
 
               <button onClick={() => deleteCourse(course.id)}>
                 Delete Course
