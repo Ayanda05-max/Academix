@@ -300,14 +300,42 @@ function AdminPanel() {
     }
   }
 
-  // Enrollment deletion will be connected next
-  function deleteEnrollment(id: number) {
-    setEnrollments((currentEnrollments) =>
-      currentEnrollments.filter(
-        (enrollment) => enrollment.id !== id
-      )
-    );
+  // Remove an enrollment from the backend/database
+async function deleteEnrollment(enrollment: Enrollment) {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    alert("You must log in first");
+    return;
   }
+
+  try {
+    const response = await fetch(
+      `/api/enroll?studentId=${enrollment.studentId}&courseId=${enrollment.courseId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.ok) {
+      setEnrollments((currentEnrollments) =>
+        currentEnrollments.filter(
+          (item) => item.id !== enrollment.id
+        )
+      );
+
+      alert("Enrollment removed successfully");
+    } else {
+      const message = await response.text();
+      alert("Could not remove enrollment: " + message);
+    }
+  } catch (error) {
+    alert("ERROR: " + String(error));
+  }
+}
 
   // Only STUDENT users should appear in the enrollment form
   const students = users.filter(
@@ -456,12 +484,12 @@ function AdminPanel() {
               <p>Status: {enrollment.status}</p>
 
               <button
-                onClick={() =>
-                  deleteEnrollment(enrollment.id)
-                }
-              >
-                Remove Enrollment
-              </button>
+              onClick={() =>
+                deleteEnrollment(enrollment)
+              }
+            >
+              Remove Enrollment
+            </button>
             </div>
           ))}
         </div>
