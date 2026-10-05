@@ -1,6 +1,34 @@
+import { useState } from 'react'
+import { supabase } from '../lib/supabase'
 import './Login.css'
 
 function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleLogin(event) {
+    event.preventDefault()
+
+    setError('')
+    setLoading(true)
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
+
+    if (error) {
+      console.error('Login error:', error)
+      setError('Invalid email or password.')
+      setLoading(false)
+      return
+    }
+
+    window.location.href = '/'
+  }
+
   return (
     <div className="login-page">
       <div className="login-container">
@@ -13,28 +41,51 @@ function Login() {
 
         <div className="login-card">
           <h2>Welcome Back</h2>
+
           <p className="login-subtitle">
             Sign in to access your Academix account
           </p>
 
-          <form>
+          <form onSubmit={handleLogin}>
             <div className="form-group">
-              <label htmlFor="email">Email Address</label>
+              <label htmlFor="email">
+                Email Address
+              </label>
+
               <input
                 type="email"
                 id="email"
                 placeholder="Enter your email"
+                value={email}
+                onChange={(event) =>
+                  setEmail(event.target.value)
+                }
+                required
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">
+                Password
+              </label>
+
               <input
                 type="password"
                 id="password"
                 placeholder="Enter your password"
+                value={password}
+                onChange={(event) =>
+                  setPassword(event.target.value)
+                }
+                required
               />
             </div>
+
+            {error && (
+              <p className="login-error">
+                {error}
+              </p>
+            )}
 
             <div className="login-options">
               <label className="remember-me">
@@ -50,8 +101,12 @@ function Login() {
               </button>
             </div>
 
-            <button type="submit" className="login-submit">
-              Login
+            <button
+              type="submit"
+              className="login-submit"
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
 
@@ -61,7 +116,11 @@ function Login() {
 
           <p className="account-text">
             Don't have an account?
-            <button type="button" className="create-account">
+
+            <button
+              type="button"
+              className="create-account"
+            >
               Create account
             </button>
           </p>
