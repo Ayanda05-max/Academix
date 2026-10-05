@@ -1,7 +1,51 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import './CourseCatalog.css'
 
 function CourseCatalog() {
+  const [courses, setCourses] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetchCourses()
+  }, [])
+
+  async function fetchCourses() {
+    const { data, error } = await supabase
+      .from('courses')
+      .select('*')
+      .order('course_code')
+
+    if (error) {
+      console.error('Error loading courses:', error)
+      setError('Unable to load courses.')
+    } else {
+      setCourses(data)
+    }
+
+    setLoading(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="course-catalog">
+        <h1>Course Catalog</h1>
+        <p>Loading courses...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="course-catalog">
+        <h1>Course Catalog</h1>
+        <p>{error}</p>
+      </div>
+    )
+  }
+
   return (
     <div className="course-catalog">
       <h1>Course Catalog</h1>
@@ -9,79 +53,32 @@ function CourseCatalog() {
       <p>Browse and explore available courses.</p>
 
       <div className="catalog-grid">
+        {courses.map((course) => (
+          <div className="catalog-card" key={course.id}>
+            <h2>{course.department}</h2>
 
-        <div className="catalog-card">
-          <h2>Computer Science</h2>
+            <p>{course.title}</p>
 
-          <p>Introduction to Programming</p>
+            <p>{course.description}</p>
 
-          <p>
-            Learn the fundamentals of programming and problem solving.
-          </p>
-
-          <Link
-            to="/course/computer-science"
-            className="course-button"
-          >
-            View Course
-          </Link>
-        </div>
-
-        <div className="catalog-card">
-          <h2>Information Management</h2>
-
-          <p>Database Systems</p>
-
-          <p>
-            Learn about databases, data management and information systems.
-          </p>
-
-          <Link
-            to="/course/information-management"
-            className="course-button"
-          >
-            View Course
-          </Link>
-        </div>
-
-        <div className="catalog-card">
-          <h2>Mathematics</h2>
-
-          <p>Discrete Mathematics</p>
-
-          <p>
-            Study logic, sets, graphs and mathematical structures.
-          </p>
-
-          <Link
-            to="/course/mathematics"
-            className="course-button"
-          >
-            View Course
-          </Link>
-        </div>
-
-        <div className="catalog-card">
-          <h2>Software Engineering</h2>
-
-          <p>Software Development</p>
-
-          <p>
-            Learn software development methods and engineering practices.
-          </p>
-
-          <Link
-            to="/course/software-engineering"
-            className="course-button"
-          >
-            View Course
-          </Link>
-        </div>
-
+            <Link
+              to={`/course/${course.course_code === 'CS101'
+                ? 'computer-science'
+                : course.course_code === 'IM101'
+                ? 'information-management'
+                : course.course_code === 'MATH101'
+                ? 'mathematics'
+                : 'software-engineering'
+              }`}
+              className="course-button"
+            >
+              View Course
+            </Link>
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
 export default CourseCatalog
-
