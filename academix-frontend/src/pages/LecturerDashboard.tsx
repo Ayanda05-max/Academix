@@ -1,3 +1,4 @@
+﻿import { readError } from '../utils/readError';
 import { useEffect, useState } from "react";
 
 type Course = {
@@ -469,7 +470,7 @@ function LecturerDashboard() {
 
         alert("Course published successfully");
       } else {
-        const message = await response.text();
+        const message = await readError(response);
 
         alert(
           "Could not publish course: " + message
