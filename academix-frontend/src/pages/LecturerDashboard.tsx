@@ -40,18 +40,39 @@ type Submission = {
   status: string;
 };
 
+type Grade = {
+  id: number;
+  submissionId: number;
+  assignmentId: number;
+  assignmentTitle: string;
+  studentId: number;
+  studentName: string;
+  courseId: number;
+  totalMarks: number;
+  marksAwarded: number;
+  feedback: string;
+  gradedAt: string;
+};
+
 function LecturerDashboard() {
   const [courses, setCourses] = useState<Course[]>([]);
+
   const [lessons, setLessons] =
     useState<Record<number, Lesson[]>>({});
+
   const [assignments, setAssignments] =
     useState<Record<number, Assignment[]>>({});
+
   const [submissions, setSubmissions] =
     useState<Record<number, Submission[]>>({});
 
-  // Grading
+  // Grades are stored using the submission ID as the key
+  const [grades, setGrades] =
+    useState<Record<number, Grade>>({});
+
   const [gradeMarks, setGradeMarks] =
     useState<Record<number, string>>({});
+
   const [gradeFeedback, setGradeFeedback] =
     useState<Record<number, string>>({});
 
@@ -61,28 +82,36 @@ function LecturerDashboard() {
   // Course form
   const [courseName, setCourseName] =
     useState<string>("");
+
   const [courseCategory, setCourseCategory] =
     useState<string>("");
+
   const [courseDescription, setCourseDescription] =
     useState<string>("");
 
   // Lesson form
   const [selectedCourseId, setSelectedCourseId] =
     useState<string>("");
+
   const [lessonTitle, setLessonTitle] =
     useState<string>("");
+
   const [lessonDescription, setLessonDescription] =
     useState<string>("");
 
   // Assignment form
   const [assignmentCourseId, setAssignmentCourseId] =
     useState<string>("");
+
   const [assignmentTitle, setAssignmentTitle] =
     useState<string>("");
+
   const [assignmentDescription, setAssignmentDescription] =
     useState<string>("");
+
   const [assignmentDueDate, setAssignmentDueDate] =
     useState<string>("");
+
   const [assignmentTotalMarks, setAssignmentTotalMarks] =
     useState<string>("");
 
@@ -98,7 +127,7 @@ function LecturerDashboard() {
     loadCourses();
   }, []);
 
-  // Load courses from backend
+  // Load courses
   async function loadCourses() {
     const token = localStorage.getItem("token");
 
@@ -122,12 +151,11 @@ function LecturerDashboard() {
         setCourses(data);
         setCourseError("");
 
-        // Load lessons and assignments only
-        // for courses owned by this lecturer
         for (const course of data) {
           if (course.instructorId === lecturerId) {
             await loadLessons(course.id);
             await loadAssignments(course.id);
+            await loadGrades(course.id);
           }
         }
       } else {
@@ -138,7 +166,7 @@ function LecturerDashboard() {
     }
   }
 
-  // Load lessons for a course
+  // Load lessons
   async function loadLessons(courseId: number) {
     const token = localStorage.getItem("token");
 
@@ -159,8 +187,8 @@ function LecturerDashboard() {
       if (response.ok) {
         const data: Lesson[] = await response.json();
 
-        setLessons((currentLessons) => ({
-          ...currentLessons,
+        setLessons((current) => ({
+          ...current,
           [courseId]: data,
         }));
       }
@@ -172,7 +200,7 @@ function LecturerDashboard() {
     }
   }
 
-  // Load assignments for a course
+  // Load assignments
   async function loadAssignments(courseId: number) {
     const token = localStorage.getItem("token");
 
@@ -194,19 +222,14 @@ function LecturerDashboard() {
         const data: Assignment[] =
           await response.json();
 
-        setAssignments((currentAssignments) => ({
-          ...currentAssignments,
+        setAssignments((current) => ({
+          ...current,
           [courseId]: data,
         }));
 
-        // Load submissions for each assignment
         for (const assignment of data) {
           await loadSubmissions(assignment.id);
         }
-      } else {
-        console.error(
-          `Could not load assignments for course ${courseId}`
-        );
       }
     } catch (error) {
       console.error(
@@ -216,7 +239,7 @@ function LecturerDashboard() {
     }
   }
 
-  // Load submissions for one assignment
+  // Load submissions
   async function loadSubmissions(
     assignmentId: number
   ) {
@@ -240,14 +263,10 @@ function LecturerDashboard() {
         const data: Submission[] =
           await response.json();
 
-        setSubmissions((currentSubmissions) => ({
-          ...currentSubmissions,
+        setSubmissions((current) => ({
+          ...current,
           [assignmentId]: data,
         }));
-      } else {
-        console.error(
-          `Could not load submissions for assignment ${assignmentId}`
-        );
       }
     } catch (error) {
       console.error(
@@ -257,7 +276,46 @@ function LecturerDashboard() {
     }
   }
 
-  // Add a course
+  // Load saved grades for a course
+  async function loadGrades(courseId: number) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `/api/grades/course/${courseId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data: Grade[] = await response.json();
+
+        setGrades((current) => {
+          const updated = { ...current };
+
+          for (const grade of data) {
+            updated[grade.submissionId] = grade;
+          }
+
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error(
+        "Could not load grades:",
+        error
+      );
+    }
+  }
+
+  // Add course
   async function addCourse(
     event: React.FormEvent<HTMLFormElement>
   ) {
@@ -288,8 +346,8 @@ function LecturerDashboard() {
         const newCourse: Course =
           await response.json();
 
-        setCourses((currentCourses) => [
-          ...currentCourses,
+        setCourses((current) => [
+          ...current,
           newCourse,
         ]);
 
@@ -310,7 +368,7 @@ function LecturerDashboard() {
     }
   }
 
-  // Add a lesson
+  // Add lesson
   async function addLesson(
     event: React.FormEvent<HTMLFormElement>
   ) {
@@ -349,14 +407,12 @@ function LecturerDashboard() {
         const newLesson: Lesson =
           await response.json();
 
-        const courseId = Number(
-          selectedCourseId
-        );
+        const courseId = Number(selectedCourseId);
 
-        setLessons((currentLessons) => ({
-          ...currentLessons,
+        setLessons((current) => ({
+          ...current,
           [courseId]: [
-            ...(currentLessons[courseId] || []),
+            ...(current[courseId] || []),
             newLesson,
           ],
         }));
@@ -379,10 +435,8 @@ function LecturerDashboard() {
     }
   }
 
-  // Publish a course
-  async function publishCourse(
-    courseId: number
-  ) {
+  // Publish course
+  async function publishCourse(courseId: number) {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -405,8 +459,8 @@ function LecturerDashboard() {
         const updatedCourse: Course =
           await response.json();
 
-        setCourses((currentCourses) =>
-          currentCourses.map((course) =>
+        setCourses((current) =>
+          current.map((course) =>
             course.id === courseId
               ? updatedCourse
               : course
@@ -426,7 +480,7 @@ function LecturerDashboard() {
     }
   }
 
-  // Create a real assignment
+  // Create assignment
   async function createAssignment(
     event: React.FormEvent<HTMLFormElement>
   ) {
@@ -461,12 +515,9 @@ function LecturerDashboard() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            courseId: Number(
-              assignmentCourseId
-            ),
+            courseId: Number(assignmentCourseId),
             title: assignmentTitle,
-            description:
-              assignmentDescription,
+            description: assignmentDescription,
             dueDate: assignmentDueDate,
             totalMarks: Number(
               assignmentTotalMarks
@@ -483,26 +534,18 @@ function LecturerDashboard() {
           assignmentCourseId
         );
 
-        setAssignments(
-          (currentAssignments) => ({
-            ...currentAssignments,
-            [courseId]: [
-              ...(currentAssignments[
-                courseId
-              ] || []),
-              newAssignment,
-            ],
-          })
-        );
+        setAssignments((current) => ({
+          ...current,
+          [courseId]: [
+            ...(current[courseId] || []),
+            newAssignment,
+          ],
+        }));
 
-        // New assignment starts with
-        // no submissions
-        setSubmissions(
-          (currentSubmissions) => ({
-            ...currentSubmissions,
-            [newAssignment.id]: [],
-          })
-        );
+        setSubmissions((current) => ({
+          ...current,
+          [newAssignment.id]: [],
+        }));
 
         setAssignmentCourseId("");
         setAssignmentTitle("");
@@ -526,10 +569,11 @@ function LecturerDashboard() {
     }
   }
 
-  // Grade a real student submission
+  // Grade submission
   async function gradeSubmission(
     submissionId: number,
     assignmentId: number,
+    courseId: number,
     totalMarks: number
   ) {
     const token = localStorage.getItem("token");
@@ -539,8 +583,7 @@ function LecturerDashboard() {
       return;
     }
 
-    const marksText =
-      gradeMarks[submissionId];
+    const marksText = gradeMarks[submissionId];
 
     if (
       marksText === undefined ||
@@ -564,39 +607,26 @@ function LecturerDashboard() {
     }
 
     try {
-      const response = await fetch(
-        "/api/grades",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            submissionId: submissionId,
-            marksAwarded: marks,
-            feedback:
-              gradeFeedback[submissionId] ||
-              "",
-          }),
-        }
-      );
+      const response = await fetch("/api/grades", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          submissionId,
+          marksAwarded: marks,
+          feedback:
+            gradeFeedback[submissionId] || "",
+        }),
+      });
 
       if (response.ok) {
-        await response.json();
+        alert("Submission graded successfully");
 
-        alert(
-          "Submission graded successfully"
-        );
+        await loadSubmissions(assignmentId);
+        await loadGrades(courseId);
 
-        // Reload this assignment's
-        // submissions so status becomes GRADED
-        await loadSubmissions(
-          assignmentId
-        );
-
-        // Clear grading form
         setGradeMarks((current) => ({
           ...current,
           [submissionId]: "",
@@ -607,8 +637,7 @@ function LecturerDashboard() {
           [submissionId]: "",
         }));
       } else {
-        const message =
-          await response.text();
+        const message = await response.text();
 
         alert(
           "Could not grade submission: " +
@@ -625,32 +654,30 @@ function LecturerDashboard() {
       <h1>Lecturer Dashboard</h1>
 
       <p>
-        Manage courses, assignments,
-        submissions and student grades.
+        Manage courses, assignments, submissions
+        and student grades.
       </p>
 
       <div className="dashboard-cards">
         <div className="dashboard-card">
           <h3>Manage Courses</h3>
           <p>
-            View and manage the courses you
-            are teaching.
+            View and manage the courses you are
+            teaching.
           </p>
         </div>
 
         <div className="dashboard-card">
           <h3>Assignments</h3>
           <p>
-            Create assignments for your
-            courses.
+            Create assignments for your courses.
           </p>
         </div>
 
         <div className="dashboard-card">
           <h3>Submissions</h3>
           <p>
-            View assignments submitted by
-            students.
+            View and grade student submissions.
           </p>
         </div>
       </div>
@@ -665,9 +692,7 @@ function LecturerDashboard() {
             placeholder="Course name"
             value={courseName}
             onChange={(event) =>
-              setCourseName(
-                event.target.value
-              )
+              setCourseName(event.target.value)
             }
             required
           />
@@ -677,9 +702,7 @@ function LecturerDashboard() {
             placeholder="Category"
             value={courseCategory}
             onChange={(event) =>
-              setCourseCategory(
-                event.target.value
-              )
+              setCourseCategory(event.target.value)
             }
           />
 
@@ -699,9 +722,7 @@ function LecturerDashboard() {
           </button>
         </form>
 
-        {courseError && (
-          <p>{courseError}</p>
-        )}
+        {courseError && <p>{courseError}</p>}
 
         {courses.length === 0 &&
           !courseError && (
@@ -717,8 +738,7 @@ function LecturerDashboard() {
 
             <p>
               Category:{" "}
-              {course.category ||
-                "Not specified"}
+              {course.category || "Not specified"}
             </p>
 
             <p>Status: {course.status}</p>
@@ -731,43 +751,32 @@ function LecturerDashboard() {
 
             {course.description && (
               <p>
-                Description:{" "}
-                {course.description}
+                Description: {course.description}
               </p>
             )}
 
-            {course.instructorId ===
-              lecturerId &&
-              course.status ===
-                "DRAFT" && (
+            {course.instructorId === lecturerId &&
+              course.status === "DRAFT" && (
                 <button
                   onClick={() =>
-                    publishCourse(
-                      course.id
-                    )
+                    publishCourse(course.id)
                   }
                 >
                   Publish Course
                 </button>
               )}
 
-            {course.instructorId ===
-              lecturerId && (
+            {course.instructorId === lecturerId && (
               <div>
                 <h4>Lessons</h4>
 
                 {!lessons[course.id] ||
-                lessons[course.id]
-                  .length === 0 ? (
-                  <p>
-                    No lessons added yet.
-                  </p>
+                lessons[course.id].length === 0 ? (
+                  <p>No lessons added yet.</p>
                 ) : (
                   lessons[course.id].map(
                     (lesson, index) => (
-                      <div
-                        key={lesson.id}
-                      >
+                      <div key={lesson.id}>
                         <p>
                           {index + 1}.{" "}
                           {lesson.title}
@@ -775,9 +784,7 @@ function LecturerDashboard() {
 
                         {lesson.description && (
                           <p>
-                            {
-                              lesson.description
-                            }
+                            {lesson.description}
                           </p>
                         )}
                       </div>
@@ -787,44 +794,29 @@ function LecturerDashboard() {
 
                 <h4>Assignments</h4>
 
-                {!assignments[
-                  course.id
-                ] ||
-                assignments[course.id]
-                  .length === 0 ? (
+                {!assignments[course.id] ||
+                assignments[course.id].length ===
+                  0 ? (
                   <p>
-                    No assignments created
-                    yet.
+                    No assignments created yet.
                   </p>
                 ) : (
-                  assignments[
-                    course.id
-                  ].map(
+                  assignments[course.id].map(
                     (assignment) => (
-                      <div
-                        key={
-                          assignment.id
-                        }
-                      >
+                      <div key={assignment.id}>
                         <p>
                           <strong>
-                            {
-                              assignment.title
-                            }
+                            {assignment.title}
                           </strong>
                         </p>
 
                         <p>
-                          {
-                            assignment.description
-                          }
+                          {assignment.description}
                         </p>
 
                         <p>
                           Total Marks:{" "}
-                          {
-                            assignment.totalMarks
-                          }
+                          {assignment.totalMarks}
                         </p>
 
                         <p>
@@ -847,11 +839,10 @@ function LecturerDashboard() {
       <div className="lessons-section">
         <h2>Add Lesson</h2>
 
-        {lecturerCourses.length ===
-        0 ? (
+        {lecturerCourses.length === 0 ? (
           <p>
-            You do not have any courses to
-            add lessons to.
+            You do not have any courses to add
+            lessons to.
           </p>
         ) : (
           <form onSubmit={addLesson}>
@@ -868,16 +859,14 @@ function LecturerDashboard() {
                 Select your course
               </option>
 
-              {lecturerCourses.map(
-                (course) => (
-                  <option
-                    key={course.id}
-                    value={course.id}
-                  >
-                    {course.title}
-                  </option>
-                )
-              )}
+              {lecturerCourses.map((course) => (
+                <option
+                  key={course.id}
+                  value={course.id}
+                >
+                  {course.title}
+                </option>
+              ))}
             </select>
 
             <input
@@ -885,9 +874,7 @@ function LecturerDashboard() {
               placeholder="Lesson title"
               value={lessonTitle}
               onChange={(event) =>
-                setLessonTitle(
-                  event.target.value
-                )
+                setLessonTitle(event.target.value)
               }
               required
             />
@@ -895,9 +882,7 @@ function LecturerDashboard() {
             <input
               type="text"
               placeholder="Lesson description"
-              value={
-                lessonDescription
-              }
+              value={lessonDescription}
               onChange={(event) =>
                 setLessonDescription(
                   event.target.value
@@ -916,16 +901,13 @@ function LecturerDashboard() {
       <div className="assignments-section">
         <h2>Create Assignment</h2>
 
-        {lecturerCourses.length ===
-        0 ? (
+        {lecturerCourses.length === 0 ? (
           <p>
-            You do not have any courses to
-            create assignments for.
+            You do not have any courses to create
+            assignments for.
           </p>
         ) : (
-          <form
-            onSubmit={createAssignment}
-          >
+          <form onSubmit={createAssignment}>
             <select
               value={assignmentCourseId}
               onChange={(event) =>
@@ -939,16 +921,14 @@ function LecturerDashboard() {
                 Select your course
               </option>
 
-              {lecturerCourses.map(
-                (course) => (
-                  <option
-                    key={course.id}
-                    value={course.id}
-                  >
-                    {course.title}
-                  </option>
-                )
-              )}
+              {lecturerCourses.map((course) => (
+                <option
+                  key={course.id}
+                  value={course.id}
+                >
+                  {course.title}
+                </option>
+              ))}
             </select>
 
             <input
@@ -966,9 +946,7 @@ function LecturerDashboard() {
             <input
               type="text"
               placeholder="Assignment description"
-              value={
-                assignmentDescription
-              }
+              value={assignmentDescription}
               onChange={(event) =>
                 setAssignmentDescription(
                   event.target.value
@@ -994,9 +972,7 @@ function LecturerDashboard() {
               type="number"
               min="1"
               placeholder="Total marks"
-              value={
-                assignmentTotalMarks
-              }
+              value={assignmentTotalMarks}
               onChange={(event) =>
                 setAssignmentTotalMarks(
                   event.target.value
@@ -1012,199 +988,190 @@ function LecturerDashboard() {
         )}
       </div>
 
-      {/* REAL STUDENT SUBMISSIONS */}
+      {/* STUDENT SUBMISSIONS */}
       <div className="submissions-section">
         <h2>Student Submissions</h2>
 
-        {lecturerCourses.map(
-          (course) => (
-            <div key={course.id}>
-              <h3>{course.title}</h3>
+        {lecturerCourses.map((course) => (
+          <div key={course.id}>
+            <h3>{course.title}</h3>
 
-              {!assignments[
-                course.id
-              ] ||
-              assignments[course.id]
-                .length === 0 ? (
-                <p>
-                  No assignments for this
-                  course.
-                </p>
-              ) : (
-                assignments[
-                  course.id
-                ].map(
-                  (assignment) => (
-                    <div
-                      key={
-                        assignment.id
-                      }
-                    >
-                      <h4>
-                        {
-                          assignment.title
-                        }
-                      </h4>
+            {!assignments[course.id] ||
+            assignments[course.id].length ===
+              0 ? (
+              <p>
+                No assignments for this course.
+              </p>
+            ) : (
+              assignments[course.id].map(
+                (assignment) => (
+                  <div key={assignment.id}>
+                    <h4>{assignment.title}</h4>
 
-                      {!submissions[
-                        assignment.id
-                      ] ||
+                    {!submissions[assignment.id] ||
+                    submissions[assignment.id]
+                      .length === 0 ? (
+                      <p>No submissions yet.</p>
+                    ) : (
                       submissions[
                         assignment.id
-                      ].length === 0 ? (
-                        <p>
-                          No submissions
-                          yet.
-                        </p>
-                      ) : (
-                        submissions[
-                          assignment.id
-                        ].map(
-                          (
-                            submission
-                          ) => (
-                            <div
-                              className="submission-card"
-                              key={
-                                submission.id
+                      ].map((submission) => {
+                        const savedGrade =
+                          grades[submission.id];
+
+                        return (
+                          <div
+                            className="submission-card"
+                            key={submission.id}
+                          >
+                            <h4>
+                              {
+                                submission.studentName
                               }
-                            >
-                              <h4>
-                                {
-                                  submission.studentName
-                                }
-                              </h4>
+                            </h4>
 
+                            <p>
+                              Status:{" "}
+                              {submission.status}
+                            </p>
+
+                            <p>
+                              Submitted:{" "}
+                              {new Date(
+                                submission.submittedAt
+                              ).toLocaleString()}
+                            </p>
+
+                            {submission.fileUrl && (
                               <p>
-                                Status:{" "}
-                                {
-                                  submission.status
-                                }
+                                Submission:{" "}
+                                <a
+                                  href={
+                                    submission.fileUrl
+                                  }
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  {
+                                    submission.fileUrl
+                                  }
+                                </a>
                               </p>
+                            )}
 
-                              <p>
-                                Submitted:{" "}
-                                {new Date(
-                                  submission.submittedAt
-                                ).toLocaleString()}
-                              </p>
+                            {savedGrade ? (
+                              <div className="grade-result">
+                                <h5>
+                                  Grade Result
+                                </h5>
 
-                              {submission.fileUrl && (
                                 <p>
-                                  Submission:{" "}
-                                  <a
-                                    href={
-                                      submission.fileUrl
-                                    }
-                                    target="_blank"
-                                    rel="noreferrer"
-                                  >
+                                  Grade:{" "}
+                                  <strong>
                                     {
-                                      submission.fileUrl
+                                      savedGrade.marksAwarded
+                                    }{" "}
+                                    /{" "}
+                                    {
+                                      savedGrade.totalMarks
                                     }
-                                  </a>
+                                  </strong>
                                 </p>
-                              )}
 
-                              {submission.status !==
-                                "GRADED" && (
-                                <div className="grading-section">
-                                  <h5>
-                                    Grade
-                                    Submission
-                                  </h5>
-
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    max={
-                                      assignment.totalMarks
-                                    }
-                                    placeholder={`Marks out of ${assignment.totalMarks}`}
-                                    value={
-                                      gradeMarks[
-                                        submission
-                                          .id
-                                      ] || ""
-                                    }
-                                    onChange={(
-                                      event
-                                    ) =>
-                                      setGradeMarks(
-                                        (
-                                          current
-                                        ) => ({
-                                          ...current,
-                                          [submission.id]:
-                                            event
-                                              .target
-                                              .value,
-                                        })
-                                      )
-                                    }
-                                  />
-
-                                  <input
-                                    type="text"
-                                    placeholder="Feedback"
-                                    value={
-                                      gradeFeedback[
-                                        submission
-                                          .id
-                                      ] || ""
-                                    }
-                                    onChange={(
-                                      event
-                                    ) =>
-                                      setGradeFeedback(
-                                        (
-                                          current
-                                        ) => ({
-                                          ...current,
-                                          [submission.id]:
-                                            event
-                                              .target
-                                              .value,
-                                        })
-                                      )
-                                    }
-                                  />
-
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      gradeSubmission(
-                                        submission.id,
-                                        assignment.id,
-                                        assignment.totalMarks
-                                      )
-                                    }
-                                  >
-                                    Grade
-                                    Submission
-                                  </button>
-                                </div>
-                              )}
-
-                              {submission.status ===
-                                "GRADED" && (
                                 <p>
-                                  This
-                                  submission has
-                                  been graded.
+                                  Feedback:{" "}
+                                  {savedGrade.feedback ||
+                                    "No feedback provided."}
                                 </p>
-                              )}
-                            </div>
-                          )
-                        )
-                      )}
-                    </div>
-                  )
+
+                                <p>
+                                  Graded:{" "}
+                                  {new Date(
+                                    savedGrade.gradedAt
+                                  ).toLocaleString()}
+                                </p>
+                              </div>
+                            ) : submission.status !==
+                              "GRADED" ? (
+                              <div className="grading-section">
+                                <h5>
+                                  Grade Submission
+                                </h5>
+
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max={
+                                    assignment.totalMarks
+                                  }
+                                  placeholder={`Marks out of ${assignment.totalMarks}`}
+                                  value={
+                                    gradeMarks[
+                                      submission.id
+                                    ] || ""
+                                  }
+                                  onChange={(event) =>
+                                    setGradeMarks(
+                                      (current) => ({
+                                        ...current,
+                                        [submission.id]:
+                                          event.target
+                                            .value,
+                                      })
+                                    )
+                                  }
+                                />
+
+                                <input
+                                  type="text"
+                                  placeholder="Feedback"
+                                  value={
+                                    gradeFeedback[
+                                      submission.id
+                                    ] || ""
+                                  }
+                                  onChange={(event) =>
+                                    setGradeFeedback(
+                                      (current) => ({
+                                        ...current,
+                                        [submission.id]:
+                                          event.target
+                                            .value,
+                                      })
+                                    )
+                                  }
+                                />
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    gradeSubmission(
+                                      submission.id,
+                                      assignment.id,
+                                      course.id,
+                                      assignment.totalMarks
+                                    )
+                                  }
+                                >
+                                  Grade Submission
+                                </button>
+                              </div>
+                            ) : (
+                              <p>
+                                Grade information is
+                                loading.
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
                 )
-              )}
-            </div>
-          )
-        )}
+              )
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
