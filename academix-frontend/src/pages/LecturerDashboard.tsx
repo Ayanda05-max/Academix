@@ -66,7 +66,6 @@ function LecturerDashboard() {
   const [submissions, setSubmissions] =
     useState<Record<number, Submission[]>>({});
 
-  // Grades are stored using the submission ID as the key
   const [grades, setGrades] =
     useState<Record<number, Grade>>({});
 
@@ -106,14 +105,18 @@ function LecturerDashboard() {
   const [assignmentTitle, setAssignmentTitle] =
     useState<string>("");
 
-  const [assignmentDescription, setAssignmentDescription] =
-    useState<string>("");
+  const [
+    assignmentDescription,
+    setAssignmentDescription,
+  ] = useState<string>("");
 
   const [assignmentDueDate, setAssignmentDueDate] =
     useState<string>("");
 
-  const [assignmentTotalMarks, setAssignmentTotalMarks] =
-    useState<string>("");
+  const [
+    assignmentTotalMarks,
+    setAssignmentTotalMarks,
+  ] = useState<string>("");
 
   const lecturerId = Number(
     localStorage.getItem("userId")
@@ -121,6 +124,52 @@ function LecturerDashboard() {
 
   const lecturerCourses = courses.filter(
     (course) => course.instructorId === lecturerId
+  );
+
+  // Dashboard statistics
+  const totalAssignments = lecturerCourses.reduce(
+    (total, course) =>
+      total + (assignments[course.id]?.length || 0),
+    0
+  );
+
+  const totalSubmissions = lecturerCourses.reduce(
+    (total, course) => {
+      const courseAssignments =
+        assignments[course.id] || [];
+
+      return (
+        total +
+        courseAssignments.reduce(
+          (assignmentTotal, assignment) =>
+            assignmentTotal +
+            (submissions[assignment.id]?.length || 0),
+          0
+        )
+      );
+    },
+    0
+  );
+
+  const pendingSubmissions = lecturerCourses.reduce(
+    (total, course) => {
+      const courseAssignments =
+        assignments[course.id] || [];
+
+      return (
+        total +
+        courseAssignments.reduce(
+          (assignmentTotal, assignment) =>
+            assignmentTotal +
+            (submissions[assignment.id] || []).filter(
+              (submission) =>
+                submission.status !== "GRADED"
+            ).length,
+          0
+        )
+      );
+    },
+    0
   );
 
   useEffect(() => {
@@ -276,7 +325,7 @@ function LecturerDashboard() {
     }
   }
 
-  // Load saved grades for a course
+  // Load saved grades
   async function loadGrades(courseId: number) {
     const token = localStorage.getItem("token");
 
@@ -651,528 +700,799 @@ function LecturerDashboard() {
 
   return (
     <div className="lecturer-dashboard">
-      <h1>Lecturer Dashboard</h1>
+      {/* HEADER */}
 
-      <p>
-        Manage courses, assignments, submissions
-        and student grades.
-      </p>
-
-      <div className="dashboard-cards">
-        <div className="dashboard-card">
-          <h3>Manage Courses</h3>
-          <p>
-            View and manage the courses you are
-            teaching.
+      <div className="dashboard-header">
+        <div>
+          <p className="dashboard-eyebrow">
+            LECTURER PORTAL
           </p>
-        </div>
 
-        <div className="dashboard-card">
-          <h3>Assignments</h3>
-          <p>
-            Create assignments for your courses.
-          </p>
-        </div>
+          <h1>Lecturer Dashboard</h1>
 
-        <div className="dashboard-card">
-          <h3>Submissions</h3>
-          <p>
-            View and grade student submissions.
+          <p className="dashboard-description">
+            Manage your courses, learning content,
+            assignments and student submissions.
           </p>
         </div>
       </div>
 
+      {/* OVERVIEW */}
+
+      <div className="dashboard-cards">
+        <div className="dashboard-card">
+          <p className="dashboard-card-label">
+            MY COURSES
+          </p>
+
+          <div className="dashboard-card-value">
+            {lecturerCourses.length}
+          </div>
+
+          <p>Courses assigned to you</p>
+        </div>
+
+        <div className="dashboard-card">
+          <p className="dashboard-card-label">
+            ASSIGNMENTS
+          </p>
+
+          <div className="dashboard-card-value">
+            {totalAssignments}
+          </div>
+
+          <p>Across your courses</p>
+        </div>
+
+        <div className="dashboard-card">
+          <p className="dashboard-card-label">
+            SUBMISSIONS
+          </p>
+
+          <div className="dashboard-card-value">
+            {totalSubmissions}
+          </div>
+
+          <p>Student submissions received</p>
+        </div>
+
+        <div className="dashboard-card">
+          <p className="dashboard-card-label">
+            PENDING GRADING
+          </p>
+
+          <div className="dashboard-card-value">
+            {pendingSubmissions}
+          </div>
+
+          <p>Waiting for grading</p>
+        </div>
+      </div>
+
       {/* MANAGE COURSES */}
-      <div className="courses-section">
-        <h2>Manage Courses</h2>
+
+      <section className="courses-section">
+        <div className="section-heading">
+          <div>
+            <p className="section-eyebrow">
+              COURSE MANAGEMENT
+            </p>
+            <h2>My Courses</h2>
+            <p>
+              Create and manage the courses assigned
+              to you.
+            </p>
+          </div>
+        </div>
 
         <form onSubmit={addCourse}>
-          <input
-            type="text"
-            placeholder="Course name"
-            value={courseName}
-            onChange={(event) =>
-              setCourseName(event.target.value)
-            }
-            required
-          />
+          <div className="dashboard-form-field">
+            <label>Course name</label>
+            <input
+              type="text"
+              placeholder="e.g. Java Programming"
+              value={courseName}
+              onChange={(event) =>
+                setCourseName(event.target.value)
+              }
+              required
+            />
+          </div>
 
-          <input
-            type="text"
-            placeholder="Category"
-            value={courseCategory}
-            onChange={(event) =>
-              setCourseCategory(event.target.value)
-            }
-          />
+          <div className="dashboard-form-field">
+            <label>Category</label>
+            <input
+              type="text"
+              placeholder="e.g. Computer Science"
+              value={courseCategory}
+              onChange={(event) =>
+                setCourseCategory(event.target.value)
+              }
+            />
+          </div>
 
-          <input
-            type="text"
-            placeholder="Description"
-            value={courseDescription}
-            onChange={(event) =>
-              setCourseDescription(
-                event.target.value
-              )
-            }
-          />
+          <div className="dashboard-form-field dashboard-form-wide">
+            <label>Description</label>
+            <input
+              type="text"
+              placeholder="Brief course description"
+              value={courseDescription}
+              onChange={(event) =>
+                setCourseDescription(
+                  event.target.value
+                )
+              }
+            />
+          </div>
 
-          <button type="submit">
-            Add Course
-          </button>
+          <div className="dashboard-form-actions">
+            <button type="submit">
+              Create Course
+            </button>
+          </div>
         </form>
 
-        {courseError && <p>{courseError}</p>}
+        {courseError && (
+          <div className="dashboard-error">
+            {courseError}
+          </div>
+        )}
 
-        {courses.length === 0 &&
+        {lecturerCourses.length === 0 &&
           !courseError && (
-            <p>No courses available.</p>
+            <div className="dashboard-empty">
+              <h3>No courses yet</h3>
+              <p>
+                Create your first course using the
+                form above.
+              </p>
+            </div>
           )}
 
-        {courses.map((course) => (
-          <div
-            className="course-card"
-            key={course.id}
-          >
-            <h3>{course.title}</h3>
+        <div className="course-grid">
+          {lecturerCourses.map((course) => (
+            <article
+              className="course-card"
+              key={course.id}
+            >
+              <div className="course-card-header">
+                <div>
+                  <p className="course-category">
+                    {course.category ||
+                      "Uncategorised"}
+                  </p>
 
-            <p>
-              Category:{" "}
-              {course.category || "Not specified"}
-            </p>
+                  <h3>{course.title}</h3>
+                </div>
 
-            <p>Status: {course.status}</p>
-
-            <p>
-              Instructor:{" "}
-              {course.instructorName ||
-                "Not assigned"}
-            </p>
-
-            {course.description && (
-              <p>
-                Description: {course.description}
-              </p>
-            )}
-
-            {course.instructorId === lecturerId &&
-              course.status === "DRAFT" && (
-                <button
-                  onClick={() =>
-                    publishCourse(course.id)
-                  }
+                <span
+                  className={`status-badge ${
+                    course.status === "PUBLISHED"
+                      ? "status-published"
+                      : "status-draft"
+                  }`}
                 >
-                  Publish Course
-                </button>
+                  {course.status}
+                </span>
+              </div>
+
+              <p className="course-description">
+                {course.description ||
+                  "No course description provided."}
+              </p>
+
+              <div className="course-meta">
+                <span>
+                  <strong>Instructor:</strong>{" "}
+                  {course.instructorName ||
+                    "Not assigned"}
+                </span>
+
+                <span>
+                  <strong>Lessons:</strong>{" "}
+                  {lessons[course.id]?.length || 0}
+                </span>
+
+                <span>
+                  <strong>Assignments:</strong>{" "}
+                  {assignments[course.id]?.length ||
+                    0}
+                </span>
+              </div>
+
+              {course.status === "DRAFT" && (
+                <div className="course-actions">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      publishCourse(course.id)
+                    }
+                  >
+                    Publish Course
+                  </button>
+                </div>
               )}
 
-            {course.instructorId === lecturerId && (
-              <div>
+              <div className="course-content-block">
                 <h4>Lessons</h4>
 
                 {!lessons[course.id] ||
                 lessons[course.id].length === 0 ? (
-                  <p>No lessons added yet.</p>
+                  <p className="muted-text">
+                    No lessons added yet.
+                  </p>
                 ) : (
-                  lessons[course.id].map(
-                    (lesson, index) => (
-                      <div key={lesson.id}>
-                        <p>
-                          {index + 1}.{" "}
-                          {lesson.title}
-                        </p>
+                  <div className="compact-list">
+                    {lessons[course.id].map(
+                      (lesson, index) => (
+                        <div
+                          className="compact-list-item"
+                          key={lesson.id}
+                        >
+                          <span className="list-number">
+                            {index + 1}
+                          </span>
 
-                        {lesson.description && (
-                          <p>
-                            {lesson.description}
-                          </p>
-                        )}
-                      </div>
-                    )
-                  )
+                          <div>
+                            <strong>
+                              {lesson.title}
+                            </strong>
+
+                            {lesson.description && (
+                              <p>
+                                {lesson.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
                 )}
+              </div>
 
+              <div className="course-content-block">
                 <h4>Assignments</h4>
 
                 {!assignments[course.id] ||
                 assignments[course.id].length ===
                   0 ? (
-                  <p>
+                  <p className="muted-text">
                     No assignments created yet.
                   </p>
                 ) : (
-                  assignments[course.id].map(
-                    (assignment) => (
-                      <div key={assignment.id}>
-                        <p>
-                          <strong>
-                            {assignment.title}
-                          </strong>
-                        </p>
+                  <div className="compact-list">
+                    {assignments[course.id].map(
+                      (assignment) => (
+                        <div
+                          className="assignment-summary"
+                          key={assignment.id}
+                        >
+                          <div className="assignment-summary-header">
+                            <strong>
+                              {assignment.title}
+                            </strong>
 
-                        <p>
-                          {assignment.description}
-                        </p>
-
-                        <p>
-                          Total Marks:{" "}
-                          {assignment.totalMarks}
-                        </p>
-
-                        <p>
-                          Due:{" "}
-                          {new Date(
-                            assignment.dueDate
-                          ).toLocaleString()}
-                        </p>
-                      </div>
-                    )
-                  )
-                )}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* ADD LESSON */}
-      <div className="lessons-section">
-        <h2>Add Lesson</h2>
-
-        {lecturerCourses.length === 0 ? (
-          <p>
-            You do not have any courses to add
-            lessons to.
-          </p>
-        ) : (
-          <form onSubmit={addLesson}>
-            <select
-              value={selectedCourseId}
-              onChange={(event) =>
-                setSelectedCourseId(
-                  event.target.value
-                )
-              }
-              required
-            >
-              <option value="">
-                Select your course
-              </option>
-
-              {lecturerCourses.map((course) => (
-                <option
-                  key={course.id}
-                  value={course.id}
-                >
-                  {course.title}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="text"
-              placeholder="Lesson title"
-              value={lessonTitle}
-              onChange={(event) =>
-                setLessonTitle(event.target.value)
-              }
-              required
-            />
-
-            <input
-              type="text"
-              placeholder="Lesson description"
-              value={lessonDescription}
-              onChange={(event) =>
-                setLessonDescription(
-                  event.target.value
-                )
-              }
-            />
-
-            <button type="submit">
-              Add Lesson
-            </button>
-          </form>
-        )}
-      </div>
-
-      {/* CREATE ASSIGNMENT */}
-      <div className="assignments-section">
-        <h2>Create Assignment</h2>
-
-        {lecturerCourses.length === 0 ? (
-          <p>
-            You do not have any courses to create
-            assignments for.
-          </p>
-        ) : (
-          <form onSubmit={createAssignment}>
-            <select
-              value={assignmentCourseId}
-              onChange={(event) =>
-                setAssignmentCourseId(
-                  event.target.value
-                )
-              }
-              required
-            >
-              <option value="">
-                Select your course
-              </option>
-
-              {lecturerCourses.map((course) => (
-                <option
-                  key={course.id}
-                  value={course.id}
-                >
-                  {course.title}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="text"
-              placeholder="Assignment title"
-              value={assignmentTitle}
-              onChange={(event) =>
-                setAssignmentTitle(
-                  event.target.value
-                )
-              }
-              required
-            />
-
-            <input
-              type="text"
-              placeholder="Assignment description"
-              value={assignmentDescription}
-              onChange={(event) =>
-                setAssignmentDescription(
-                  event.target.value
-                )
-              }
-              required
-            />
-
-            <label>Due Date:</label>
-
-            <input
-              type="datetime-local"
-              value={assignmentDueDate}
-              onChange={(event) =>
-                setAssignmentDueDate(
-                  event.target.value
-                )
-              }
-              required
-            />
-
-            <input
-              type="number"
-              min="1"
-              placeholder="Total marks"
-              value={assignmentTotalMarks}
-              onChange={(event) =>
-                setAssignmentTotalMarks(
-                  event.target.value
-                )
-              }
-              required
-            />
-
-            <button type="submit">
-              Create Assignment
-            </button>
-          </form>
-        )}
-      </div>
-
-      {/* STUDENT SUBMISSIONS */}
-      <div className="submissions-section">
-        <h2>Student Submissions</h2>
-
-        {lecturerCourses.map((course) => (
-          <div key={course.id}>
-            <h3>{course.title}</h3>
-
-            {!assignments[course.id] ||
-            assignments[course.id].length ===
-              0 ? (
-              <p>
-                No assignments for this course.
-              </p>
-            ) : (
-              assignments[course.id].map(
-                (assignment) => (
-                  <div key={assignment.id}>
-                    <h4>{assignment.title}</h4>
-
-                    {!submissions[assignment.id] ||
-                    submissions[assignment.id]
-                      .length === 0 ? (
-                      <p>No submissions yet.</p>
-                    ) : (
-                      submissions[
-                        assignment.id
-                      ].map((submission) => {
-                        const savedGrade =
-                          grades[submission.id];
-
-                        return (
-                          <div
-                            className="submission-card"
-                            key={submission.id}
-                          >
-                            <h4>
-                              {
-                                submission.studentName
-                              }
-                            </h4>
-
-                            <p>
-                              Status:{" "}
-                              {submission.status}
-                            </p>
-
-                            <p>
-                              Submitted:{" "}
-                              {new Date(
-                                submission.submittedAt
-                              ).toLocaleString()}
-                            </p>
-
-                            {submission.fileUrl && (
-                              <p>
-                                Submission:{" "}
-                                <a
-                                  href={
-                                    submission.fileUrl
-                                  }
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  {
-                                    submission.fileUrl
-                                  }
-                                </a>
-                              </p>
-                            )}
-
-                            {savedGrade ? (
-                              <div className="grade-result">
-                                <h5>
-                                  Grade Result
-                                </h5>
-
-                                <p>
-                                  Grade:{" "}
-                                  <strong>
-                                    {
-                                      savedGrade.marksAwarded
-                                    }{" "}
-                                    /{" "}
-                                    {
-                                      savedGrade.totalMarks
-                                    }
-                                  </strong>
-                                </p>
-
-                                <p>
-                                  Feedback:{" "}
-                                  {savedGrade.feedback ||
-                                    "No feedback provided."}
-                                </p>
-
-                                <p>
-                                  Graded:{" "}
-                                  {new Date(
-                                    savedGrade.gradedAt
-                                  ).toLocaleString()}
-                                </p>
-                              </div>
-                            ) : submission.status !==
-                              "GRADED" ? (
-                              <div className="grading-section">
-                                <h5>
-                                  Grade Submission
-                                </h5>
-
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max={
-                                    assignment.totalMarks
-                                  }
-                                  placeholder={`Marks out of ${assignment.totalMarks}`}
-                                  value={
-                                    gradeMarks[
-                                      submission.id
-                                    ] || ""
-                                  }
-                                  onChange={(event) =>
-                                    setGradeMarks(
-                                      (current) => ({
-                                        ...current,
-                                        [submission.id]:
-                                          event.target
-                                            .value,
-                                      })
-                                    )
-                                  }
-                                />
-
-                                <input
-                                  type="text"
-                                  placeholder="Feedback"
-                                  value={
-                                    gradeFeedback[
-                                      submission.id
-                                    ] || ""
-                                  }
-                                  onChange={(event) =>
-                                    setGradeFeedback(
-                                      (current) => ({
-                                        ...current,
-                                        [submission.id]:
-                                          event.target
-                                            .value,
-                                      })
-                                    )
-                                  }
-                                />
-
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    gradeSubmission(
-                                      submission.id,
-                                      assignment.id,
-                                      course.id,
-                                      assignment.totalMarks
-                                    )
-                                  }
-                                >
-                                  Grade Submission
-                                </button>
-                              </div>
-                            ) : (
-                              <p>
-                                Grade information is
-                                loading.
-                              </p>
-                            )}
+                            <span>
+                              {assignment.totalMarks}{" "}
+                              marks
+                            </span>
                           </div>
-                        );
-                      })
+
+                          <p>
+                            {assignment.description}
+                          </p>
+
+                          <small>
+                            Due{" "}
+                            {new Date(
+                              assignment.dueDate
+                            ).toLocaleString()}
+                          </small>
+                        </div>
+                      )
                     )}
                   </div>
-                )
-              )
-            )}
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* ADD LESSON */}
+
+      <section className="lessons-section">
+        <div className="section-heading">
+          <div>
+            <p className="section-eyebrow">
+              LEARNING CONTENT
+            </p>
+            <h2>Add Lesson</h2>
+            <p>
+              Add learning material to one of your
+              courses.
+            </p>
           </div>
-        ))}
-      </div>
+        </div>
+
+        {lecturerCourses.length === 0 ? (
+          <div className="dashboard-empty">
+            <p>
+              You need a course before you can add
+              lessons.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={addLesson}>
+            <div className="dashboard-form-field">
+              <label>Course</label>
+
+              <select
+                value={selectedCourseId}
+                onChange={(event) =>
+                  setSelectedCourseId(
+                    event.target.value
+                  )
+                }
+                required
+              >
+                <option value="">
+                  Select your course
+                </option>
+
+                {lecturerCourses.map((course) => (
+                  <option
+                    key={course.id}
+                    value={course.id}
+                  >
+                    {course.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="dashboard-form-field">
+              <label>Lesson title</label>
+
+              <input
+                type="text"
+                placeholder="Enter lesson title"
+                value={lessonTitle}
+                onChange={(event) =>
+                  setLessonTitle(
+                    event.target.value
+                  )
+                }
+                required
+              />
+            </div>
+
+            <div className="dashboard-form-field dashboard-form-wide">
+              <label>Lesson description</label>
+
+              <input
+                type="text"
+                placeholder="Brief lesson description"
+                value={lessonDescription}
+                onChange={(event) =>
+                  setLessonDescription(
+                    event.target.value
+                  )
+                }
+              />
+            </div>
+
+            <div className="dashboard-form-actions">
+              <button type="submit">
+                Add Lesson
+              </button>
+            </div>
+          </form>
+        )}
+      </section>
+
+      {/* CREATE ASSIGNMENT */}
+
+      <section className="assignments-section">
+        <div className="section-heading">
+          <div>
+            <p className="section-eyebrow">
+              ASSESSMENTS
+            </p>
+
+            <h2>Create Assignment</h2>
+
+            <p>
+              Create an assessment for one of your
+              courses.
+            </p>
+          </div>
+        </div>
+
+        {lecturerCourses.length === 0 ? (
+          <div className="dashboard-empty">
+            <p>
+              You need a course before you can
+              create assignments.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={createAssignment}>
+            <div className="dashboard-form-field">
+              <label>Course</label>
+
+              <select
+                value={assignmentCourseId}
+                onChange={(event) =>
+                  setAssignmentCourseId(
+                    event.target.value
+                  )
+                }
+                required
+              >
+                <option value="">
+                  Select your course
+                </option>
+
+                {lecturerCourses.map((course) => (
+                  <option
+                    key={course.id}
+                    value={course.id}
+                  >
+                    {course.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="dashboard-form-field">
+              <label>Assignment title</label>
+
+              <input
+                type="text"
+                placeholder="Enter assignment title"
+                value={assignmentTitle}
+                onChange={(event) =>
+                  setAssignmentTitle(
+                    event.target.value
+                  )
+                }
+                required
+              />
+            </div>
+
+            <div className="dashboard-form-field dashboard-form-wide">
+              <label>Description</label>
+
+              <input
+                type="text"
+                placeholder="Assignment instructions"
+                value={assignmentDescription}
+                onChange={(event) =>
+                  setAssignmentDescription(
+                    event.target.value
+                  )
+                }
+                required
+              />
+            </div>
+
+            <div className="dashboard-form-field">
+              <label>Due date</label>
+
+              <input
+                type="datetime-local"
+                value={assignmentDueDate}
+                onChange={(event) =>
+                  setAssignmentDueDate(
+                    event.target.value
+                  )
+                }
+                required
+              />
+            </div>
+
+            <div className="dashboard-form-field">
+              <label>Total marks</label>
+
+              <input
+                type="number"
+                min="1"
+                placeholder="e.g. 100"
+                value={assignmentTotalMarks}
+                onChange={(event) =>
+                  setAssignmentTotalMarks(
+                    event.target.value
+                  )
+                }
+                required
+              />
+            </div>
+
+            <div className="dashboard-form-actions">
+              <button type="submit">
+                Create Assignment
+              </button>
+            </div>
+          </form>
+        )}
+      </section>
+
+      {/* STUDENT SUBMISSIONS */}
+
+      <section className="submissions-section">
+        <div className="section-heading">
+          <div>
+            <p className="section-eyebrow">
+              ASSESSMENT MANAGEMENT
+            </p>
+
+            <h2>Student Submissions</h2>
+
+            <p>
+              Review submitted work and record
+              student grades.
+            </p>
+          </div>
+        </div>
+
+        {lecturerCourses.length === 0 ? (
+          <div className="dashboard-empty">
+            <p>No lecturer courses available.</p>
+          </div>
+        ) : (
+          lecturerCourses.map((course) => (
+            <div
+              className="submission-course"
+              key={course.id}
+            >
+              <div className="submission-course-header">
+                <h3>{course.title}</h3>
+
+                <span>
+                  {assignments[course.id]?.length ||
+                    0}{" "}
+                  assignment(s)
+                </span>
+              </div>
+
+              {!assignments[course.id] ||
+              assignments[course.id].length ===
+                0 ? (
+                <p className="muted-text">
+                  No assignments for this course.
+                </p>
+              ) : (
+                assignments[course.id].map(
+                  (assignment) => (
+                    <div
+                      className="submission-assignment"
+                      key={assignment.id}
+                    >
+                      <div className="submission-assignment-header">
+                        <div>
+                          <h4>
+                            {assignment.title}
+                          </h4>
+
+                          <p>
+                            {assignment.totalMarks}{" "}
+                            total marks
+                          </p>
+                        </div>
+                      </div>
+
+                      {!submissions[
+                        assignment.id
+                      ] ||
+                      submissions[assignment.id]
+                        .length === 0 ? (
+                        <div className="dashboard-empty compact-empty">
+                          <p>
+                            No submissions yet.
+                          </p>
+                        </div>
+                      ) : (
+                        submissions[
+                          assignment.id
+                        ].map((submission) => {
+                          const savedGrade =
+                            grades[submission.id];
+
+                          return (
+                            <article
+                              className="submission-card"
+                              key={submission.id}
+                            >
+                              <div className="submission-card-header">
+                                <div>
+                                  <h4>
+                                    {
+                                      submission.studentName
+                                    }
+                                  </h4>
+
+                                  <p>
+                                    Submitted{" "}
+                                    {new Date(
+                                      submission.submittedAt
+                                    ).toLocaleString()}
+                                  </p>
+                                </div>
+
+                                <span
+                                  className={`status-badge ${
+                                    submission.status ===
+                                    "GRADED"
+                                      ? "status-graded"
+                                      : "status-submitted"
+                                  }`}
+                                >
+                                  {
+                                    submission.status
+                                  }
+                                </span>
+                              </div>
+
+                              {submission.fileUrl && (
+                                <div className="submission-file">
+                                  <span>
+                                    Submission file
+                                  </span>
+
+                                  <a
+                                    href={
+                                      submission.fileUrl
+                                    }
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    Open submission
+                                  </a>
+                                </div>
+                              )}
+
+                              {savedGrade ? (
+                                <div className="grade-result">
+                                  <div className="grade-result-header">
+                                    <h5>
+                                      Grade Result
+                                    </h5>
+
+                                    <strong>
+                                      {
+                                        savedGrade.marksAwarded
+                                      }{" "}
+                                      /{" "}
+                                      {
+                                        savedGrade.totalMarks
+                                      }
+                                    </strong>
+                                  </div>
+
+                                  <p>
+                                    <strong>
+                                      Feedback:
+                                    </strong>{" "}
+                                    {savedGrade.feedback ||
+                                      "No feedback provided."}
+                                  </p>
+
+                                  <p className="grade-date">
+                                    Graded{" "}
+                                    {new Date(
+                                      savedGrade.gradedAt
+                                    ).toLocaleString()}
+                                  </p>
+                                </div>
+                              ) : submission.status !==
+                                "GRADED" ? (
+                                <div className="grading-section">
+                                  <h5>
+                                    Grade Submission
+                                  </h5>
+
+                                  <div className="grading-fields">
+                                    <div className="dashboard-form-field">
+                                      <label>
+                                        Marks
+                                      </label>
+
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        max={
+                                          assignment.totalMarks
+                                        }
+                                        placeholder={`Marks out of ${assignment.totalMarks}`}
+                                        value={
+                                          gradeMarks[
+                                            submission.id
+                                          ] || ""
+                                        }
+                                        onChange={(
+                                          event
+                                        ) =>
+                                          setGradeMarks(
+                                            (
+                                              current
+                                            ) => ({
+                                              ...current,
+                                              [submission.id]:
+                                                event
+                                                  .target
+                                                  .value,
+                                            })
+                                          )
+                                        }
+                                      />
+                                    </div>
+
+                                    <div className="dashboard-form-field">
+                                      <label>
+                                        Feedback
+                                      </label>
+
+                                      <input
+                                        type="text"
+                                        placeholder="Feedback for student"
+                                        value={
+                                          gradeFeedback[
+                                            submission.id
+                                          ] || ""
+                                        }
+                                        onChange={(
+                                          event
+                                        ) =>
+                                          setGradeFeedback(
+                                            (
+                                              current
+                                            ) => ({
+                                              ...current,
+                                              [submission.id]:
+                                                event
+                                                  .target
+                                                  .value,
+                                            })
+                                          )
+                                        }
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      gradeSubmission(
+                                        submission.id,
+                                        assignment.id,
+                                        course.id,
+                                        assignment.totalMarks
+                                      )
+                                    }
+                                  >
+                                    Save Grade
+                                  </button>
+                                </div>
+                              ) : (
+                                <p className="muted-text">
+                                  Grade information is
+                                  loading.
+                                </p>
+                              )}
+                            </article>
+                          );
+                        })
+                      )}
+                    </div>
+                  )
+                )
+              )}
+            </div>
+          ))
+        )}
+      </section>
     </div>
   );
 }

@@ -1,321 +1,1896 @@
+/* =========================================
+   ACADEMIX DESIGN SYSTEM
+========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #173f73;
+  --primary-dark: #0f2f59;
+  --primary-light: #eaf1f8;
+
+  --accent: #2f6fb3;
+
+  --background: #f5f7fa;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+
+  --text: #172033;
+  --text-muted: #667085;
+
+  --border: #e2e8f0;
+
+  --success: #15803d;
+  --success-background: #ecfdf3;
+
+  --danger: #b42318;
+  --danger-background: #fef3f2;
+
+  --shadow-small:
+    0 1px 3px rgba(15, 23, 42, 0.06);
+
+  --shadow-medium:
+    0 8px 24px rgba(15, 23, 42, 0.08);
+
+  --radius: 10px;
+}
+
+html {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f4f6f8;
-  color: #222;
-}
+  min-width: 320px;
+  min-height: 100vh;
 
-nav {
-  display: flex;
-  gap: 20px;
-  padding: 18px 30px;
-  background-color: #1f2937;
-}
+  font-family:
+    Inter,
+    "Segoe UI",
+    Arial,
+    sans-serif;
 
-nav a {
-  color: white;
-  text-decoration: none;
-  font-weight: 500;
-}
+  background: var(--background);
+  color: var(--text);
 
-nav a:hover {
-  text-decoration: underline;
-}
-
-h1 {
-  color: #1f2937;
-}
-
-button {
-  background-color: #2563eb;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #1d4ed8;
-}
-
-input {
-  font-size: 14px;
-}
-
-/* LOGIN */
-
-.login-page {
-  width: 350px;
-  margin: 60px auto;
-  padding: 30px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.login-page h1 {
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-.login-page form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.login-page input {
-  padding: 11px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-/* REGISTER */
-
-.register-page {
-  width: 350px;
-  margin: 60px auto;
-  padding: 30px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.register-page h1 {
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-.register-page form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.register-page input {
-  padding: 11px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-/* LECTURER DASHBOARD */
-
-.lecturer-dashboard {
-  padding: 40px;
-}
-
-.lecturer-dashboard > p {
-  margin-bottom: 30px;
-  color: #555;
-}
-
-.dashboard-cards {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.dashboard-card {
-  background-color: white;
-  padding: 22px;
-  border-radius: 10px;
-  width: 250px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.dashboard-card h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-}
-
-.dashboard-card p {
-  color: #555;
   line-height: 1.5;
 }
 
-/* QUIZ PAGE */
-
-.quiz-page {
-  padding: 40px;
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
-.quiz-page > p {
-  color: #555;
-  margin-bottom: 30px;
+button {
+  cursor: pointer;
 }
 
-.quiz-form {
-  background-color: white;
-  padding: 25px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  max-width: 500px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+a {
+  color: inherit;
 }
 
-.quiz-form form {
+.main-content {
+  min-height: calc(100vh - 68px);
+}
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+.navbar {
+  width: 100%;
+  height: 68px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 42px;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid var(--border);
+
+  position: sticky;
+  top: 0;
+
+  z-index: 100;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+
+  margin-right: 45px;
+
+  color: var(--primary);
+
+  font-size: 21px;
+  font-weight: 750;
+
+  letter-spacing: -0.5px;
+}
+
+.navbar-brand span {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-brand span::before {
+  content: "A";
+
+  width: 34px;
+  height: 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 10px;
+
+  background: var(--primary);
+  color: #ffffff;
+
+  border-radius: 8px;
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  flex: 1;
+}
+
+.navbar-links a {
+  padding: 9px 13px;
+
+  color: var(--text-muted);
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  border-radius: 7px;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.navbar-links a:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.navbar-links a.active {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.navbar-user span {
+  color: var(--text-muted);
+}
+
+.navbar-user button {
+  padding: 8px 14px;
+
+  background: transparent;
+  color: var(--primary);
+
+  border: 1px solid var(--border);
+  border-radius: 7px;
+
+  font-weight: 600;
+}
+
+.navbar-user button:hover {
+  background: var(--primary-light);
+}
+
+/* =========================================
+   GENERAL HEADINGS
+========================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: var(--text);
+}
+
+h1 {
+  margin-top: 0;
+
+  font-size: 30px;
+
+  letter-spacing: -0.7px;
+}
+
+h2 {
+  font-size: 20px;
+
+  letter-spacing: -0.3px;
+}
+
+/* =========================================
+   GENERAL BUTTONS
+========================================= */
+
+button {
+  padding: 10px 16px;
+
+  background: var(--primary);
+  color: #ffffff;
+
+  border: none;
+  border-radius: 7px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+button:hover {
+  background: var(--primary-dark);
+
+  box-shadow: var(--shadow-small);
+}
+
+button:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+/* =========================================
+   GENERAL FORM ELEMENTS
+========================================= */
+
+input,
+select,
+textarea {
+  width: 100%;
+
+  padding: 10px 12px;
+
+  background: #ffffff;
+
+  border: 1px solid #d0d5dd;
+  border-radius: 7px;
+
+  color: var(--text);
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+
+  box-shadow:
+    0 0 0 3px rgba(47, 111, 179, 0.12);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #98a2b3;
+}
+
+label {
+  color: #344054;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* =========================================
+   LOGIN / AUTHENTICATION PAGE
+========================================= */
+
+.auth-page {
+  min-height: calc(100vh - 68px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 45px;
+
+  background: #eef2f6;
+}
+
+.auth-container {
+  width: min(1100px, 100%);
+  min-height: 650px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr);
+
+  background: #ffffff;
+
+  border: 1px solid #dfe5ec;
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 18px 50px rgba(15, 23, 42, 0.09);
+}
+
+/* LOGIN LEFT SIDE */
+
+.auth-welcome {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+
+  padding: 60px;
+
+  background: #153d6f;
+  color: #ffffff;
+}
+
+.auth-welcome-content {
+  max-width: 430px;
+}
+
+.auth-logo {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 25px;
+
+  background: #ffffff;
+  color: #153d6f;
+
+  border-radius: 8px;
+
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.auth-platform-name {
+  margin: 0 0 40px;
+
+  color: #dce8f5;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 2px;
+}
+
+.auth-welcome h1 {
+  margin: 0 0 20px;
+
+  color: #ffffff;
+
+  font-size: 38px;
+  line-height: 1.2;
+
+  letter-spacing: -1px;
+}
+
+.auth-description {
+  margin: 0 0 42px;
+
+  color: #dce8f5;
+
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.auth-features {
+  display: flex;
+  flex-direction: column;
+
+  gap: 19px;
+}
+
+.auth-features > div {
+  display: flex;
+  align-items: center;
+
   gap: 15px;
 }
 
-.quiz-form input {
-  padding: 11px;
-  border: 1px solid #ccc;
+.auth-features span {
+  min-width: 32px;
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.35);
+
+  border-radius: 50%;
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.auth-features p {
+  margin: 0;
+
+  color: #eef5fc;
+
+  font-size: 14px;
+}
+
+.auth-welcome-footer {
+  margin: 40px 0 0;
+
+  color: #adc3da;
+
+  font-size: 12px;
+}
+
+/* LOGIN RIGHT SIDE */
+
+.auth-form-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 60px;
+}
+
+.auth-form-container {
+  width: 100%;
+  max-width: 390px;
+}
+
+.auth-eyebrow {
+  margin: 0 0 12px;
+
+  color: var(--accent);
+
+  font-size: 12px;
+  font-weight: 800;
+
+  letter-spacing: 1.4px;
+}
+
+.auth-form-container h2 {
+  margin: 0 0 10px;
+
+  color: var(--text);
+
+  font-size: 29px;
+
+  letter-spacing: -0.6px;
+}
+
+.auth-form-description {
+  margin: 0 0 34px;
+
+  color: var(--text-muted);
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.auth-form-container form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.form-group label {
+  color: #344054;
+
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.form-group input {
+  height: 46px;
+
+  padding: 0 13px;
+
+  background: #ffffff;
+
+  border: 1px solid #cfd7e3;
+  border-radius: 7px;
+
+  font-size: 14px;
+}
+
+.form-group input:focus {
+  border-color: var(--accent);
+
+  box-shadow:
+    0 0 0 3px rgba(47, 111, 179, 0.1);
+}
+
+/* PASSWORD FIELD */
+
+.password-input-wrapper {
+  position: relative;
+
+  width: 100%;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+
+  padding-right: 50px;
+}
+
+.password-toggle {
+  position: absolute;
+
+  top: 50%;
+  right: 8px;
+
+  transform: translateY(-50%);
+
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 8px;
+
+  background: transparent;
+  color: #667085;
+
+  border: none;
   border-radius: 6px;
+
+  box-shadow: none;
 }
 
-.quiz-list {
+.password-toggle:hover {
+  background: #f2f4f7;
+  color: var(--primary);
+
+  box-shadow: none;
+}
+
+.password-toggle:active {
+  transform: translateY(-50%);
+}
+
+.password-toggle svg {
+  width: 19px;
+  height: 19px;
+
+  display: block;
+}
+
+/* LOGIN ERROR */
+
+.login-error {
+  padding: 11px 13px;
+
+  background: var(--danger-background);
+
+  border: 1px solid #fecdca;
+  border-radius: 7px;
+
+  color: var(--danger);
+
+  font-size: 13px;
+}
+
+/* LOGIN BUTTON */
+
+.login-button {
+  width: 100%;
+  height: 46px;
+
+  margin-top: 5px;
+
+  background: #153d6f;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.login-button:hover {
+  background: #0e2e56;
+}
+
+.auth-help {
+  margin: 26px 0 0;
+
+  padding-top: 22px;
+
+  border-top: 1px solid #eaecf0;
+
+  text-align: center;
+
+  color: var(--text-muted);
+
+  font-size: 12px;
+}
+
+.auth-mobile-brand {
+  display: none;
+}
+
+/* =========================================
+   OLD LOGIN / REGISTER SUPPORT
+========================================= */
+
+.login-page,
+.register-page {
+  width: min(430px, calc(100% - 40px));
+
+  margin: 70px auto;
+  padding: 38px;
+
+  background: #ffffff;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  box-shadow: var(--shadow-medium);
+}
+
+.login-page form,
+.register-page form {
   display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+  flex-direction: column;
+
+  gap: 15px;
 }
 
-.quiz-card {
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 250px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+/* =========================================
+   DASHBOARD PAGE LAYOUT
+========================================= */
+
+.lecturer-dashboard,
+.admin-panel,
+.quiz-page {
+  width: min(1400px, calc(100% - 64px));
+
+  margin: 0 auto;
+
+  padding: 42px 0 70px;
 }
 
-.quiz-card h3 {
+.lecturer-dashboard > p,
+.admin-panel > p,
+.quiz-page > p {
   margin-top: 0;
+  margin-bottom: 32px;
+
+  color: var(--text-muted);
+
+  font-size: 15px;
 }
 
-.quiz-card p {
-  color: #555;
+/* =========================================
+   DASHBOARD CARDS
+========================================= */
+
+.dashboard-cards {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin-bottom: 38px;
 }
 
-.quiz-card button {
-  margin-right: 8px;
-  margin-top: 8px;
+.dashboard-card {
+  width: auto;
+
+  padding: 22px;
+
+  background: #ffffff;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  box-shadow: var(--shadow-small);
 }
 
-/* ADMIN PANEL */
+.dashboard-card h3 {
+  margin: 0 0 7px;
 
-.admin-panel {
-  padding: 40px;
+  color: var(--primary);
+
+  font-size: 16px;
 }
 
-.admin-panel > p {
-  color: #555;
-  margin-bottom: 30px;
+.dashboard-card p {
+  margin: 0;
+
+  color: var(--text-muted);
+
+  font-size: 14px;
 }
 
+/* =========================================
+   DASHBOARD SECTIONS
+========================================= */
+
+.courses-section,
+.lessons-section,
+.assignments-section,
+.submissions-section,
+.admin-section,
+.quiz-form {
+  margin-top: 24px;
+  margin-bottom: 26px;
+
+  padding: 26px;
+
+  background: #ffffff;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  box-shadow: var(--shadow-small);
+}
+
+.courses-section > h2,
+.lessons-section > h2,
+.assignments-section > h2,
+.submissions-section > h2,
+.admin-section > h2,
+.quiz-form > h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+
+  padding-bottom: 15px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+/* =========================================
+   DASHBOARD FORMS
+========================================= */
+
+.courses-section form,
+.lessons-section form,
+.assignments-section form {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-bottom: 25px;
+
+  padding: 20px;
+
+  background: var(--surface-soft);
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+/* =========================================
+   COURSE CARDS
+========================================= */
+
+.course-card {
+  margin-top: 16px;
+
+  padding: 22px;
+
+  background: #ffffff;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.course-card:hover {
+  border-color: #cbd5e1;
+
+  box-shadow: var(--shadow-small);
+}
+
+.course-card h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+
+  color: var(--primary);
+
+  font-size: 18px;
+}
+
+.course-card p {
+  margin: 7px 0;
+
+  color: var(--text-muted);
+
+  font-size: 14px;
+}
+
+.course-card h4 {
+  margin-top: 22px;
+  margin-bottom: 10px;
+
+  padding-top: 16px;
+
+  border-top: 1px solid var(--border);
+}
+
+/* =========================================
+   SUBMISSIONS / GRADES
+========================================= */
+
+.submission-card {
+  max-width: none;
+
+  margin: 14px 0;
+
+  padding: 20px;
+
+  background: var(--surface-soft);
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  box-shadow: none;
+}
+
+.submission-card h3,
+.submission-card h4 {
+  margin-top: 0;
+
+  color: var(--primary);
+}
+
+.submission-card p {
+  margin: 7px 0;
+
+  color: var(--text-muted);
+}
+
+.submission-card input {
+  max-width: 350px;
+
+  margin-top: 10px;
+}
+
+.grading-section {
+  margin-top: 18px;
+
+  padding-top: 18px;
+
+  border-top: 1px solid var(--border);
+}
+
+.grade-result {
+  margin-top: 18px;
+
+  padding: 16px;
+
+  background: var(--success-background);
+
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+}
+
+.grade-result h5 {
+  margin: 0 0 10px;
+
+  color: var(--success);
+}
+
+.grade-result p {
+  color: #344054;
+}
+
+/* =========================================
+   ADMIN
+========================================= */
+
+.admin-list,
 .admin-users {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 30px;
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fill, minmax(260px, 1fr));
+
+  gap: 16px;
+
+  margin-bottom: 20px;
 }
 
 .admin-card {
-  background-color: white;
+  width: auto;
+
+  margin: 0;
   padding: 20px;
-  border-radius: 10px;
-  width: 250px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  background: #ffffff;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  box-shadow: none;
 }
 
 .admin-card h3 {
   margin-top: 0;
+
+  color: var(--primary);
 }
 
 .admin-card p {
-  color: #555;
-  line-height: 1.5;
+  margin: 6px 0;
+
+  color: var(--text-muted);
 }
 
-/* RESPONSIVE DESIGN */
+.admin-form {
+  display: grid;
 
-@media (max-width: 700px) {
-  nav {
-    flex-direction: column;
-    gap: 10px;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-bottom: 22px;
+
+  padding: 20px;
+
+  background: var(--surface-soft);
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.admin-form input,
+.admin-form select {
+  min-width: 0;
+}
+
+/* =========================================
+   QUIZ
+========================================= */
+
+.quiz-form {
+  max-width: none;
+}
+
+.quiz-form form {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 14px;
+}
+
+.quiz-list {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fill, minmax(260px, 1fr));
+
+  gap: 16px;
+}
+
+.quiz-card {
+  width: auto;
+
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  box-shadow: var(--shadow-small);
+}
+
+.quiz-card h3 {
+  margin-top: 0;
+
+  color: var(--primary);
+}
+
+.quiz-card p {
+  color: var(--text-muted);
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 900px) {
+  .navbar {
+    padding: 0 22px;
+  }
+
+  .navbar-brand {
+    margin-right: 20px;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .courses-section form,
+  .lessons-section form,
+  .assignments-section form,
+  .admin-form,
+  .quiz-form form {
+    grid-template-columns: 1fr;
+  }
+
+  .lecturer-dashboard,
+  .admin-panel,
+  .quiz-page {
+    width: min(100% - 36px, 1400px);
+
+    padding-top: 28px;
+  }
+}
+
+@media (max-width: 850px) {
+  .auth-page {
+    padding: 30px 20px;
+  }
+
+  .auth-container {
+    display: block;
+
+    min-height: auto;
+  }
+
+  .auth-welcome {
+    display: none;
+  }
+
+  .auth-form-side {
+    padding: 45px 30px;
+  }
+
+  .auth-mobile-brand {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 40px;
+
+    color: var(--primary);
+
+    font-size: 19px;
+    font-weight: 750;
+  }
+
+  .auth-mobile-brand .auth-logo {
+    width: 38px;
+    height: 38px;
+
+    margin: 0;
+
+    background: var(--primary);
+    color: #ffffff;
+
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 650px) {
+  .navbar {
+    height: auto;
+    min-height: 64px;
+
+    padding: 14px 18px;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+  }
+
+  .navbar-brand {
+    flex: 1;
+  }
+
+  .navbar-links {
+    order: 3;
+
+    width: 100%;
+  }
+
+  .navbar-user {
+    gap: 8px;
+  }
+
+  .navbar-user span {
+    display: none;
+  }
+
+  .lecturer-dashboard,
+  .admin-panel,
+  .quiz-page {
+    width: calc(100% - 28px);
+
+    padding: 24px 0 50px;
+  }
+
+  .courses-section,
+  .lessons-section,
+  .assignments-section,
+  .submissions-section,
+  .admin-section,
+  .quiz-form {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 500px) {
+  .auth-page {
+    align-items: flex-start;
+
+    padding: 18px 12px;
+  }
+
+  .auth-container {
+    border-radius: 10px;
+  }
+
+  .auth-form-side {
+    padding: 35px 22px;
+  }
+
+  .auth-form-container h2 {
+    font-size: 25px;
   }
 
   .login-page,
   .register-page {
-    width: auto;
-    margin: 30px 20px;
-  }
+    width: calc(100% - 28px);
 
-  .lecturer-dashboard,
-  .quiz-page,
-  .admin-panel {
-    padding: 20px;
-  }
-
-  .dashboard-card,
-  .quiz-card,
-  .admin-card {
-    width: 100%;
-    box-sizing: border-box;
+    margin: 35px auto;
+    padding: 28px 22px;
   }
 }
 
-.submissions-section {
-  margin-top: 40px;
+/* =========================================
+   REGISTER PAGE
+========================================= */
+
+.register-auth-container {
+  min-height: 760px;
 }
 
-.submissions-section h2 {
-  margin-bottom: 20px;
+.register-form-side {
+  padding-top: 40px;
+  padding-bottom: 40px;
 }
 
-.submission-card {
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 15px;
-  max-width: 500px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+.register-form-container {
+  max-width: 430px;
 }
 
-.submission-card h3 {
-  margin-top: 0;
+.register-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
-.submission-card p {
-  color: #555;
+.register-success {
+  padding: 11px 13px;
+
+  background: #ecfdf3;
+
+  border: 1px solid #abefc6;
+  border-radius: 7px;
+
+  color: #067647;
+
+  font-size: 13px;
 }
 
-.submission-card input {
-  display: block;
-  margin-top: 8px;
-  padding: 10px;
-  width: 150px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+@media (max-width: 500px) {
+  .register-name-row {
+    grid-template-columns: 1fr;
+  }
 }
 
-.admin-section {
-  margin-top: 35px;
-  margin-bottom: 40px;
-}
+/* =========================================
+   LECTURER PORTAL
+========================================= */
 
-.admin-section h2 {
-  margin-bottom: 20px;
-}
-
-.admin-list {
+.dashboard-header {
   display: flex;
-  gap: 20px;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  margin-bottom: 30px;
+}
+
+.dashboard-eyebrow,
+.section-eyebrow {
+  margin: 0 0 7px !important;
+
+  color: var(--accent) !important;
+
+  font-size: 11px !important;
+  font-weight: 800;
+
+  letter-spacing: 1.3px;
+}
+
+.dashboard-header h1 {
+  margin: 0 0 8px;
+}
+
+.dashboard-description {
+  max-width: 650px;
+
+  margin: 0;
+
+  color: var(--text-muted);
+
+  font-size: 15px;
+}
+
+/* OVERVIEW CARDS */
+
+.lecturer-dashboard .dashboard-cards {
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-bottom: 30px;
+}
+
+.lecturer-dashboard .dashboard-card {
+  position: relative;
+
+  min-height: 145px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 22px;
+}
+
+.lecturer-dashboard .dashboard-card:hover {
+  border-color: #cbd5e1;
+
+  box-shadow: var(--shadow-medium);
+}
+
+.dashboard-card-label {
+  margin: 0 0 13px !important;
+
+  color: var(--text-muted) !important;
+
+  font-size: 11px !important;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+.dashboard-card-value {
+  margin-bottom: 8px;
+
+  color: var(--primary);
+
+  font-size: 34px;
+  font-weight: 750;
+
+  line-height: 1;
+}
+
+/* SECTION HEADINGS */
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.section-heading h2 {
+  margin: 0 0 5px;
+
+  font-size: 21px;
+}
+
+.section-heading p:not(.section-eyebrow) {
+  margin: 0;
+
+  color: var(--text-muted);
+
+  font-size: 14px;
+}
+
+/* Remove old heading border because
+   section-heading now handles it */
+
+.lecturer-dashboard
+  .courses-section
+  > h2,
+.lecturer-dashboard
+  .lessons-section
+  > h2,
+.lecturer-dashboard
+  .assignments-section
+  > h2,
+.lecturer-dashboard
+  .submissions-section
+  > h2 {
+  border-bottom: none;
+}
+
+/* FORMS */
+
+.dashboard-form-field {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.dashboard-form-field label {
+  font-size: 13px;
+}
+
+.dashboard-form-wide {
+  grid-column: 1 / -1;
+}
+
+.dashboard-form-actions {
+  grid-column: 1 / -1;
+
+  display: flex;
+  justify-content: flex-start;
+}
+
+.dashboard-form-actions button {
+  min-width: 140px;
+}
+
+/* ERROR + EMPTY STATES */
+
+.dashboard-error {
+  margin: 15px 0;
+
+  padding: 12px 14px;
+
+  background: var(--danger-background);
+
+  border: 1px solid #fecdca;
+  border-radius: 7px;
+
+  color: var(--danger);
+
+  font-size: 13px;
+}
+
+.dashboard-empty {
+  padding: 28px;
+
+  background: var(--surface-soft);
+
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+
+  text-align: center;
+}
+
+.dashboard-empty h3 {
+  margin: 0 0 6px;
+
+  font-size: 16px;
+}
+
+.dashboard-empty p {
+  margin: 0;
+
+  color: var(--text-muted);
+
+  font-size: 14px;
+}
+
+.compact-empty {
+  padding: 18px;
+}
+
+.muted-text {
+  color: var(--text-muted);
+
+  font-size: 14px;
+}
+
+/* COURSE GRID */
+
+.course-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(340px, 1fr));
+
+  gap: 18px;
+
+  margin-top: 20px;
+}
+
+.lecturer-dashboard .course-card {
+  margin: 0;
+
+  padding: 22px;
+}
+
+.course-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+.course-card-header h3 {
+  margin: 3px 0 0;
+}
+
+.course-category {
+  margin: 0 !important;
+
+  color: var(--accent) !important;
+
+  font-size: 11px !important;
+  font-weight: 750;
+
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.course-description {
+  margin: 16px 0 !important;
+
+  color: var(--text-muted) !important;
+
+  line-height: 1.6;
+}
+
+.course-meta {
+  display: flex;
   flex-wrap: wrap;
+
+  gap: 8px 18px;
+
+  padding: 13px 0;
+
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+
+  color: var(--text-muted);
+
+  font-size: 12px;
 }
 
-.admin-form {
+.course-meta strong {
+  color: #344054;
+}
+
+.course-actions {
+  margin-top: 16px;
+}
+
+.course-content-block {
+  margin-top: 20px;
+}
+
+.course-content-block h4 {
+  margin: 0 0 12px !important;
+
+  padding: 0 !important;
+
+  border: none !important;
+
+  font-size: 14px;
+}
+
+/* STATUS BADGES */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+
+  flex-shrink: 0;
+
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.4px;
+}
+
+.status-published {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.status-draft {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.status-submitted {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.status-graded {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+/* COMPACT COURSE CONTENT */
+
+.compact-list {
   display: flex;
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+.compact-list-item {
+  display: flex;
+
+  gap: 11px;
+
+  padding: 11px;
+
+  background: var(--surface-soft);
+
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.compact-list-item p {
+  margin: 3px 0 0 !important;
+
+  font-size: 12px !important;
+}
+
+.list-number {
+  width: 25px;
+  height: 25px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  background: var(--primary-light);
+  color: var(--primary);
+
+  border-radius: 50%;
+
+  font-size: 11px;
+  font-weight: 750;
+}
+
+/* ASSIGNMENT SUMMARY */
+
+.assignment-summary {
+  padding: 12px;
+
+  background: var(--surface-soft);
+
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.assignment-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
   gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
 }
 
-.admin-form input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  min-width: 200px;
+.assignment-summary-header span {
+  color: var(--primary);
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.assignment-summary p {
+  margin: 6px 0 !important;
+
+  font-size: 12px !important;
+}
+
+.assignment-summary small {
+  color: var(--text-muted);
+}
+
+/* SUBMISSIONS */
+
+.submission-course {
+  margin-top: 20px;
+
+  padding: 20px;
+
+  background: var(--surface-soft);
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.submission-course-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 18px;
+}
+
+.submission-course-header h3 {
+  margin: 0;
+
+  color: var(--primary);
+
+  font-size: 17px;
+}
+
+.submission-course-header > span {
+  color: var(--text-muted);
+
+  font-size: 12px;
+}
+
+.submission-assignment {
+  margin-top: 15px;
+
+  padding: 18px;
+
+  background: #ffffff;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.submission-assignment-header {
+  margin-bottom: 15px;
+}
+
+.submission-assignment-header h4 {
+  margin: 0 0 3px;
+
+  font-size: 15px;
+}
+
+.submission-assignment-header p {
+  margin: 0;
+
+  color: var(--text-muted);
+
+  font-size: 12px;
+}
+
+.lecturer-dashboard .submission-card {
+  margin: 12px 0 0;
+
+  background: #ffffff;
+}
+
+.submission-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 15px;
+}
+
+.submission-card-header h4 {
+  margin: 0 0 4px;
+}
+
+.submission-card-header p {
+  margin: 0;
+
+  font-size: 12px;
+}
+
+.submission-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-top: 12px;
+  padding: 11px 13px;
+
+  background: var(--surface-soft);
+
+  border: 1px solid var(--border);
+  border-radius: 7px;
+
+  font-size: 13px;
+}
+
+.submission-file span {
+  color: var(--text-muted);
+}
+
+.submission-file a {
+  color: var(--accent);
+
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.submission-file a:hover {
+  text-decoration: underline;
+}
+
+/* GRADING */
+
+.grading-section h5 {
+  margin: 0 0 14px;
+
+  color: var(--text);
+}
+
+.grading-fields {
+  display: grid;
+
+  grid-template-columns:
+    minmax(150px, 0.5fr)
+    minmax(250px, 1.5fr);
+
+  gap: 12px;
+
+  margin-bottom: 13px;
+}
+
+.grading-section .dashboard-form-field input {
+  max-width: none;
+
+  margin: 0;
+}
+
+.grade-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 10px;
+}
+
+.grade-result-header h5 {
+  margin: 0;
+}
+
+.grade-result-header strong {
+  color: var(--success);
+
+  font-size: 18px;
+}
+
+.grade-date {
+  margin-bottom: 0 !important;
+
+  color: var(--text-muted) !important;
+
+  font-size: 12px;
+}
+
+/* RESPONSIVE LECTURER PORTAL */
+
+@media (max-width: 1100px) {
+  .lecturer-dashboard .dashboard-cards {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .course-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grading-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .submission-file {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 650px) {
+  .lecturer-dashboard .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-card-value {
+    font-size: 29px;
+  }
+
+  .course-card-header,
+  .submission-card-header,
+  .submission-course-header,
+  .assignment-summary-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard-form-wide,
+  .dashboard-form-actions {
+    grid-column: auto;
+  }
 }
