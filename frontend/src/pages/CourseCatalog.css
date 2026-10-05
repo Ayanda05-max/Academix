@@ -1,18 +1,19 @@
 .course-catalog {
-  min-height: 100vh;
+  min-height: calc(100vh - 70px);
   padding: 30px;
-  background-color: #f5f7fb;
+  background-color: #f8fafc;
   color: #1f2937;
 }
 
 .course-catalog h1 {
+  color: #111827;
   margin-bottom: 8px;
   font-size: 32px;
 }
 
 .course-catalog > p {
   margin-bottom: 30px;
-  color: #6b7280;
+  color: #374151;
 }
 
 .catalog-grid {
@@ -22,19 +23,21 @@
 }
 
 .catalog-card {
-  background-color: white;
-  padding: 24px;
+  background-color: #ffffff;
+  border: 1px solid #dbe3f0;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .catalog-card h2 {
+  color: #111827;
   margin-bottom: 10px;
 }
 
 .catalog-card p {
   margin: 8px 0;
-  color: #6b7280;
+  color: #374151;
 }
 
 .catalog-card button {
@@ -43,7 +46,8 @@
   border: none;
   border-radius: 6px;
   background-color: #2563eb;
-  color: white;
+  color: #ffffff;
+  font-weight: 600;
   cursor: pointer;
 }
 

@@ -1,36 +1,50 @@
 .assignment-detail {
-  min-height: 100vh;
+  min-height: calc(100vh - 70px);
   padding: 30px;
-  background-color: #f5f7fb;
-  color: #1f2937;
+  background-color: #f8fafc;
+  color: #000000;
 }
 
 .assignment-detail h1 {
+  color: #000000;
   margin-bottom: 8px;
   font-size: 32px;
+  font-weight: 700;
 }
 
 .assignment-course {
   margin-bottom: 30px;
-  color: #6b7280;
+  color: #000000;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .assignment-info {
-  background-color: white;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
   padding: 24px;
   margin-bottom: 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .assignment-info h2 {
+  color: #000000;
   margin-bottom: 15px;
   font-size: 21px;
+  font-weight: 700;
 }
 
 .assignment-info p {
   margin: 8px 0;
-  color: #6b7280;
+  color: #000000;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.assignment-info strong {
+  color: #000000;
+  font-weight: 700;
 }
 
 .assignment-info ul {
@@ -39,7 +53,8 @@
 
 .assignment-info li {
   margin-bottom: 8px;
-  color: #6b7280;
+  color: #000000;
+  line-height: 1.5;
 }
 
 .assignment-info button {
@@ -48,7 +63,8 @@
   border: none;
   border-radius: 6px;
   background-color: #2563eb;
-  color: white;
+  color: #ffffff;
+  font-weight: 600;
   cursor: pointer;
 }
 

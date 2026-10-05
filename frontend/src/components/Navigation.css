@@ -14,6 +14,7 @@
 .navigation-links {
   display: flex;
   gap: 20px;
+  align-items: center;
 }
 
 .navigation-links a {
@@ -24,6 +25,20 @@
 
 .navigation-links a:hover {
   text-decoration: underline;
+}
+
+.logout-button {
+  background-color: white;
+  color: #2563eb;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background-color: #e5e7eb;
 }
 
 @media (max-width: 800px) {
