@@ -1,113 +1,160 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import './AssignmentDetail.css'
 
 function AssignmentDetail() {
   const { assignmentId } = useParams()
 
-  const [submitted, setSubmitted] = useState(false)
+  const [assignment, setAssignment] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
-  let assignment
+  useEffect(() => {
+    fetchAssignment()
+  }, [assignmentId])
 
-  if (assignmentId === 'programming') {
-    assignment = {
-      title: 'Programming Task',
-      course: 'Computer Science',
-      dueDate: '23 October 2026',
-      description:
-        'Complete the programming exercises and submit your Java source code.',
-      status: 'Submitted',
-      instructions: [
-        'Read the programming task requirements carefully.',
-        'Complete all required programming exercises.',
-        'Test your Java programs before submission.',
-        'Submit your completed source code before the due date.'
-      ]
+  async function fetchAssignment() {
+    let courseCode
+
+    if (assignmentId === 'database') {
+      courseCode = 'IM101'
+    } else if (assignmentId === 'programming') {
+      courseCode = 'CS101'
+    } else if (assignmentId === 'mathematics') {
+      courseCode = 'MATH101'
     }
-  } else if (assignmentId === 'mathematics') {
-    assignment = {
-      title: 'Discrete Mathematics Test',
-      course: 'Mathematics',
-      dueDate: '28 October 2026',
-      description:
-        'Prepare for the upcoming assessment covering sets, logic and mathematical structures.',
-      status: 'Upcoming',
-      instructions: [
-        'Review the course notes carefully.',
-        'Study sets and mathematical logic.',
-        'Review mathematical structures covered in class.',
-        'Prepare for the assessment before the test date.'
-      ]
+
+    const { data, error } = await supabase
+      .from('assignments')
+      .select('*')
+      .eq('course_code', courseCode)
+      .single()
+
+    if (error) {
+      console.error('Error loading assignment:', error)
+      setError('Unable to load assignment.')
+    } else {
+      setAssignment(data)
     }
-  } else {
-    assignment = {
-      title: 'Database Design Assignment',
-      course: 'Information Management',
-      dueDate: '20 October 2026',
-      description:
-        'Design a database system and create an appropriate database structure based on the given requirements.',
-      status: 'Not Submitted',
-      instructions: [
-        'Read the assignment requirements carefully.',
-        'Design the required database structure.',
-        'Implement the database tables and relationships.',
-        'Submit your completed work before the due date.'
-      ]
+
+    setLoading(false)
+  }
+
+  async function submitAssignment() {
+    setSubmitting(true)
+    setError('')
+
+    console.log(
+      'Attempting to submit assignment:',
+      assignment.id
+    )
+
+    const { data, error } = await supabase
+      .from('assignments')
+      .update({ status: 'Submitted' })
+      .eq('id', assignment.id)
+      .select()
+
+    console.log('Supabase update data:', data)
+    console.log('Supabase update error:', error)
+
+    if (error) {
+      console.error('Error submitting assignment:', error)
+      setError(
+        `Unable to submit assignment: ${error.message}`
+      )
+      setSubmitting(false)
+      return
     }
+
+    if (!data || data.length === 0) {
+      console.error('No assignment was updated.')
+      setError('No assignment was updated.')
+      setSubmitting(false)
+      return
+    }
+
+    setAssignment(data[0])
+    setSubmitting(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="assignment-detail">
+        <h1>Loading assignment...</h1>
+      </div>
+    )
+  }
+
+  if (error && !assignment) {
+    return (
+      <div className="assignment-detail">
+        <h1>Assignment Not Found</h1>
+        <p>{error}</p>
+      </div>
+    )
+  }
+
+  if (!assignment) {
+    return (
+      <div className="assignment-detail">
+        <h1>Assignment Not Found</h1>
+        <p>The requested assignment could not be found.</p>
+      </div>
+    )
   }
 
   return (
     <div className="assignment-detail">
       <h1>{assignment.title}</h1>
 
-      <p className="assignment-course">
-        {assignment.course}
+      <p>
+        <strong>Course:</strong> {assignment.course_code}
       </p>
 
-      <section className="assignment-info">
-        <h2>Assignment Information</h2>
+      <p>
+        <strong>Due Date:</strong>{' '}
+        {new Date(assignment.due_date).toLocaleDateString(
+          'en-GB',
+          {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          }
+        )}
+      </p>
 
-        <p>
-          <strong>Due Date:</strong> {assignment.dueDate}
-        </p>
+      <p>
+        <strong>Status:</strong> {assignment.status}
+      </p>
 
-        <p>
-          <strong>Status:</strong>{' '}
-          {submitted ? 'Submitted' : assignment.status}
-        </p>
-      </section>
+      {error && (
+        <p>{error}</p>
+      )}
 
       <section className="assignment-info">
         <h2>Description</h2>
-
         <p>{assignment.description}</p>
       </section>
 
       <section className="assignment-info">
         <h2>Instructions</h2>
-
-        <ul>
-          {assignment.instructions.map((instruction, index) => (
-            <li key={index}>{instruction}</li>
-          ))}
-        </ul>
+        <p>{assignment.instructions}</p>
       </section>
 
-      <section className="assignment-info">
-        <h2>Submission</h2>
-
-        <p>
-          {submitted
-            ? 'Your assignment has been submitted successfully.'
-            : 'Your assignment has not been submitted yet.'}
-        </p>
-
-        {!submitted && assignment.status === 'Not Submitted' && (
-          <button onClick={() => setSubmitted(true)}>
-            Submit Assignment
-          </button>
-        )}
-      </section>
+      {assignment.status === 'Not Submitted' && (
+        <button
+          className="assignment-submit-button"
+          onClick={submitAssignment}
+          disabled={submitting}
+        >
+          {submitting
+            ? 'Submitting...'
+            : 'Submit Assignment'}
+        </button>
+      )}
     </div>
   )
 }

@@ -1,85 +1,126 @@
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
 import './GradeProgress.css'
 
 function GradeProgress() {
+  const [grades, setGrades] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetchGrades()
+  }, [])
+
+  async function fetchGrades() {
+    const { data, error } = await supabase
+      .from('grades')
+      .select('*')
+      .order('course_code')
+
+    if (error) {
+      console.error('Error loading grades:', error)
+      setError('Unable to load grades.')
+    } else {
+      setGrades(data)
+    }
+
+    setLoading(false)
+  }
+
+  const overallProgress =
+    grades.length > 0
+      ? Math.round(
+          grades.reduce(
+            (total, item) => total + item.grade,
+            0
+          ) / grades.length
+        )
+      : 0
+
+  const completedAssessments = grades.length
+
+  const averageGrade = overallProgress
+
+  const upcomingAssessments = 0
+
+  if (loading) {
+    return (
+      <div className="grade-progress">
+        <h1>Grades & Progress</h1>
+        <p>Loading grades...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="grade-progress">
+        <h1>Grades & Progress</h1>
+        <p>{error}</p>
+      </div>
+    )
+  }
+
   return (
     <div className="grade-progress">
-      <h1>Grades and Progress</h1>
+      <h1>Grades & Progress</h1>
 
-      <p className="progress-intro">
-        View your grades and monitor your academic progress.
+      <p className="grade-intro">
+        View your course grades and academic progress.
       </p>
 
-      <section className="grades-section">
-        <h2>Course Grades</h2>
+      <div className="grade-list">
+        {grades.map((item) => (
+          <div
+            className="grade-card"
+            key={item.id}
+          >
+            <h2>{item.course_title}</h2>
 
-        <div className="grade-card">
-          <div>
-            <h3>Computer Science</h3>
-            <p>Introduction to Programming</p>
+            <p>
+              <strong>Course Code:</strong>{' '}
+              {item.course_code}
+            </p>
+
+            <p>
+              <strong>Grade:</strong> {item.grade}%
+            </p>
+
+            <p>
+              <strong>Performance:</strong>{' '}
+              {item.performance}
+            </p>
           </div>
+        ))}
+      </div>
 
-          <div className="grade">
-            <span>78%</span>
-            <p>Good</p>
-          </div>
-        </div>
-
-        <div className="grade-card">
-          <div>
-            <h3>Information Management</h3>
-            <p>Database Systems</p>
-          </div>
-
-          <div className="grade">
-            <span>72%</span>
-            <p>Good</p>
-          </div>
-        </div>
-
-        <div className="grade-card">
-          <div>
-            <h3>Mathematics</h3>
-            <p>Discrete Mathematics</p>
-          </div>
-
-          <div className="grade">
-            <span>85%</span>
-            <p>Excellent</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="progress-section">
-        <h2>Overall Academic Progress</h2>
-
-        <p>Overall Progress: 78%</p>
+      <section className="progress-summary">
+        <h2>Overall Progress</h2>
 
         <div className="progress-bar">
           <div
             className="progress"
-            style={{ width: '78%' }}
+            style={{ width: `${overallProgress}%` }}
           ></div>
         </div>
+
+        <p>{overallProgress}%</p>
       </section>
 
-      <section className="progress-section">
-        <h2>Completed Assessments</h2>
+      <section className="progress-stats">
+        <div>
+          <h3>Completed Assessments</h3>
+          <p>{completedAssessments}</p>
+        </div>
 
-        <div className="assessment-summary">
-          <div>
-            <h3>8</h3>
-            <p>Completed</p>
-          </div>
+        <div>
+          <h3>Upcoming Assessments</h3>
+          <p>{upcomingAssessments}</p>
+        </div>
 
-          <div>
-            <h3>3</h3>
-            <p>Upcoming</p>
-          </div>
-
-          <div>
-            <h3>78%</h3>
-            <p>Average Grade</p>
-          </div>
+        <div>
+          <h3>Average Grade</h3>
+          <p>{averageGrade}%</p>
         </div>
       </section>
     </div>

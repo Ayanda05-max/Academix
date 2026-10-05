@@ -1,5 +1,76 @@
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
 import './Dashboard.css'
+
 function Dashboard() {
+  const [courses, setCourses] = useState([])
+  const [assignments, setAssignments] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  async function fetchDashboardData() {
+    const { data: courseData, error: courseError } = await supabase
+      .from('courses')
+      .select('*')
+      .order('course_code')
+
+    const { data: assignmentData, error: assignmentError } = await supabase
+      .from('assignments')
+      .select('*')
+      .order('due_date')
+
+    if (courseError || assignmentError) {
+      console.error('Error loading dashboard:', {
+        courseError,
+        assignmentError
+      })
+
+      setError('Unable to load dashboard data.')
+      setLoading(false)
+      return
+    }
+
+    setCourses(courseData || [])
+    setAssignments(assignmentData || [])
+    setLoading(false)
+  }
+
+  const overallProgress =
+    courses.length > 0
+      ? Math.round(
+          courses.reduce(
+            (total, course) => total + course.progress,
+            0
+          ) / courses.length
+        )
+      : 0
+
+  const upcomingAssignments = assignments.filter(
+    (assignment) => assignment.status !== 'Submitted'
+  )
+
+  if (loading) {
+    return (
+      <div className="dashboard">
+        <h1>Student Dashboard</h1>
+        <p>Loading dashboard...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard">
+        <h1>Student Dashboard</h1>
+        <p>{error}</p>
+      </div>
+    )
+  }
+
   return (
     <div className="dashboard">
       <h1>Student Dashboard</h1>
@@ -10,49 +81,69 @@ function Dashboard() {
         <h2>My Courses</h2>
 
         <div className="course-list">
-          <div className="course-card">
-            <h3>Computer Science</h3>
-            <p>Introduction to Programming</p>
-            <p>Progress: 75%</p>
-          </div>
+          {courses.map((course) => (
+            <div
+              className="course-card"
+              key={course.id}
+            >
+              <h3>{course.department}</h3>
 
-          <div className="course-card">
-            <h3>Information Management</h3>
-            <p>Database Systems</p>
-            <p>Progress: 60%</p>
-          </div>
+              <p>{course.title}</p>
 
-          <div className="course-card">
-            <h3>Mathematics</h3>
-            <p>Discrete Mathematics</p>
-            <p>Progress: 85%</p>
-          </div>
+              <p>
+                Progress: {course.progress}%
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
       <section className="dashboard-section">
         <h2>Upcoming Assignments</h2>
 
-        <div className="assignment-card">
-          <h3>Database Design Assignment</h3>
-          <p>Course: Information Management</p>
-          <p>Due: 20 September 2026</p>
-        </div>
+        {upcomingAssignments.length === 0 ? (
+          <p>No upcoming assignments.</p>
+        ) : (
+          upcomingAssignments.map((assignment) => (
+            <div
+              className="assignment-card"
+              key={assignment.id}
+            >
+              <h3>{assignment.title}</h3>
 
-        <div className="assignment-card">
-          <h3>Programming Task</h3>
-          <p>Course: Computer Science</p>
-          <p>Due: 23 September 2026</p>
-        </div>
+              <p>
+                Course: {assignment.course_code}
+              </p>
+
+              <p>
+                Due:{' '}
+                {new Date(
+                  assignment.due_date
+                ).toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric'
+                })}
+              </p>
+            </div>
+          ))
+        )}
       </section>
 
       <section className="dashboard-section">
         <h2>Academic Progress</h2>
 
-        <p>Overall Progress: 73%</p>
+        <p>
+          Overall Progress: {overallProgress}%
+        </p>
 
         <div className="progress-bar">
-          <div className="progress" style={{ width: '73%' }}></div>
+          <div
+            className="progress"
+            style={{
+              width: `${overallProgress}%`
+            }}
+          ></div>
         </div>
       </section>
     </div>
