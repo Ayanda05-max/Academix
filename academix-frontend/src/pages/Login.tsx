@@ -1,8 +1,20 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+type LoginResponse = {
+  token: string;
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+};
 
 function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  const navigate = useNavigate();
 
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -20,12 +32,28 @@ function Login() {
       });
 
       if (response.ok) {
-        const token = await response.text();
+        const data: LoginResponse = await response.json();
 
-        // Save the JWT token in the browser
-        localStorage.setItem("token", token);
+        // Save only the JWT token
+        localStorage.setItem("token", data.token);
+
+        // Save basic user information
+        localStorage.setItem("userId", String(data.id));
+        localStorage.setItem("firstName", data.firstName);
+        localStorage.setItem("lastName", data.lastName);
+        localStorage.setItem("email", data.email);
+        localStorage.setItem("role", data.role);
 
         alert("Login successful");
+
+        // Redirect according to the user's role
+        if (data.role === "ADMIN") {
+          navigate("/admin");
+        } else if (data.role === "LECTURER") {
+          navigate("/lecturer");
+        } else {
+          navigate("/");
+        }
       } else {
         alert("Invalid email or password");
       }
