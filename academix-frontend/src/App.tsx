@@ -4,6 +4,14 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
+import StudentLayout from "./pages/student/StudentLayout";
+import StudentDashboard from "./pages/student/StudentDashboard";
+import MyCourses from "./pages/student/MyCourses";
+import StudentGrades from "./pages/student/StudentGrades";
+import StudentNotifications from "./pages/student/StudentNotifications";
+
+
+
 
 import NavBar from "./components/NavBar";
 
@@ -12,8 +20,9 @@ import Register from "./pages/Register";
 import LecturerDashboard from "./pages/LecturerDashboard";
 import QuizPage from "./pages/QuizPage";
 import AdminPanel from "./pages/AdminPanel";
-
 import "./App.css";
+import StudentQuizzes from "./pages/student/StudentQuizzes";
+import TakeQuiz from "./pages/student/TakeQuiz";
 
 function App() {
   return (
@@ -77,6 +86,21 @@ function App() {
               </ProtectedRoute>
             }
           />
+           <Route
+            path="/student"
+            element={
+              <ProtectedRoute allowedRole="STUDENT">
+                <StudentLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<StudentDashboard />} />
+            <Route path="courses" element={<MyCourses />} />
+            <Route path="grades" element={<StudentGrades />} />
+            <Route path="notifications" element={<StudentNotifications />} />
+                        <Route path="quizzes" element={<StudentQuizzes />} />
+            <Route path="quizzes/:quizId" element={<TakeQuiz />} />
+          </Route>
 
           {/* UNKNOWN URL */}
 
@@ -144,6 +168,9 @@ function HomeRedirect() {
 ======================================== */
 
 function getDashboardPath(role: string | null) {
+  
+    if (role === "STUDENT") return "/student";
+
   if (role === "ADMIN") {
     return "/admin";
   }

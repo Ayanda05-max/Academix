@@ -23,6 +23,10 @@ function NavBar() {
     return location.pathname === path ? "active" : "";
   }
 
+    if (location.pathname.startsWith("/student")) {
+    return null;
+  }
+
   return (
     <nav className="navbar">
       <Link to={token ? getDashboardPath(role) : "/login"} className="navbar-brand">
