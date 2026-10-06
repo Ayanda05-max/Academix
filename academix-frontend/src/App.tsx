@@ -1,10 +1,18 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
+
 import NavBar from "./components/NavBar";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import LecturerDashboard from "./pages/LecturerDashboard";
 import QuizPage from "./pages/QuizPage";
 import AdminPanel from "./pages/AdminPanel";
+
 import "./App.css";
 
 function App() {
@@ -12,15 +20,143 @@ function App() {
     <BrowserRouter>
       <NavBar />
 
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/lecturer" element={<LecturerDashboard />} />
-        <Route path="/quiz" element={<QuizPage />} />
-        <Route path="/admin" element={<AdminPanel />} />
-      </Routes>
+      <main className="main-content">
+        <Routes>
+          {/* DEFAULT */}
+
+          <Route
+            path="/"
+            element={<HomeRedirect />}
+          />
+
+          {/* PUBLIC */}
+
+          <Route
+            path="/login"
+            element={<Login />}
+          />
+
+          {/* ADMIN */}
+
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRole="ADMIN">
+                <AdminPanel />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/register"
+            element={
+              <ProtectedRoute allowedRole="ADMIN">
+                <Register />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* LECTURER */}
+
+          <Route
+            path="/lecturer"
+            element={
+              <ProtectedRoute allowedRole="LECTURER">
+                <LecturerDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* STUDENT */}
+
+          <Route
+            path="/quiz"
+            element={
+              <ProtectedRoute allowedRole="STUDENT">
+                <QuizPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* UNKNOWN URL */}
+
+          <Route
+            path="*"
+            element={<HomeRedirect />}
+          />
+        </Routes>
+      </main>
     </BrowserRouter>
   );
+}
+
+/* ========================================
+   PROTECTED ROUTE
+======================================== */
+
+type ProtectedRouteProps = {
+  allowedRole: string;
+  children: React.ReactNode;
+};
+
+function ProtectedRoute({
+  allowedRole,
+  children,
+}: ProtectedRouteProps) {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
+  // User is not logged in
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // User is logged in but has the wrong role
+  if (role !== allowedRole) {
+    return <Navigate to={getDashboardPath(role)} replace />;
+  }
+
+  return children;
+}
+
+/* ========================================
+   HOME REDIRECT
+======================================== */
+
+function HomeRedirect() {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <Navigate
+      to={getDashboardPath(role)}
+      replace
+    />
+  );
+}
+
+/* ========================================
+   ROLE DASHBOARD
+======================================== */
+
+function getDashboardPath(role: string | null) {
+  if (role === "ADMIN") {
+    return "/admin";
+  }
+
+  if (role === "LECTURER") {
+    return "/lecturer";
+  }
+
+  if (role === "STUDENT") {
+    return "/quiz";
+  }
+
+  return "/login";
 }
 
 export default App;
