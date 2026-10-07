@@ -138,7 +138,7 @@
   border-left-color: var(--accent);
 }
 
-/* Beside the sidebar, the page fills the remaining width */
+
 .student-shell .lecturer-dashboard {
   flex: 1;
   min-width: 0;
@@ -164,7 +164,7 @@
   .student-shell .lecturer-dashboard { padding: 24px 16px 55px; }
 }
 
-/* Student pages: break out of the 1126px #root so the sidebar sits on the far left */
+
 #root:has(.student-shell) {
   width: 100%;
   max-width: none;
@@ -175,7 +175,7 @@
   text-align: left;
 }
 
-/* Admin portal beside the sidebar (same as the lecturer pages) */
+
 .student-shell .admin-panel {
   flex: 1;
   min-width: 0;
@@ -189,7 +189,7 @@
   .student-shell .admin-panel { padding: 24px 16px 55px; }
 }
 
-/* Admin portal beside the sidebar (same as the lecturer pages) */
+
 .student-shell .admin-panel {
   flex: 1;
   min-width: 0;
@@ -201,4 +201,84 @@
 
 @media (max-width: 800px) {
   .student-shell .admin-panel { padding: 24px 16px 55px; }
+}
+
+.student-shell .student-sidebar {
+  background: var(--primary);
+  border-right: 1px solid var(--primary-dark);
+}
+
+.student-shell .student-sidebar-title {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.student-shell .student-sidebar a {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.student-shell .student-sidebar a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.student-shell .student-sidebar a.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-left-color: #ffffff;
+}
+
+@media (max-width: 800px) {
+  .student-shell .student-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--primary-dark);
+  }
+}
+.progress-list {
+  display: grid;
+  gap: 14px;
+}
+
+.progress-item {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.progress-percent {
+  color: var(--primary, #123b6d);
+  font-weight: 800;
+}
+
+.progress-track {
+  height: 10px;
+  margin-top: 10px;
+  background: var(--primary-light, #edf4fb);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent, #2b6dad);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.progress-fill.complete {
+  background: var(--success, #067647);
+}
+
+.progress-meta {
+  margin: 8px 0 0;
+  color: var(--text-muted, #667085);
+  font-size: 14px;
 }

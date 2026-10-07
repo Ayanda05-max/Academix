@@ -4,7 +4,6 @@ export interface QuizQuestion {
   text: string;
   options: string[];
   marks: number;
-  correctIndex?: number;
 }
 
 export interface Quiz {
@@ -12,7 +11,7 @@ export interface Quiz {
   courseId: number;
   title: string;
   questions: QuizQuestion[];
-  timeLimit: number | null;
+  timeLimit: number | null; // minutes
   totalMarks: number;
 }
 
@@ -24,26 +23,6 @@ export interface QuizScore {
   totalMarks: number;
   percentage: number;
   submittedAt: string;
-}
-
-export interface QuizCreateInput {
-  courseId: number;
-  title: string;
-  timeLimit: number | null;
-  questions: {
-    text: string;
-    options: string[];
-    correctIndex: number;
-    marks: number;
-  }[];
-}
-
-export interface CourseOption {
-  id: number;
-  title?: string;
-  name?: string;
-  instructorId?: number;
-  status?: string;
 }
 
 export class ApiError extends Error {
@@ -73,6 +52,7 @@ async function request<T>(path: string, method = "GET", body?: unknown): Promise
       if (data.message) message = data.message;
       else if (data.error) message = data.error;
     } catch {
+      // response had no JSON body
     }
     throw new ApiError(response.status, message);
   }
@@ -84,18 +64,11 @@ export function getQuizzesForCourse(courseId: number) {
   return request<Quiz[]>(`/quizzes/course/${courseId}`);
 }
 
-export function createQuiz(input: QuizCreateInput) {
-  return request<Quiz>("/quizzes", "POST", input);
-}
-
-export function getLecturerCourses() {
-  return request<CourseOption[]>("/courses");
-}
-
 export function submitQuiz(quizId: number, answers: (number | null)[]) {
   return request<QuizScore>(`/quizzes/${quizId}/submit`, "POST", { answers });
 }
 
+// Returns null when the student has not attempted the quiz yet (backend answers 404)
 export async function getQuizResult(quizId: number, studentId: number): Promise<QuizScore | null> {
   try {
     return await request<QuizScore>(`/quizzes/${quizId}/results/${studentId}`);

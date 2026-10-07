@@ -34,11 +34,20 @@ type Notification = {
   createdAt: string;
 };
 
+type CourseProgress = {
+  courseId: number;
+  courseTitle: string;
+  completedLessons: number;
+  totalLessons: number;
+  completionPercentage: number;
+};
+
 function StudentDashboard() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [deadlines, setDeadlines] = useState<Assignment[]>([]);
   const [grades, setGrades] = useState<Grade[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [progress, setProgress] = useState<CourseProgress[]>([]);
   const [error, setError] = useState<string>("");
 
   const token = localStorage.getItem("token");
@@ -67,6 +76,7 @@ function StudentDashboard() {
       await loadDeadlines(enrolled);
       await loadGrades();
       await loadNotifications();
+      await loadProgress(enrolled);
     } catch (error) {
       setError("ERROR: " + String(error));
     }
@@ -149,6 +159,53 @@ function StudentDashboard() {
     }
   }
 
+  async function loadProgress(enrolled: Enrollment[]) {
+    const results: CourseProgress[] = [];
+
+    for (const enrollment of enrolled) {
+      if (enrollment.status !== "ACTIVE") {
+        continue;
+      }
+
+      try {
+        const response = await fetch(
+          `/api/progress/${studentId}/${enrollment.courseId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+
+          results.push({
+            courseId: enrollment.courseId,
+            courseTitle: enrollment.courseTitle,
+            completedLessons: data.completedLessons ?? 0,
+            totalLessons: data.totalLessons ?? 0,
+            completionPercentage: data.completionPercentage ?? 0,
+          });
+        }
+      } catch (error) {
+        console.error("Could not load progress:", error);
+      }
+    }
+
+    setProgress(results);
+  }
+
+  const totalLessonsAll = progress.reduce((sum, p) => sum + p.totalLessons, 0);
+  const completedLessonsAll = progress.reduce(
+    (sum, p) => sum + p.completedLessons,
+    0
+  );
+  const overallPercentage =
+    totalLessonsAll === 0
+      ? 0
+      : Math.round((completedLessonsAll * 1000) / totalLessonsAll) / 10;
+
+  function clampPercent(value: number) {
+    return Math.max(0, Math.min(100, value));
+  }
+
   return (
     <>
       {/* HEADER */}
@@ -177,6 +234,14 @@ function StudentDashboard() {
         </div>
 
         <div className="dashboard-card">
+          <p className="dashboard-card-label">PROGRESS</p>
+          <div className="dashboard-card-value">{overallPercentage}%</div>
+          <p>
+            {completedLessonsAll} of {totalLessonsAll} lessons completed
+          </p>
+        </div>
+
+        <div className="dashboard-card">
           <p className="dashboard-card-label">DEADLINES</p>
           <div className="dashboard-card-value">{deadlines.length}</div>
           <p>Assignments still open</p>
@@ -196,6 +261,59 @@ function StudentDashboard() {
           <p>Unread updates</p>
         </div>
       </div>
+
+      {/* COURSE PROGRESS */}
+
+      <section className="courses-section">
+        <div className="section-heading">
+          <div>
+            <p className="section-eyebrow">PROGRESS</p>
+            <h2>Course Progress</h2>
+            <p>How much of each course you have completed.</p>
+          </div>
+        </div>
+
+        {progress.length === 0 ? (
+          <div className="dashboard-empty">
+            <p>No course progress to show yet.</p>
+          </div>
+        ) : (
+          <div className="progress-list">
+            {progress.map((item) => {
+              const percent = clampPercent(item.completionPercentage);
+
+              return (
+                <div className="progress-item" key={item.courseId}>
+                  <div className="progress-head">
+                    <strong>{item.courseTitle}</strong>
+                    <span className="progress-percent">{percent}%</span>
+                  </div>
+
+                  <div
+                    className="progress-track"
+                    role="progressbar"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={percent}
+                    aria-label={`${item.courseTitle} progress`}
+                  >
+                    <div
+                      className={`progress-fill${percent >= 100 ? " complete" : ""}`}
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+
+                  <p className="progress-meta">
+                    {item.totalLessons === 0
+                      ? "No lessons added yet"
+                      : `${item.completedLessons} of ${item.totalLessons} lessons completed`}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       {/* UPCOMING DEADLINES */}
 
@@ -307,3 +425,4 @@ function StudentDashboard() {
 }
 
 export default StudentDashboard;
+

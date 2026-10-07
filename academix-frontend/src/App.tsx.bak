@@ -8,7 +8,6 @@ import StudentLayout from "./pages/student/StudentLayout";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import MyCourses from "./pages/student/MyCourses";
 import StudentGrades from "./pages/student/StudentGrades";
-import StudentAssignments from "./pages/student/StudentAssignments";
 import StudentNotifications from "./pages/student/StudentNotifications";
 
 import LecturerLayout from "./pages/lecturer/LecturerLayout";
@@ -118,7 +117,6 @@ function App() {
           >
             <Route index element={<StudentDashboard />} />
             <Route path="courses" element={<MyCourses />} />
-            <Route path="assignments" element={<StudentAssignments />} />
             <Route path="grades" element={<StudentGrades />} />
             <Route path="notifications" element={<StudentNotifications />} />
                         <Route path="quizzes" element={<StudentQuizzes />} />

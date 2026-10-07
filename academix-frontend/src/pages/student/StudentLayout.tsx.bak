@@ -56,8 +56,6 @@ function StudentLayout() {
 
           <NavLink to="/student/courses">My Courses</NavLink>
 
-          <NavLink to="/student/assignments">Assignments</NavLink>
-
           <NavLink to="/student/quizzes">Quizzes</NavLink>
 
           <NavLink to="/student/grades">Grades</NavLink>
