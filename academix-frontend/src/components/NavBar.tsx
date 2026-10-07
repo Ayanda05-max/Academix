@@ -23,7 +23,12 @@ function NavBar() {
     return location.pathname === path ? "active" : "";
   }
 
-    if (location.pathname.startsWith("/student")) {
+  // The student, lecturer and admin pages have their own top bar and side menu
+  if (
+    location.pathname.startsWith("/student") ||
+    location.pathname.startsWith("/lecturer") ||
+    location.pathname.startsWith("/admin")
+  ) {
     return null;
   }
 

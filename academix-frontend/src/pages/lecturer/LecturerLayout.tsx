@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import "./student.css";
+import "../student/student.css";
 
-function StudentLayout() {
+function LecturerLayout() {
   const navigate = useNavigate();
 
   const firstName = localStorage.getItem("firstName");
@@ -23,7 +23,7 @@ function StudentLayout() {
       {/* TOP BAR (same classes as NavBar.tsx) */}
 
       <nav className="navbar">
-        <Link to="/student" className="navbar-brand">
+        <Link to="/lecturer" className="navbar-brand">
           <span>Academix</span>
         </Link>
 
@@ -48,24 +48,26 @@ function StudentLayout() {
         {/* SIDE NAVBAR */}
 
         <aside className="student-sidebar">
-          <p className="student-sidebar-title">STUDENT MENU</p>
+          <p className="student-sidebar-title">LECTURER MENU</p>
 
-          <NavLink to="/student" end>
+          <NavLink to="/lecturer" end>
             Dashboard
           </NavLink>
 
-          <NavLink to="/student/courses">My Courses</NavLink>
+          <NavLink to="/lecturer/courses">My Courses</NavLink>
 
-          <NavLink to="/student/quizzes">Quizzes</NavLink>
+          <NavLink to="/lecturer/lessons">Lessons</NavLink>
 
-          <NavLink to="/student/grades">Grades</NavLink>
+          <NavLink to="/lecturer/assignments">Assignments</NavLink>
 
-          <NavLink to="/student/notifications">Notifications</NavLink>
+          <NavLink to="/lecturer/submissions">Submissions</NavLink>
+
+          <NavLink to="/lecturer/quizzes">Quizzes</NavLink>
         </aside>
 
         {/* PAGE CONTENT */}
 
-        <div className="lecturer-dashboard student-portal">
+        <div className="lecturer-dashboard">
           <Outlet />
         </div>
       </div>
@@ -73,4 +75,4 @@ function StudentLayout() {
   );
 }
 
-export default StudentLayout;
+export default LecturerLayout;

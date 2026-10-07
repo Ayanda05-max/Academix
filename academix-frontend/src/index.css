@@ -109,3 +109,35 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+
+/* ===== Academix: white background and clear text on every page ===== */
+:root,
+:root:not([data-theme]) {
+  color-scheme: light;
+  --bg: #ffffff;
+  --text: #172033;
+  --text-h: #102a49;
+  --border: #dde5ee;
+  --accent: #2b6dad;
+  color: #172033;
+  background: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light;
+    --bg: #ffffff;
+    --text: #172033;
+    --text-h: #102a49;
+    --border: #dde5ee;
+    --accent: #2b6dad;
+    color: #172033;
+    background: #ffffff;
+  }
+}
+
+html body {
+  background: #ffffff;
+  color: #172033;
+}

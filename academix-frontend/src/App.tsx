@@ -10,16 +10,24 @@ import MyCourses from "./pages/student/MyCourses";
 import StudentGrades from "./pages/student/StudentGrades";
 import StudentNotifications from "./pages/student/StudentNotifications";
 
+import LecturerLayout from "./pages/lecturer/LecturerLayout";
+import LecturerHome from "./pages/lecturer/LecturerHome";
+import LecturerCourses from "./pages/lecturer/LecturerCourses";
+import LecturerLessons from "./pages/lecturer/LecturerLessons";
+import LecturerAssignments from "./pages/lecturer/LecturerAssignments";
+import LecturerSubmissions from "./pages/lecturer/LecturerSubmissions";
 
-
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminHome from "./pages/admin/AdminHome";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminCourses from "./pages/admin/AdminCourses";
+import AdminEnrolments from "./pages/admin/AdminEnrolments";
 
 import NavBar from "./components/NavBar";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import LecturerDashboard from "./pages/LecturerDashboard";
 import QuizPage from "./pages/QuizPage";
-import AdminPanel from "./pages/AdminPanel";
 import "./App.css";
 import StudentQuizzes from "./pages/student/StudentQuizzes";
 import TakeQuiz from "./pages/student/TakeQuiz";
@@ -51,10 +59,16 @@ function App() {
             path="/admin"
             element={
               <ProtectedRoute allowedRole="ADMIN">
-                <AdminPanel />
+                <AdminLayout />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route index element={<AdminHome />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="users/new" element={<Register />} />
+            <Route path="courses" element={<AdminCourses />} />
+            <Route path="enrolments" element={<AdminEnrolments />} />
+          </Route>
 
           <Route
             path="/register"
@@ -71,10 +85,17 @@ function App() {
             path="/lecturer"
             element={
               <ProtectedRoute allowedRole="LECTURER">
-                <LecturerDashboard />
+                <LecturerLayout />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route index element={<LecturerHome />} />
+            <Route path="courses" element={<LecturerCourses />} />
+            <Route path="lessons" element={<LecturerLessons />} />
+            <Route path="assignments" element={<LecturerAssignments />} />
+            <Route path="submissions" element={<LecturerSubmissions />} />
+            <Route path="quizzes" element={<QuizPage />} />
+          </Route>
 
           {/* STUDENT */}
 

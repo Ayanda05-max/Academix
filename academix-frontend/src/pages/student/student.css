@@ -91,3 +91,114 @@
   .st-nav { flex-direction: row; padding: 0; }
   .st-content { padding: 16px; }
 }
+/* Side navbar for the student pages */
+
+.student-shell {
+  display: flex;
+  align-items: stretch;
+  min-height: calc(100vh - 72px);
+}
+
+.student-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  padding: 28px 14px;
+  background: #fff;
+  border-right: 1px solid var(--border);
+}
+
+.student-sidebar-title {
+  margin: 0 0 12px;
+  padding: 0 14px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.student-sidebar a {
+  display: block;
+  margin-bottom: 4px;
+  padding: 11px 14px;
+  color: #667085;
+  border-left: 3px solid transparent;
+  border-radius: 9px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.student-sidebar a:hover {
+  background: #f5f8fc;
+  color: var(--primary);
+}
+
+.student-sidebar a.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-left-color: var(--accent);
+}
+
+/* Beside the sidebar, the page fills the remaining width */
+.student-shell .lecturer-dashboard {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  max-width: 1432px;
+  margin: 0 auto;
+  padding: 48px 36px 80px;
+}
+
+@media (max-width: 800px) {
+  .student-shell { flex-direction: column; }
+  .student-sidebar {
+    width: auto;
+    display: flex;
+    gap: 6px;
+    padding: 12px;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .student-sidebar-title { display: none; }
+  .student-sidebar a { white-space: nowrap; margin-bottom: 0; }
+  .student-shell .lecturer-dashboard { padding: 24px 16px 55px; }
+}
+
+/* Student pages: break out of the 1126px #root so the sidebar sits on the far left */
+#root:has(.student-shell) {
+  width: 100%;
+  max-width: none;
+  border-inline: none;
+}
+
+.student-sidebar {
+  text-align: left;
+}
+
+/* Admin portal beside the sidebar (same as the lecturer pages) */
+.student-shell .admin-panel {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  max-width: 1432px;
+  margin: 0 auto;
+  padding: 48px 36px 80px;
+}
+
+@media (max-width: 800px) {
+  .student-shell .admin-panel { padding: 24px 16px 55px; }
+}
+
+/* Admin portal beside the sidebar (same as the lecturer pages) */
+.student-shell .admin-panel {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  max-width: 1432px;
+  margin: 0 auto;
+  padding: 48px 36px 80px;
+}
+
+@media (max-width: 800px) {
+  .student-shell .admin-panel { padding: 24px 16px 55px; }
+}
