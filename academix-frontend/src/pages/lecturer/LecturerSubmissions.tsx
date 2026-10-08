@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import SubmissionFiles from "../../components/SubmissionFiles";
+import type { SubmissionFileInfo } from "../../utils/submissionFiles";
 
 type Course = {
   id: number;
@@ -18,9 +20,10 @@ type Submission = {
   assignmentId: number;
   studentId: number;
   studentName: string;
-  fileUrl: string;
+  fileUrl: string | null;
   submittedAt: string;
   status: string;
+  files: SubmissionFileInfo[];
 };
 
 type Grade = {
@@ -235,7 +238,12 @@ function LecturerSubmissions() {
     const submissionInfo = [
       `Student: ${submission.studentName}`,
       `Assignment: ${assignment.title}`,
-      `Submission: ${submission.fileUrl}`,
+      `Files: ${
+        submission.files?.length
+          ? submission.files.map((file) => file.name).join(", ")
+          : "None"
+      }`,
+      `Link: ${submission.fileUrl || "None"}`,
       `Status: ${submission.status}`,
       savedGrade
         ? `Grade: ${savedGrade.marksAwarded}/${savedGrade.totalMarks}`
@@ -346,33 +354,26 @@ function LecturerSubmissions() {
                               </span>
                             </div>
 
-                            {submission.fileUrl && (
-                              <>
-                                <div className="submission-copy-row">
-                                  <button
-                                    type="button"
-                                    className="copy-outline-button"
-                                    onClick={() =>
-                                      copySubmissionInfo(submission, assignment)
-                                    }
-                                  >
-                                    Copy Submission Info
-                                  </button>
-                                </div>
+                            <div className="submission-copy-row">
+                              <button
+                                type="button"
+                                className="copy-outline-button"
+                                onClick={() =>
+                                  copySubmissionInfo(submission, assignment)
+                                }
+                              >
+                                Copy Submission Info
+                              </button>
+                            </div>
 
-                                <div className="submission-file">
-                                  <span>Submission file</span>
+                            <div className="submission-file">
+                              <span>Submitted work</span>
 
-                                  <a
-                                    href={submission.fileUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                  >
-                                    Open submission
-                                  </a>
-                                </div>
-                              </>
-                            )}
+                              <SubmissionFiles
+                                files={submission.files}
+                                fileUrl={submission.fileUrl}
+                              />
+                            </div>
 
                             {savedGrade ? (
                               <div className="grade-result">

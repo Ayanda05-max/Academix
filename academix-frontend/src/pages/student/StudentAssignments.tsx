@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { readError } from "../../utils/readError";
+import SubmissionFiles from "../../components/SubmissionFiles";
+import {
+  ACCEPT_ATTRIBUTE,
+  MAX_FILES,
+  checkFile,
+  formatFileSize,
+} from "../../utils/submissionFiles";
+import type { SubmissionFileInfo } from "../../utils/submissionFiles";
 
 type Enrollment = {
   id: number;
@@ -22,9 +30,10 @@ type Assignment = {
 type Submission = {
   id: number;
   assignmentId: number;
-  fileUrl: string;
+  fileUrl: string | null;
   submittedAt: string;
   status: string;
+  files: SubmissionFileInfo[];
 };
 
 type Grade = {
@@ -40,7 +49,7 @@ function StudentAssignments() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [grades, setGrades] = useState<Grade[]>([]);
-  const [links, setLinks] = useState<Record<number, string>>({});
+  const [picked, setPicked] = useState<Record<number, File[]>>({});
   const [error, setError] = useState<string>("");
 
   const token = localStorage.getItem("token");
@@ -170,7 +179,48 @@ function StudentAssignments() {
     }
   }
 
-  // Submit an assignment (the backend takes a link to the work)
+  // Add chosen files to the list for one assignment (max 5, allowed types, 10 MB each)
+  function addFiles(assignmentId: number, chosen: FileList | null) {
+    if (!chosen) {
+      return;
+    }
+
+    const current = picked[assignmentId] || [];
+    const next = [...current];
+
+    for (const file of Array.from(chosen)) {
+      const problem = checkFile(file);
+
+      if (problem) {
+        alert(problem);
+        continue;
+      }
+
+      if (next.length >= MAX_FILES) {
+        alert(`You can attach at most ${MAX_FILES} files.`);
+        break;
+      }
+
+      const duplicate = next.some(
+        (f) => f.name === file.name && f.size === file.size
+      );
+
+      if (!duplicate) {
+        next.push(file);
+      }
+    }
+
+    setPicked((all) => ({ ...all, [assignmentId]: next }));
+  }
+
+  function removeFile(assignmentId: number, index: number) {
+    setPicked((all) => ({
+      ...all,
+      [assignmentId]: (all[assignmentId] || []).filter((_, i) => i !== index),
+    }));
+  }
+
+  // Submit an assignment by attaching files
   async function submitAssignment(
     event: FormEvent<HTMLFormElement>,
     assignment: Assignment
@@ -182,10 +232,10 @@ function StudentAssignments() {
       return;
     }
 
-    const fileUrl = (links[assignment.id] || "").trim();
+    const files = picked[assignment.id] || [];
 
-    if (!fileUrl) {
-      alert("Please enter the link to your work.");
+    if (files.length === 0) {
+      alert("Please attach at least one file.");
       return;
     }
 
@@ -199,24 +249,25 @@ function StudentAssignments() {
       }
     }
 
+    const formData = new FormData();
+
+    for (const file of files) {
+      formData.append("files", file);
+    }
+
     try {
       const response = await fetch(
         `/api/assignments/${assignment.id}/submit`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ fileUrl }),
+          // No Content-Type here: the browser sets it for the form data
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
         }
       );
 
       if (response.ok) {
-        setLinks((current) => ({
-          ...current,
-          [assignment.id]: "",
-        }));
+        setPicked((all) => ({ ...all, [assignment.id]: [] }));
 
         alert("Assignment submitted successfully");
 
@@ -281,7 +332,7 @@ function StudentAssignments() {
           <div>
             <p className="section-eyebrow">TO DO</p>
             <h2>Not Submitted Yet</h2>
-            <p>Paste a link to your work (for example a Drive link).</p>
+            <p>Attach your work as one or more files.</p>
           </div>
 
           <span className="section-count">{todo.length}</span>
@@ -324,20 +375,40 @@ function StudentAssignments() {
                   onSubmit={(event) => submitAssignment(event, assignment)}
                 >
                   <div className="dashboard-form-field dashboard-form-wide">
-                    <label>Link to your work</label>
+                    <label>Attach your files</label>
 
                     <input
-                      type="url"
-                      placeholder="https://drive.google.com/..."
-                      value={links[assignment.id] || ""}
-                      onChange={(event) =>
-                        setLinks((current) => ({
-                          ...current,
-                          [assignment.id]: event.target.value,
-                        }))
-                      }
-                      required
+                      type="file"
+                      multiple
+                      accept={ACCEPT_ATTRIBUTE}
+                      onChange={(event) => {
+                        addFiles(assignment.id, event.target.files);
+                        // Allow choosing the same file again after removing it
+                        event.target.value = "";
+                      }}
                     />
+
+                    <small>
+                      Up to {MAX_FILES} files, 10 MB each (PDF, Word,
+                      PowerPoint, Excel, text, images or ZIP).
+                    </small>
+
+                    {(picked[assignment.id] || []).length > 0 && (
+                      <ul style={{ listStyle: "none", padding: 0 }}>
+                        {(picked[assignment.id] || []).map((file, index) => (
+                          <li key={file.name + file.size}>
+                            {file.name}{" "}
+                            <small>({formatFileSize(file.size)})</small>{" "}
+                            <button
+                              type="button"
+                              onClick={() => removeFile(assignment.id, index)}
+                            >
+                              Remove
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
 
                   <div className="dashboard-form-actions">
@@ -400,15 +471,10 @@ function StudentAssignments() {
                         {new Date(submission.submittedAt).toLocaleString()}
                       </small>
 
-                      <p>
-                        <a
-                          href={submission.fileUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Open your submission
-                        </a>
-                      </p>
+                      <SubmissionFiles
+                        files={submission.files}
+                        fileUrl={submission.fileUrl}
+                      />
                     </>
                   )}
                 </div>
