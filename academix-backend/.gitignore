@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+uploads/
+inspect*.txt
+*.bak
+uploads/
