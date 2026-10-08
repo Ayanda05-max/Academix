@@ -1,12 +1,19 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import {
+  LayoutDashboard,
+  BookOpen,
+  ClipboardList,
+  FileQuestion,
+  FolderOpen,
+  Award,
+  Bell,
+} from "lucide-react";
 import "./student.css";
 
 function StudentLayout() {
   const navigate = useNavigate();
-
   const firstName = localStorage.getItem("firstName");
 
-  // Log out
   function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -20,8 +27,6 @@ function StudentLayout() {
 
   return (
     <>
-      {/* TOP BAR (same classes as NavBar.tsx) */}
-
       <nav className="navbar">
         <Link to="/student" className="navbar-brand">
           <span>Academix</span>
@@ -45,27 +50,44 @@ function StudentLayout() {
       </nav>
 
       <div className="student-shell">
-        {/* SIDE NAVBAR */}
-
         <aside className="student-sidebar">
           <p className="student-sidebar-title">STUDENT MENU</p>
 
           <NavLink to="/student" end>
+            <LayoutDashboard size={18} />
             Dashboard
           </NavLink>
 
-          <NavLink to="/student/courses">My Courses</NavLink>
+          <NavLink to="/student/courses">
+            <BookOpen size={18} />
+            My Courses
+          </NavLink>
 
-          <NavLink to="/student/assignments">Assignments</NavLink>
+          <NavLink to="/student/assignments">
+            <ClipboardList size={18} />
+            Assignments
+          </NavLink>
 
-          <NavLink to="/student/quizzes">Quizzes</NavLink>
+          <NavLink to="/student/quizzes">
+            <FileQuestion size={18} />
+            Quizzes
+          </NavLink>
 
-          <NavLink to="/student/grades">Grades</NavLink>
+          <NavLink to="/student/resources">
+            <FolderOpen size={18} />
+            Resources
+          </NavLink>
 
-          <NavLink to="/student/notifications">Notifications</NavLink>
+          <NavLink to="/student/grades">
+            <Award size={18} />
+            Grades
+          </NavLink>
+
+          <NavLink to="/student/notifications">
+            <Bell size={18} />
+            Notifications
+          </NavLink>
         </aside>
-
-        {/* PAGE CONTENT */}
 
         <div className="lecturer-dashboard student-portal">
           <Outlet />

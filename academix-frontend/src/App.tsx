@@ -10,13 +10,14 @@ import MyCourses from "./pages/student/MyCourses";
 import StudentGrades from "./pages/student/StudentGrades";
 import StudentAssignments from "./pages/student/StudentAssignments";
 import StudentNotifications from "./pages/student/StudentNotifications";
-
+import "./utils/toast";
 import LecturerLayout from "./pages/lecturer/LecturerLayout";
 import LecturerHome from "./pages/lecturer/LecturerHome";
 import LecturerCourses from "./pages/lecturer/LecturerCourses";
 import LecturerLessons from "./pages/lecturer/LecturerLessons";
 import LecturerAssignments from "./pages/lecturer/LecturerAssignments";
 import LecturerSubmissions from "./pages/lecturer/LecturerSubmissions";
+import LecturerResources from "./pages/lecturer/LecturerResources";
 
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminHome from "./pages/admin/AdminHome";
@@ -32,6 +33,7 @@ import QuizPage from "./pages/QuizPage";
 import "./App.css";
 import StudentQuizzes from "./pages/student/StudentQuizzes";
 import TakeQuiz from "./pages/student/TakeQuiz";
+import StudentResources from "./pages/student/StudentResources";
 
 function App() {
   return (
@@ -96,6 +98,7 @@ function App() {
             <Route path="assignments" element={<LecturerAssignments />} />
             <Route path="submissions" element={<LecturerSubmissions />} />
             <Route path="quizzes" element={<QuizPage />} />
+            <Route path="resources" element={<LecturerResources />} />
           </Route>
 
           {/* STUDENT */}
@@ -123,6 +126,7 @@ function App() {
             <Route path="notifications" element={<StudentNotifications />} />
                         <Route path="quizzes" element={<StudentQuizzes />} />
             <Route path="quizzes/:quizId" element={<TakeQuiz />} />
+           <Route path="resources" element={<StudentResources />} />
           </Route>
 
           {/* UNKNOWN URL */}

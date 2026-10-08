@@ -1,12 +1,19 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import {
+  LayoutDashboard,
+  BookOpen,
+  Library,
+  ClipboardList,
+  Inbox,
+  FileQuestion,
+  FolderOpen,
+} from "lucide-react";
 import "../student/student.css";
 
 function LecturerLayout() {
   const navigate = useNavigate();
-
   const firstName = localStorage.getItem("firstName");
 
-  // Log out
   function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -20,8 +27,6 @@ function LecturerLayout() {
 
   return (
     <>
-      {/* TOP BAR (same classes as NavBar.tsx) */}
-
       <nav className="navbar">
         <Link to="/lecturer" className="navbar-brand">
           <span>Academix</span>
@@ -45,27 +50,44 @@ function LecturerLayout() {
       </nav>
 
       <div className="student-shell">
-        {/* SIDE NAVBAR */}
-
         <aside className="student-sidebar">
           <p className="student-sidebar-title">LECTURER MENU</p>
 
           <NavLink to="/lecturer" end>
+            <LayoutDashboard size={18} />
             Dashboard
           </NavLink>
 
-          <NavLink to="/lecturer/courses">My Courses</NavLink>
+          <NavLink to="/lecturer/courses">
+            <BookOpen size={18} />
+            My Courses
+          </NavLink>
 
-          <NavLink to="/lecturer/lessons">Lessons</NavLink>
+          <NavLink to="/lecturer/lessons">
+            <Library size={18} />
+            Lessons
+          </NavLink>
 
-          <NavLink to="/lecturer/assignments">Assignments</NavLink>
+          <NavLink to="/lecturer/assignments">
+            <ClipboardList size={18} />
+            Assignments
+          </NavLink>
 
-          <NavLink to="/lecturer/submissions">Submissions</NavLink>
+          <NavLink to="/lecturer/submissions">
+            <Inbox size={18} />
+            Submissions
+          </NavLink>
 
-          <NavLink to="/lecturer/quizzes">Quizzes</NavLink>
+          <NavLink to="/lecturer/quizzes">
+            <FileQuestion size={18} />
+            Quizzes
+          </NavLink>
+
+          <NavLink to="/lecturer/resources">
+            <FolderOpen size={18} />
+            Resources
+          </NavLink>
         </aside>
-
-        {/* PAGE CONTENT */}
 
         <div className="lecturer-dashboard">
           <Outlet />
