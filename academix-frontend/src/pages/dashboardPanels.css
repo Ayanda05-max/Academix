@@ -1,0 +1,254 @@
+/* Panels used on the lecturer and admin dashboards.
+   Uses the colours and shadows already defined in App.css. */
+
+/* Small icon in the corner of a stat card */
+.stat-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+/* Pending grading turns amber when something is waiting */
+.stat-warning .stat-icon {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.lecturer-dashboard .stat-warning .dashboard-card-value {
+  color: #b54708;
+}
+
+/* Panels */
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.home-panel {
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-small);
+  text-align: left;
+}
+
+.home-block {
+  margin-bottom: 18px;
+}
+
+.home-panel-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.home-panel-header h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-align: left;
+}
+
+.home-link {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.home-link:hover {
+  text-decoration: underline;
+}
+
+.home-empty {
+  margin: 10px 0 4px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.home-more,
+.home-note {
+  margin: 10px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Lists */
+.home-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.home-list-item:first-child {
+  border-top: none;
+}
+
+.home-list-main {
+  min-width: 0;
+}
+
+.home-list-wide {
+  flex: 1;
+}
+
+.home-list-main strong {
+  display: block;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.home-list-main span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.home-list-side {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.status-late {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+/* Progress bar under a deadline */
+.home-progress {
+  height: 6px;
+  margin: 8px 0 5px;
+  border-radius: 4px;
+  background: #eaeff5;
+  overflow: hidden;
+}
+
+.home-progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+/* Course overview */
+.home-courses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.home-course {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.home-course-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.home-course-head h3 {
+  margin: 3px 0 0;
+  font-size: 16px;
+}
+
+.home-course-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.home-course-stats strong {
+  display: block;
+  color: var(--primary);
+  font-size: 20px;
+}
+
+.home-course-stats span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Grade distribution */
+.home-select {
+  max-width: 220px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.dist-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 30px;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.dist-bar {
+  height: 14px;
+  border-radius: 4px;
+  background: #eaeff5;
+  overflow: hidden;
+}
+
+.dist-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.dist-bar span.dist-fail {
+  background: var(--danger);
+}
+
+.dist-count {
+  color: var(--text);
+  font-weight: 600;
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+}
