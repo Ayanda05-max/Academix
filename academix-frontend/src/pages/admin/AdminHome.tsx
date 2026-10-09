@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { Users, GraduationCap, BookOpen, ListChecks } from "lucide-react";
+import "../dashboardPanels.css";
+import "./adminHome.css";
 
 type User = {
   id: number;
@@ -111,7 +114,12 @@ function AdminHome() {
 
       <div className="dashboard-cards admin-dashboard-cards">
         <div className="dashboard-card">
-          <p className="dashboard-card-label">TOTAL USERS</p>
+          <div className="stat-card-top">
+            <p className="dashboard-card-label">TOTAL USERS</p>
+            <span className="stat-icon">
+              <Users size={16} />
+            </span>
+          </div>
           <div className="dashboard-card-value">{users.length}</div>
           <p>
             {students.length} students &middot; {lecturers.length} lecturers
@@ -119,19 +127,34 @@ function AdminHome() {
         </div>
 
         <div className="dashboard-card">
-          <p className="dashboard-card-label">STUDENTS</p>
+          <div className="stat-card-top">
+            <p className="dashboard-card-label">STUDENTS</p>
+            <span className="stat-icon">
+              <GraduationCap size={16} />
+            </span>
+          </div>
           <div className="dashboard-card-value">{students.length}</div>
           <p>Registered student accounts</p>
         </div>
 
         <div className="dashboard-card">
-          <p className="dashboard-card-label">COURSES</p>
+          <div className="stat-card-top">
+            <p className="dashboard-card-label">COURSES</p>
+            <span className="stat-icon">
+              <BookOpen size={16} />
+            </span>
+          </div>
           <div className="dashboard-card-value">{courses.length}</div>
           <p>{publishedCourses.length} currently published</p>
         </div>
 
         <div className="dashboard-card">
-          <p className="dashboard-card-label">ACTIVE ENROLMENTS</p>
+          <div className="stat-card-top">
+            <p className="dashboard-card-label">ACTIVE ENROLMENTS</p>
+            <span className="stat-icon">
+              <ListChecks size={16} />
+            </span>
+          </div>
           <div className="dashboard-card-value">
             {activeEnrollments.length}
           </div>

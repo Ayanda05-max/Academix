@@ -1,0 +1,6 @@
+/* Stat icons on the admin dashboard take the colour of their card's accent.
+   The icon box itself comes from ../dashboardPanels.css. */
+.student-shell .admin-dashboard-cards .dashboard-card .stat-icon {
+  background: color-mix(in srgb, var(--card-accent, #2b6dad) 12%, #ffffff);
+  color: var(--card-accent, #2b6dad);
+}
