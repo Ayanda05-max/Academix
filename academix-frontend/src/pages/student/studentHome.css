@@ -1,0 +1,68 @@
+/* Extras for the student dashboard.
+   The panels, lists and stat icons come from ../dashboardPanels.css. */
+
+/* Five stat cards: one row on wide screens, two columns below that.
+   The student layout reuses the lecturer grid, which has 4 columns. */
+.student-shell .student-portal .dashboard-cards {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.student-shell .student-portal .dashboard-card {
+  min-height: 140px;
+  padding: 20px;
+}
+
+@media (max-width: 1399px) {
+  .student-shell .student-portal .dashboard-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .student-shell .student-portal .dashboard-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 650px) {
+  .student-shell .student-portal .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Stat icons take the colour of their card's accent bar */
+.student-shell .dashboard-card:not(.stat-warning) .stat-icon {
+  background: color-mix(in srgb, var(--card-accent, #2b6dad) 12%, #ffffff);
+  color: var(--card-accent, #2b6dad);
+}
+
+/* Due within two days */
+.status-soon {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+/* One line of lecturer feedback under a grade */
+.home-feedback {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Course progress inside a panel: no card inside a card */
+.student-shell .home-panel .progress-list {
+  gap: 0;
+}
+
+.student-shell .home-panel .progress-item {
+  padding: 14px 0;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+}
+
+.student-shell .home-panel .progress-item:first-child {
+  border-top: none;
+}
