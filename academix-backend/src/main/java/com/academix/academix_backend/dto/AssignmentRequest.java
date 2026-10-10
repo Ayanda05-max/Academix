@@ -10,7 +10,8 @@ public class AssignmentRequest {
     private LocalDateTime dueDate;
     private Integer totalMarks;
 
-    // Getters and setters
+    
+    
     public Long getCourseId() { return courseId; }
     public void setCourseId(Long courseId) { this.courseId = courseId; }
 

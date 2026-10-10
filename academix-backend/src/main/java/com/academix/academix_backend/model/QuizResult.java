@@ -27,6 +27,9 @@ public class QuizResult {
     @Column(name = "submitted_at", nullable = false)
     private LocalDateTime submittedAt;
 
+    @Column(columnDefinition = "TEXT")
+    private String answers;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -44,4 +47,7 @@ public class QuizResult {
 
     public LocalDateTime getSubmittedAt() { return submittedAt; }
     public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
+
+    public String getAnswers() { return answers; }
+public void setAnswers(String answers) { this.answers = answers; }
 }

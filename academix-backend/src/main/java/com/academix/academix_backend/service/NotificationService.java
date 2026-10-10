@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.scheduling.annotation.Async;
 
 import com.academix.academix_backend.dto.NotificationResponse;
 import com.academix.academix_backend.model.Assignment;
@@ -49,6 +50,7 @@ public class NotificationService {
         this.assignmentRepository = assignmentRepository;
     }
 
+    @Async
     @Transactional
     public void notifyGradeReleased(Long studentId, Long courseId) {
         User student = userRepository.findById(studentId)
@@ -57,6 +59,7 @@ public class NotificationService {
         createAndSend(student, message, "GRADE_RELEASED");
     }
 
+    @Async
     @Transactional
     public void notifyEnrollment(Long studentId, Long courseId) {
         User student = userRepository.findById(studentId)
@@ -65,6 +68,7 @@ public class NotificationService {
         createAndSend(student, message, "ENROLLMENT");
     }
 
+    @Async
     @Transactional
     public void notifyNewAssignment(Long courseId, String assignmentTitle) {
         List<Enrollment> enrollments = enrollmentRepository.findByCourseId(courseId);
@@ -77,6 +81,25 @@ public class NotificationService {
                     .ifPresent(student -> createAndSend(student, message, "NEW_ASSIGNMENT"));
         }
     }
+
+    @Async
+@Transactional
+public void notifyNewQuiz(Long courseId, String courseTitle, String quizTitle) {
+    List<Enrollment> enrollments = enrollmentRepository.findByCourseId(courseId);
+    String message = "A new quiz \"" + quizTitle + "\" has been posted in " + courseTitle + ".";
+    for (Enrollment enrollment : enrollments) {
+        if (enrollment.getStatus() != EnrollmentStatus.ACTIVE) {
+            continue;
+        }
+        userRepository.findById(enrollment.getStudentId()).ifPresent(student -> {
+            try {
+                createAndSend(student, message, "NEW_QUIZ");
+            } catch (Exception e) {
+                log.warn("Could not notify student {}: {}", student.getId(), e.getMessage());
+            }
+        });
+    }
+}
 
     @Transactional
     @Scheduled(cron = "0 0 8 * * *")

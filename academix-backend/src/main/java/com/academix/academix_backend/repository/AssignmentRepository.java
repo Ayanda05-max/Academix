@@ -11,4 +11,5 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 
     List<Assignment> findByCourse_Id(Long courseId);
     List<Assignment> findByDueDateBetween(LocalDateTime start, LocalDateTime end);
+    boolean existsByCourse_IdAndTitleIgnoreCase(Long courseId, String title);
 }

@@ -23,6 +23,15 @@ function NavBar() {
     return location.pathname === path ? "active" : "";
   }
 
+  // The student, lecturer and admin pages have their own top bar and side menu
+  if (
+    location.pathname.startsWith("/student") ||
+    location.pathname.startsWith("/lecturer") ||
+    location.pathname.startsWith("/admin")
+  ) {
+    return null;
+  }
+
   return (
     <nav className="navbar">
       <Link to={token ? getDashboardPath(role) : "/login"} className="navbar-brand">

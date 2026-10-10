@@ -1,0 +1,2865 @@
+﻿
+
+===== C:\dev\academix\academix-backend\bin\src\main\resources\application.properties =====
+spring.application.name=academix-backend
+
+#Database connection
+spring.datasource.url=jdbc:postgresql://localhost:5432/academix_db
+spring.datasource.username=postgres
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+
+# App settings
+server.port=8080
+spring.jpa.open-in-view=false
+
+#Email
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=nzamaayanda04@gmail.com
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+===== C:\dev\academix\academix-backend\bin\pom.xml =====
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>4.0.7</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.academix</groupId>
+	<artifactId>academix-backend</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name/>
+	<description/>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	
+	<dependencies>
+    <!-- Spring Web -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!-- Spring mail -->
+    
+	<dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-mail</artifactId>
+    </dependency>
+
+    <!-- Spring Data JPA -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+
+    <!-- Spring Security -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+    <!-- DevTools -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <scope>runtime</scope>
+        <optional>true</optional>
+    </dependency>
+
+    <!-- PostgreSQL -->
+    <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <scope>runtime</scope>
+    </dependency>
+
+    <!-- Lombok -->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <optional>true</optional>
+    </dependency>
+
+    <!-- Testing -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- JWT -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>0.11.5</version>
+    </dependency>
+
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>0.11.5</version>
+        <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-jackson</artifactId>
+        <version>0.11.5</version>
+        <scope>runtime</scope>
+    </dependency>
+
+</dependencies>
+
+	
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>default-compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<configuration>
+							<annotationProcessorPaths>
+								<path>
+									<groupId>org.projectlombok</groupId>
+									<artifactId>lombok</artifactId>
+								</path>
+							</annotationProcessorPaths>
+						</configuration>
+					</execution>
+					<execution>
+						<id>default-testCompile</id>
+						<phase>test-compile</phase>
+						<goals>
+							<goal>testCompile</goal>
+						</goals>
+						<configuration>
+							<annotationProcessorPaths>
+								<path>
+									<groupId>org.projectlombok</groupId>
+									<artifactId>lombok</artifactId>
+								</path>
+							</annotationProcessorPaths>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\config\CorsConfig.java =====
+package com.academix.academix_backend.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+
+@Configuration
+public class CorsConfig {
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                "http://localhost:3000"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", configuration);
+        return source;
+    }
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\controller\AssessmentController.java =====
+package com.academix.academix_backend.controller;
+
+import com.academix.academix_backend.dto.AssignmentRequest;
+import com.academix.academix_backend.dto.AssignmentResponse;
+import com.academix.academix_backend.dto.SubmissionRequest;
+import com.academix.academix_backend.dto.SubmissionResponse;
+import com.academix.academix_backend.service.AssessmentService;
+import com.academix.academix_backend.service.SubmissionService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api")
+public class AssessmentController {
+
+    private final AssessmentService assessmentService;
+    private final SubmissionService submissionService;
+
+    public AssessmentController(AssessmentService assessmentService, SubmissionService submissionService) {
+        this.assessmentService = assessmentService;
+        this.submissionService = submissionService;
+    }
+
+    private String role(Authentication auth) {
+        return auth.getAuthorities().iterator().next().getAuthority();
+    }
+
+    @PreAuthorize("hasAnyAuthority('LECTURER','ADMIN')")
+    @PostMapping("/assignments")
+    public AssignmentResponse createAssignment(@RequestBody AssignmentRequest request, Authentication auth) {
+        return assessmentService.createAssignment(request, auth.getName(), "ADMIN".equals(role(auth)));
+    }
+
+    @GetMapping("/assignments/course/{id}")
+    public List<AssignmentResponse> getAssignmentsByCourse(@PathVariable Long id, Authentication auth) {
+        return assessmentService.getAssignmentsForCourse(id, auth.getName(), role(auth));
+    }
+
+    @PreAuthorize("hasAuthority('STUDENT')")
+    @PostMapping("/assignments/{id}/submit")
+    public SubmissionResponse submitAssignment(@PathVariable Long id,
+                                               @RequestBody SubmissionRequest request,
+                                               Authentication auth) {
+        return submissionService.submit(id, request, auth.getName());
+    }
+
+    @PreAuthorize("hasAnyAuthority('LECTURER','ADMIN')")
+    @GetMapping("/assignments/{id}/submissions")
+    public List<SubmissionResponse> getSubmissionsForAssignment(@PathVariable Long id, Authentication auth) {
+        return submissionService.getSubmissionsForAssignment(id, auth.getName(), role(auth));
+    }
+    @PreAuthorize("hasAuthority('STUDENT')")
+    @GetMapping("/submissions/me")
+    public List<SubmissionResponse> getMySubmissions(Authentication auth) {
+        return submissionService.getMySubmissions(auth.getName());
+    }
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\controller\LessonController.java =====
+package com.academix.academix_backend.controller;
+
+import com.academix.academix_backend.model.Lesson;
+import com.academix.academix_backend.service.LessonService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/courses/{courseId}/lessons")
+public class LessonController {
+
+    private final LessonService lessonService;
+
+    @Autowired
+    public LessonController(LessonService lessonService) {
+        this.lessonService = lessonService;
+    }
+
+    private String role(Authentication auth) {
+        return auth.getAuthorities().iterator().next().getAuthority();
+    }
+
+    @GetMapping
+    public List<Lesson> getLessons(@PathVariable Long courseId, Authentication auth) {
+        return lessonService.getLessons(courseId, auth.getName(), role(auth));
+    }
+
+    @GetMapping("/{lessonId}")
+    public ResponseEntity<Lesson> getLesson(@PathVariable Long courseId,
+                                            @PathVariable Long lessonId,
+                                            Authentication auth) {
+        return lessonService.getLesson(courseId, lessonId, auth.getName(), role(auth))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PreAuthorize("hasAnyAuthority('LECTURER','ADMIN')")
+    @PostMapping
+    public Lesson addLesson(@PathVariable Long courseId, @RequestBody Lesson lesson,
+                            Authentication auth) {
+        return lessonService.addLesson(courseId, lesson, auth.getName(),
+                "ADMIN".equals(role(auth)));
+    }
+
+    @PreAuthorize("hasAnyAuthority('LECTURER','ADMIN')")
+    @PutMapping("/{lessonId}")
+    public Lesson updateLesson(@PathVariable Long courseId, @PathVariable Long lessonId,
+                               @RequestBody Lesson lesson, Authentication auth) {
+        return lessonService.updateLesson(courseId, lessonId, lesson, auth.getName(),
+                "ADMIN".equals(role(auth)));
+    }
+
+    @PreAuthorize("hasAnyAuthority('LECTURER','ADMIN')")
+    @DeleteMapping("/{lessonId}")
+    public void deleteLesson(@PathVariable Long courseId, @PathVariable Long lessonId,
+                             Authentication auth) {
+        lessonService.deleteLesson(courseId, lessonId, auth.getName(),
+                "ADMIN".equals(role(auth)));
+    }
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\controller\SubmissionController.java =====
+package com.academix.academix_backend.controller;
+
+public class SubmissionController {
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\dto\AssignmentRequest.java =====
+package com.academix.academix_backend.dto;
+
+import java.time.LocalDateTime;
+
+public class AssignmentRequest {
+
+    private Long courseId;
+    private String title;
+    private String description;
+    private LocalDateTime dueDate;
+    private Integer totalMarks;
+
+    // Getters and setters
+    public Long getCourseId() { return courseId; }
+    public void setCourseId(Long courseId) { this.courseId = courseId; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public LocalDateTime getDueDate() { return dueDate; }
+    public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
+
+    public Integer getTotalMarks() { return totalMarks; }
+    public void setTotalMarks(Integer totalMarks) { this.totalMarks = totalMarks; }
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\dto\AssignmentResponse.java =====
+package com.academix.academix_backend.dto;
+
+import java.time.LocalDateTime;
+
+public record AssignmentResponse(
+        Long id,
+        Long courseId,
+        String title,
+        String description,
+        LocalDateTime dueDate,
+        Integer totalMarks
+) {}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\dto\SubmissionRequest.java =====
+package com.academix.academix_backend.dto;
+
+public class SubmissionRequest {
+
+    private Long studentId;
+    private String fileUrl;
+
+    // Getters and setters
+    public Long getStudentId() { return studentId; }
+    public void setStudentId(Long studentId) { this.studentId = studentId; }
+
+    public String getFileUrl() { return fileUrl; }
+    public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\dto\SubmissionResponse.java =====
+package com.academix.academix_backend.dto;
+
+import java.time.LocalDateTime;
+
+public record SubmissionResponse(
+        Long id,
+        Long assignmentId,
+        Long studentId,
+        String studentName,
+        String fileUrl,
+        LocalDateTime submittedAt,
+        String status
+) {}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\model\Assignment.java =====
+package com.academix.academix_backend.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "assignments")
+public class Assignment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "due_date", nullable = false)
+    private LocalDateTime dueDate;
+
+    @Column(name = "total_marks", nullable = false)
+    private Integer totalMarks;
+
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Course getCourseId() { return course; }
+    public void setCourse(Course courseId) { this.course = courseId; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public LocalDateTime getDueDate() { return dueDate; }
+    public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
+
+    public Integer getTotalMarks() { return totalMarks; }
+    public void setTotalMarks(Integer totalMarks) { this.totalMarks = totalMarks; }
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\model\Course.java =====
+package com.academix.academix_backend.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@Entity
+@Table(name = "courses")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Course {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Column(length = 2000)
+    private String description;
+
+    private String category;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private CourseStatus status = CourseStatus.DRAFT;
+
+    @Column(name = "instructor_id")
+    private Long instructorId;
+
+    @Column(name = "instructor_name")
+    private String instructorName;
+
+   @JsonIgnore
+   @ToString.Exclude
+   @EqualsAndHashCode.Exclude
+   @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+   @Builder.Default
+   private List<Lesson> lessons = new ArrayList<>();
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\model\Lesson.java =====
+package com.academix.academix_backend.model;
+
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+
+@Entity
+@Table(name = "lessons")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Lesson {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Column(length = 1000)
+    private String description;
+
+    @Column(name = "content_url")
+    private String contentUrl; // YouTube URL, PDF, etc.
+
+    @Column(name = "content_type")
+    private String contentType; // VIDEO, PDF, TEXT, LINK
+
+    @Column(name = "order_number")
+    private Integer orderNumber;
+
+    @Column(name = "duration_minutes")
+    private Integer durationMinutes; // For video lessons
+
+    @Builder.Default
+    @Column(name = "is_free_preview")
+    private Boolean isFreePreview = false;
+
+    @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\model\Submission.java =====
+package com.academix.academix_backend.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "submissions")
+public class Submission {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "assignment_id", nullable = false)
+    private Assignment assignment;
+
+    @ManyToOne
+    @JoinColumn(name = "student_id", nullable = false)
+    private User student;
+
+    @Column(name = "file_url")
+    private String fileUrl;
+
+    @Column(name = "submitted_at")
+    private LocalDateTime submittedAt = LocalDateTime.now();
+
+    @Column(nullable = false)
+    private String status;
+
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Assignment getAssignment() { return assignment; }
+    public void setAssignment(Assignment assignment) { this.assignment = assignment; }
+
+    public User getStudentId() { return student; }
+    public void setStudentId(User student) { this.student = student; }
+
+    public String getFileUrl() { return fileUrl; }
+    public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
+
+    public LocalDateTime getSubmittedAt() { return submittedAt; }
+    public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\repository\AssignmentRepository.java =====
+package com.academix.academix_backend.repository;
+
+import com.academix.academix_backend.model.Assignment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.time.LocalDateTime; 
+@Repository
+public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
+
+    List<Assignment> findByCourse_Id(Long courseId);
+    List<Assignment> findByDueDateBetween(LocalDateTime start, LocalDateTime end);
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\repository\LessonRepository.java =====
+package com.academix.academix_backend.repository;
+
+import com.academix.academix_backend.model.Lesson;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface LessonRepository extends JpaRepository<Lesson, Long> {
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\repository\SubmissionRepository.java =====
+package com.academix.academix_backend.repository;
+
+import com.academix.academix_backend.model.Submission;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface SubmissionRepository extends JpaRepository<Submission, Long> {
+
+    List<Submission> findByAssignmentId(Long assignmentId);
+
+    @Query("SELECT s FROM Submission s WHERE s.student.id = :studentId")
+    List<Submission> findByStudentId(@Param("studentId") Long studentId);
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\security\JwtFilter.java =====
+package com.academix.academix_backend.security;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collections;
+import com.academix.academix_backend.security.JwtUtil;
+
+@Component
+public class JwtFilter extends OncePerRequestFilter {
+
+@Autowired 
+private JwtUtil jwtUtil;
+@Override 
+protected void doFilterInternal( HttpServletRequest request, HttpServletResponse response,
+    FilterChain filterChain) throws ServletException, IOException{
+        String authHeader = request.getHeader("Authorization");
+
+        if(authHeader != null && authHeader.startsWith("Bearer ")){
+          String token = authHeader.substring(7).replaceAll("\\s", "");
+
+           if(jwtUtil.isTokenValid(token)){
+              String email = jwtUtil.extractEmail(token);
+
+            String role = jwtUtil.extractRole(token);
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, null, Collections.singletonList(
+              new org.springframework.security.core.authority.SimpleGrantedAuthority(role)
+            ));
+             SecurityContextHolder.getContext()
+                  .setAuthentication(authentication);
+              
+           }
+     }
+      filterChain.doFilter(request, response);
+
+    }
+   
+    
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\security\SecurityConfig.java =====
+package com.academix.academix_backend.security;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    private final JwtFilter jwtFilter;
+
+    public SecurityConfig(JwtFilter jwtFilter) {
+        this.jwtFilter = jwtFilter;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(Customizer.withDefaults())
+            .csrf(csrf -> csrf.disable())
+            .httpBasic(basic -> basic.disable())
+            .formLogin(form -> form.disable())
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(ex -> ex.authenticationEntryPoint((req, res, e) -> {
+                res.setStatus(401);
+                res.setContentType("application/json");
+                res.getWriter().write("{\"error\":\"Unauthorized\"}");
+            }))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/error").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/register").hasAuthority("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\service\AssessmentService.java =====
+package com.academix.academix_backend.service;
+
+import com.academix.academix_backend.dto.AssignmentRequest;
+import com.academix.academix_backend.dto.AssignmentResponse;
+import com.academix.academix_backend.model.Assignment;
+import com.academix.academix_backend.model.Course;
+import com.academix.academix_backend.model.CourseStatus;
+import com.academix.academix_backend.model.EnrollmentStatus;
+import com.academix.academix_backend.model.Quiz;
+import com.academix.academix_backend.model.User;
+import com.academix.academix_backend.repository.AssignmentRepository;
+import com.academix.academix_backend.repository.CourseRepository;
+import com.academix.academix_backend.repository.EnrollmentRepository;
+import com.academix.academix_backend.repository.QuizRepository;
+import com.academix.academix_backend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class AssessmentService {
+
+    private static final Logger log = LoggerFactory.getLogger(AssessmentService.class);
+
+    private final AssignmentRepository assignmentRepository;
+    private final QuizRepository quizRepository;
+    private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
+    private final EnrollmentRepository enrollmentRepository;
+    private final NotificationService notificationService;
+
+    public AssessmentService(AssignmentRepository assignmentRepository,
+                             QuizRepository quizRepository,
+                             CourseRepository courseRepository,
+                             UserRepository userRepository,
+                             EnrollmentRepository enrollmentRepository,
+                             NotificationService notificationService) {
+        this.assignmentRepository = assignmentRepository;
+        this.quizRepository = quizRepository;
+        this.courseRepository = courseRepository;
+        this.userRepository = userRepository;
+        this.enrollmentRepository = enrollmentRepository;
+        this.notificationService = notificationService;
+    }
+
+    public AssignmentResponse createAssignment(AssignmentRequest request, String email, boolean isAdmin) {
+        if (request.getCourseId() == null) throw bad("courseId is required");
+        if (request.getTitle() == null || request.getTitle().isBlank()) throw bad("title is required");
+        if (request.getDescription() == null || request.getDescription().isBlank()) throw bad("description is required");
+        if (request.getDueDate() == null) throw bad("dueDate is required");
+        if (request.getTotalMarks() == null || request.getTotalMarks() <= 0) throw bad("totalMarks must be greater than 0");
+
+        Course course = courseRepository.findById(request.getCourseId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Course not found with id: " + request.getCourseId()));
+
+        if (!isAdmin) {
+            User user = findUser(email);
+            if (!user.getId().equals(course.getInstructorId())) {
+                throw new AccessDeniedException("You can only add assignments to your own courses");
+            }
+        }
+
+        Assignment assignment = new Assignment();
+        assignment.setCourse(course);
+        assignment.setTitle(request.getTitle().trim());
+        assignment.setDescription(request.getDescription().trim());
+        assignment.setDueDate(request.getDueDate());
+        assignment.setTotalMarks(request.getTotalMarks());
+        Assignment saved = assignmentRepository.save(assignment);
+
+        try {
+            notificationService.notifyNewAssignment(course.getId(), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Assignment saved but notification failed: {}", e.getMessage());
+        }
+        return toResponse(saved);
+    }
+
+    public List<AssignmentResponse> getAssignmentsForCourse(Long courseId, String email, String role) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Course not found with id: " + courseId));
+        User user = findUser(email);
+
+        if ("ADMIN".equals(role)) {
+
+        } else if ("LECTURER".equals(role)) {
+            if (!user.getId().equals(course.getInstructorId())) {
+                throw new AccessDeniedException("You can only view assignments of your own courses");
+            }
+        } else {
+            if (course.getStatus() != CourseStatus.PUBLISHED || !isEnrolled(user.getId(), courseId)) {
+                throw new AccessDeniedException("You are not enrolled in this course");
+            }
+        }
+
+        return assignmentRepository.findByCourse_Id(courseId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public Assignment createAssignment(Assignment assignment) {
+        return assignmentRepository.save(assignment);
+    }
+
+    public List<Assignment> getAssignmentsByCourse(Long courseId) {
+        return assignmentRepository.findByCourse_Id(courseId);
+    }
+
+    public Assignment getAssignmentById(Long id) {
+        Optional<Assignment> result = assignmentRepository.findById(id);
+        if (result.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found with id: " + id);
+        }
+        return result.get();
+    }
+
+    public Quiz createQuiz(Quiz quiz) {
+        return quizRepository.save(quiz);
+    }
+
+    public List<Quiz> getQuizzesByCourse(Long courseId) {
+        return quizRepository.findByCourseId(courseId);
+    }
+
+    public Quiz getQuizById(Long id) {
+        Optional<Quiz> result = quizRepository.findById(id);
+        if (result.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found with id: " + id);
+        }
+        return result.get();
+    }
+
+    public int calculateQuizScore(Quiz quiz, List<String> studentAnswers, List<String> correctAnswers) {
+        int score = 0;
+        for (int i = 0; i < correctAnswers.size(); i++) {
+            if (i < studentAnswers.size() && studentAnswers.get(i).equals(correctAnswers.get(i))) {
+                score++;
+            }
+        }
+        return score;
+    }
+
+    private User findUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+    }
+
+    private boolean isEnrolled(Long studentId, Long courseId) {
+        return enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId)
+                .filter(e -> e.getStatus() == EnrollmentStatus.ACTIVE)
+                .isPresent();
+    }
+
+    private ResponseStatusException bad(String message) {
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
+    }
+
+    private AssignmentResponse toResponse(Assignment a) {
+        return new AssignmentResponse(
+                a.getId(),
+                a.getCourseId().getId(),
+                a.getTitle(),
+                a.getDescription(),
+                a.getDueDate(),
+                a.getTotalMarks());
+    }
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\service\LessonService.java =====
+package com.academix.academix_backend.service;
+
+import com.academix.academix_backend.model.Course;
+import com.academix.academix_backend.model.CourseStatus;
+import com.academix.academix_backend.model.EnrollmentStatus;
+import com.academix.academix_backend.model.Lesson;
+import com.academix.academix_backend.model.User;
+import com.academix.academix_backend.repository.CourseRepository;
+import com.academix.academix_backend.repository.EnrollmentRepository;
+import com.academix.academix_backend.repository.LessonRepository;
+import com.academix.academix_backend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class LessonService {
+
+    private final LessonRepository lessonRepository;
+    private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
+    private final EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    public LessonService(LessonRepository lessonRepository,
+                         CourseRepository courseRepository,
+                         UserRepository userRepository,
+                         EnrollmentRepository enrollmentRepository) {
+        this.lessonRepository = lessonRepository;
+        this.courseRepository = courseRepository;
+        this.userRepository = userRepository;
+        this.enrollmentRepository = enrollmentRepository;
+    }
+
+    
+
+    @Transactional(readOnly = true)
+    public List<Lesson> getLessons(Long courseId, String email, String role) {
+        Course course = findCourse(courseId);
+        checkCanRead(course, email, role);
+        return course.getLessons().stream()
+                .sorted(Comparator.comparing(Lesson::getOrderNumber,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Lesson> getLesson(Long courseId, Long lessonId, String email, String role) {
+        Course course = findCourse(courseId);
+        checkCanRead(course, email, role);
+        return lessonRepository.findById(lessonId)
+                .filter(l -> l.getCourse().getId().equals(courseId));
+    }
+
+  
+
+    @Transactional
+    public Lesson addLesson(Long courseId, Lesson lesson, String email, boolean isAdmin) {
+        Course course = findCourse(courseId);
+        checkCanModify(course, email, isAdmin);
+        lesson.setId(null);
+        lesson.setCourse(course);
+        return lessonRepository.save(lesson);
+    }
+
+    @Transactional
+    public Lesson updateLesson(Long courseId, Long lessonId, Lesson updated,
+                               String email, boolean isAdmin) {
+        Course course = findCourse(courseId);
+        checkCanModify(course, email, isAdmin);
+        Lesson existing = findLessonInCourse(lessonId, courseId);
+
+        existing.setTitle(updated.getTitle());
+        existing.setDescription(updated.getDescription());
+        existing.setContentUrl(updated.getContentUrl());
+        existing.setOrderNumber(updated.getOrderNumber());
+        existing.setDurationMinutes(updated.getDurationMinutes());
+        existing.setUpdatedAt(LocalDateTime.now());
+        return lessonRepository.save(existing);
+    }
+
+    @Transactional
+    public void deleteLesson(Long courseId, Long lessonId, String email, boolean isAdmin) {
+        Course course = findCourse(courseId);
+        checkCanModify(course, email, isAdmin);
+        Lesson existing = findLessonInCourse(lessonId, courseId);
+        lessonRepository.delete(existing);
+    }
+
+    
+
+    private Course findCourse(Long courseId) {
+        return courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+    }
+
+    private Lesson findLessonInCourse(Long lessonId, Long courseId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new RuntimeException("Lesson not found with id: " + lessonId));
+        if (!lesson.getCourse().getId().equals(courseId)) {
+            throw new RuntimeException("Lesson " + lessonId + " does not belong to course " + courseId);
+        }
+        return lesson;
+    }
+
+    
+    private void checkCanRead(Course course, String email, String role) {
+        if ("ADMIN".equals(role)) return;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        if ("LECTURER".equals(role)) {
+            if (!user.getId().equals(course.getInstructorId())) {
+                throw new AccessDeniedException("You can only view lessons of your own courses");
+            }
+            return;
+        }
+        boolean enrolled = course.getStatus() == CourseStatus.PUBLISHED
+                && enrollmentRepository.findByStudentIdAndCourseId(user.getId(), course.getId())
+                        .filter(e -> e.getStatus() == EnrollmentStatus.ACTIVE)
+                        .isPresent();
+        if (!enrolled) {
+            throw new AccessDeniedException("You are not enrolled in this course");
+        }
+    }
+
+  
+    private void checkCanModify(Course course, String email, boolean isAdmin) {
+        if (isAdmin) return;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        if (!user.getId().equals(course.getInstructorId())) {
+            throw new AccessDeniedException("You can only modify lessons of your own courses");
+        }
+    }
+}
+
+===== C:\dev\academix\academix-backend\src\main\java\com\academix\academix_backend\service\SubmissionService.java =====
+package com.academix.academix_backend.service;
+
+import com.academix.academix_backend.dto.SubmissionRequest;
+import com.academix.academix_backend.dto.SubmissionResponse;
+import com.academix.academix_backend.model.Assignment;
+import com.academix.academix_backend.model.Course;
+import com.academix.academix_backend.model.CourseStatus;
+import com.academix.academix_backend.model.EnrollmentStatus;
+import com.academix.academix_backend.model.Submission;
+import com.academix.academix_backend.model.User;
+import com.academix.academix_backend.repository.AssignmentRepository;
+import com.academix.academix_backend.repository.EnrollmentRepository;
+import com.academix.academix_backend.repository.SubmissionRepository;
+import com.academix.academix_backend.repository.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class SubmissionService {
+
+    private final SubmissionRepository submissionRepository;
+    private final AssignmentRepository assignmentRepository;
+    private final UserRepository userRepository;
+    private final EnrollmentRepository enrollmentRepository;
+
+    public SubmissionService(SubmissionRepository submissionRepository,
+                             AssignmentRepository assignmentRepository,
+                             UserRepository userRepository,
+                             EnrollmentRepository enrollmentRepository) {
+        this.submissionRepository = submissionRepository;
+        this.assignmentRepository = assignmentRepository;
+        this.userRepository = userRepository;
+        this.enrollmentRepository = enrollmentRepository;
+    }
+
+
+    // The student comes from the token; status and time are decided by the server
+    public SubmissionResponse submit(Long assignmentId, SubmissionRequest request, String email) {
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Assignment not found with id: " + assignmentId));
+        User student = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        Course course = assignment.getCourseId();
+
+        if (course.getStatus() != CourseStatus.PUBLISHED || !isEnrolled(student.getId(), course.getId())) {
+            throw new AccessDeniedException("You are not enrolled in this course");
+        }
+        if (request.getFileUrl() == null || request.getFileUrl().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "fileUrl is required");
+        }
+
+        boolean alreadySubmitted = submissionRepository.findByAssignmentId(assignmentId).stream()
+                .anyMatch(s -> s.getStudentId().getId().equals(student.getId()));
+        if (alreadySubmitted) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "You have already submitted this assignment");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        Submission submission = new Submission();
+        submission.setAssignment(assignment);
+        submission.setStudentId(student);
+        submission.setFileUrl(request.getFileUrl().trim());
+        submission.setSubmittedAt(now);
+        submission.setStatus(now.isAfter(assignment.getDueDate()) ? "LATE" : "SUBMITTED");
+        return toResponse(submissionRepository.save(submission));
+    }
+
+    // Admin: any assignment. Lecturer: only for their own courses.
+    public List<SubmissionResponse> getSubmissionsForAssignment(Long assignmentId, String email, String role) {
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Assignment not found with id: " + assignmentId));
+
+        if (!"ADMIN".equals(role)) {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+            if (!user.getId().equals(assignment.getCourseId().getInstructorId())) {
+                throw new AccessDeniedException("You can only view submissions of your own courses");
+            }
+        }
+        return submissionRepository.findByAssignmentId(assignmentId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+
+
+    public Submission submitAssignment(Submission submission) {
+        Assignment assignment = submission.getAssignment();
+        if (LocalDateTime.now().isAfter(assignment.getDueDate())) {
+            submission.setStatus("LATE");
+        } else {
+            submission.setStatus("SUBMITTED");
+        }
+        submission.setSubmittedAt(LocalDateTime.now());
+        return submissionRepository.save(submission);
+    }
+
+    public List<Submission> getSubmissionsByAssignment(Long assignmentId) {
+        return submissionRepository.findByAssignmentId(assignmentId);
+    }
+
+    public List<Submission> getSubmissionsByStudent(Long studentId) {
+        return submissionRepository.findByStudentId(studentId);
+    }
+
+    public Submission getSubmissionById(Long id) {
+        Optional<Submission> result = submissionRepository.findById(id);
+        if (result.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Submission not found with id: " + id);
+        }
+        return result.get();
+    }
+
+    
+
+    private boolean isEnrolled(Long studentId, Long courseId) {
+        return enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId)
+                .filter(e -> e.getStatus() == EnrollmentStatus.ACTIVE)
+                .isPresent();
+    }
+
+    private SubmissionResponse toResponse(Submission s) {
+        User student = s.getStudentId();
+        return new SubmissionResponse(
+                s.getId(),
+                s.getAssignment().getId(),
+                student.getId(),
+                student.getFirstName() + " " + student.getLastName(),
+                s.getFileUrl(),
+                s.getSubmittedAt(),
+                s.getStatus());
+    }
+      
+    public List<SubmissionResponse> getMySubmissions(String email) {
+        User student = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        return submissionRepository.findByStudentId(student.getId()).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+}
+
+===== C:\dev\academix\academix-backend\src\main\resources\application.properties =====
+spring.application.name=academix-backend
+
+#Database connection
+spring.datasource.url=jdbc:postgresql://localhost:5432/academix_db
+spring.datasource.username=postgres
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+
+# App settings
+server.port=8080
+spring.jpa.open-in-view=false
+
+#Email
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=nzamaayanda04@gmail.com
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+===== C:\dev\academix\academix-backend\pom.xml =====
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>4.0.7</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.academix</groupId>
+	<artifactId>academix-backend</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name/>
+	<description/>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	
+	<dependencies>
+    <!-- Spring Web -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!-- Spring mail -->
+    
+	<dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-mail</artifactId>
+    </dependency>
+
+    <!-- Spring Data JPA -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+
+    <!-- Spring Security -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+    <!-- DevTools -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <scope>runtime</scope>
+        <optional>true</optional>
+    </dependency>
+
+    <!-- PostgreSQL -->
+    <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <scope>runtime</scope>
+    </dependency>
+
+    <!-- Lombok -->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <optional>true</optional>
+    </dependency>
+
+    <!-- Testing -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- JWT -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>0.11.5</version>
+    </dependency>
+
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>0.11.5</version>
+        <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-jackson</artifactId>
+        <version>0.11.5</version>
+        <scope>runtime</scope>
+    </dependency>
+
+</dependencies>
+
+	
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>default-compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<configuration>
+							<annotationProcessorPaths>
+								<path>
+									<groupId>org.projectlombok</groupId>
+									<artifactId>lombok</artifactId>
+								</path>
+							</annotationProcessorPaths>
+						</configuration>
+					</execution>
+					<execution>
+						<id>default-testCompile</id>
+						<phase>test-compile</phase>
+						<goals>
+							<goal>testCompile</goal>
+						</goals>
+						<configuration>
+							<annotationProcessorPaths>
+								<path>
+									<groupId>org.projectlombok</groupId>
+									<artifactId>lombok</artifactId>
+								</path>
+							</annotationProcessorPaths>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+===== C:\dev\academix\academix-frontend\src\pages\lecturer\LecturerAssignments.tsx =====
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
+
+type Course = {
+  id: number;
+  title: string;
+  instructorId: number | null;
+};
+
+type Assignment = {
+  id: number;
+  courseId: number;
+  title: string;
+};
+
+function LecturerAssignments() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [error, setError] = useState<string>("");
+
+  // Assignment form
+  const [assignmentCourseId, setAssignmentCourseId] = useState<string>("");
+  const [assignmentTitle, setAssignmentTitle] = useState<string>("");
+  const [assignmentDescription, setAssignmentDescription] =
+    useState<string>("");
+  const [assignmentDueDate, setAssignmentDueDate] = useState<string>("");
+  const [assignmentTotalMarks, setAssignmentTotalMarks] = useState<string>("");
+
+  const token = localStorage.getItem("token");
+  const lecturerId = Number(localStorage.getItem("userId"));
+
+  const lecturerCourses = courses.filter(
+    (course) => course.instructorId === lecturerId
+  );
+
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
+  // Load courses
+  async function loadCourses() {
+    if (!token) {
+      setError("You must be logged in to view courses.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/courses", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const data: Course[] = await response.json();
+
+        setCourses(data);
+        setError("");
+      } else {
+        setError("Could not load courses.");
+      }
+    } catch (error) {
+      setError("ERROR: " + String(error));
+    }
+  }
+
+  // Create assignment
+  async function createAssignment(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!token) {
+      alert("You must be logged in.");
+      return;
+    }
+
+    if (!assignmentCourseId) {
+      alert("Please select a course.");
+      return;
+    }
+
+    if (Number(assignmentTotalMarks) <= 0) {
+      alert("Total marks must be greater than 0.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/assignments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          courseId: Number(assignmentCourseId),
+          title: assignmentTitle,
+          description: assignmentDescription,
+          dueDate: assignmentDueDate,
+          totalMarks: Number(assignmentTotalMarks),
+        }),
+      });
+
+      if (response.ok) {
+        const newAssignment: Assignment = await response.json();
+
+        setAssignmentCourseId("");
+        setAssignmentTitle("");
+        setAssignmentDescription("");
+        setAssignmentDueDate("");
+        setAssignmentTotalMarks("");
+
+        alert(`Assignment "${newAssignment.title}" created successfully`);
+      } else {
+        const message = await response.text();
+
+        alert("Could not create assignment: " + message);
+      }
+    } catch (error) {
+      alert("ERROR: " + String(error));
+    }
+  }
+
+  return (
+    <>
+      {/* HEADER */}
+
+      <div className="dashboard-header">
+        <div>
+          <p className="dashboard-eyebrow">LECTURER PORTAL</p>
+
+          <h1>Assignments</h1>
+
+          <p className="dashboard-description">
+            Create assessments for your courses.
+          </p>
+        </div>
+      </div>
+
+      {error && <div className="dashboard-error">{error}</div>}
+
+      {/* CREATE ASSIGNMENT */}
+
+      <section className="assignments-section">
+        <div className="section-heading">
+          <div>
+            <p className="section-eyebrow">ASSESSMENTS</p>
+            <h2>Create Assignment</h2>
+            <p>Create an assessment for one of your courses.</p>
+          </div>
+        </div>
+
+        {lecturerCourses.length === 0 ? (
+          <div className="dashboard-empty">
+            <p>You need a course before you can create assignments.</p>
+          </div>
+        ) : (
+          <form onSubmit={createAssignment}>
+            <div className="dashboard-form-field">
+              <label>Course</label>
+
+              <select
+                value={assignmentCourseId}
+                onChange={(event) => setAssignmentCourseId(event.target.value)}
+                required
+              >
+                <option value="">Select your course</option>
+
+                {lecturerCourses.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="dashboard-form-field">
+              <label>Assignment title</label>
+
+              <input
+                type="text"
+                placeholder="Enter assignment title"
+                value={assignmentTitle}
+                onChange={(event) => setAssignmentTitle(event.target.value)}
+                required
+              />
+            </div>
+
+            <div className="dashboard-form-field dashboard-form-wide">
+              <label>Description</label>
+
+              <input
+                type="text"
+                placeholder="Assignment instructions"
+                value={assignmentDescription}
+                onChange={(event) =>
+                  setAssignmentDescription(event.target.value)
+                }
+                required
+              />
+            </div>
+
+            <div className="dashboard-form-field">
+              <label>Due date</label>
+
+              <input
+                type="datetime-local"
+                value={assignmentDueDate}
+                onChange={(event) => setAssignmentDueDate(event.target.value)}
+                required
+              />
+            </div>
+
+            <div className="dashboard-form-field">
+              <label>Total marks</label>
+
+              <input
+                type="number"
+                min="1"
+                placeholder="e.g. 100"
+                value={assignmentTotalMarks}
+                onChange={(event) =>
+                  setAssignmentTotalMarks(event.target.value)
+                }
+                required
+              />
+            </div>
+
+            <div className="dashboard-form-actions">
+              <button type="submit">Create Assignment</button>
+            </div>
+          </form>
+        )}
+      </section>
+    </>
+  );
+}
+
+export default LecturerAssignments;
+
+===== C:\dev\academix\academix-frontend\src\pages\lecturer\LecturerLessons.tsx =====
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
+
+type Course = {
+  id: number;
+  title: string;
+  instructorId: number | null;
+};
+
+type Lesson = {
+  id: number;
+  title: string;
+};
+
+function LecturerLessons() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [error, setError] = useState<string>("");
+
+  // Lesson form
+  const [selectedCourseId, setSelectedCourseId] = useState<string>("");
+  const [lessonTitle, setLessonTitle] = useState<string>("");
+  const [lessonDescription, setLessonDescription] = useState<string>("");
+
+  const token = localStorage.getItem("token");
+  const lecturerId = Number(localStorage.getItem("userId"));
+
+  const lecturerCourses = courses.filter(
+    (course) => course.instructorId === lecturerId
+  );
+
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
+  // Load courses
+  async function loadCourses() {
+    if (!token) {
+      setError("You must be logged in to view courses.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/courses", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const data: Course[] = await response.json();
+
+        setCourses(data);
+        setError("");
+      } else {
+        setError("Could not load courses.");
+      }
+    } catch (error) {
+      setError("ERROR: " + String(error));
+    }
+  }
+
+  // Add lesson
+  async function addLesson(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!token) {
+      alert("You must be logged in.");
+      return;
+    }
+
+    if (!selectedCourseId) {
+      alert("Please select a course.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/courses/${selectedCourseId}/lessons`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: lessonTitle,
+          description: lessonDescription,
+          contentType: "TEXT",
+        }),
+      });
+
+      if (response.ok) {
+        const newLesson: Lesson = await response.json();
+
+        setLessonTitle("");
+        setLessonDescription("");
+
+        alert(`Lesson "${newLesson.title}" added successfully`);
+      } else {
+        const message = await response.text();
+
+        alert("Could not add lesson: " + message);
+      }
+    } catch (error) {
+      alert("ERROR: " + String(error));
+    }
+  }
+
+  return (
+    <>
+      {/* HEADER */}
+
+      <div className="dashboard-header">
+        <div>
+          <p className="dashboard-eyebrow">LECTURER PORTAL</p>
+
+          <h1>Lessons</h1>
+
+          <p className="dashboard-description">
+            Add learning material to your courses.
+          </p>
+        </div>
+      </div>
+
+      {error && <div className="dashboard-error">{error}</div>}
+
+      {/* ADD LESSON */}
+
+      <section className="lessons-section">
+        <div className="section-heading">
+          <div>
+            <p className="section-eyebrow">LEARNING CONTENT</p>
+            <h2>Add Lesson</h2>
+            <p>Add learning material to one of your courses.</p>
+          </div>
+        </div>
+
+        {lecturerCourses.length === 0 ? (
+          <div className="dashboard-empty">
+            <p>You need a course before you can add lessons.</p>
+          </div>
+        ) : (
+          <form onSubmit={addLesson}>
+            <div className="dashboard-form-field">
+              <label>Course</label>
+
+              <select
+                value={selectedCourseId}
+                onChange={(event) => setSelectedCourseId(event.target.value)}
+                required
+              >
+                <option value="">Select your course</option>
+
+                {lecturerCourses.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="dashboard-form-field">
+              <label>Lesson title</label>
+
+              <input
+                type="text"
+                placeholder="Enter lesson title"
+                value={lessonTitle}
+                onChange={(event) => setLessonTitle(event.target.value)}
+                required
+              />
+            </div>
+
+            <div className="dashboard-form-field dashboard-form-wide">
+              <label>Lesson description</label>
+
+              <input
+                type="text"
+                placeholder="Brief lesson description"
+                value={lessonDescription}
+                onChange={(event) => setLessonDescription(event.target.value)}
+              />
+            </div>
+
+            <div className="dashboard-form-actions">
+              <button type="submit">Add Lesson</button>
+            </div>
+          </form>
+        )}
+      </section>
+    </>
+  );
+}
+
+export default LecturerLessons;
+
+===== C:\dev\academix\academix-frontend\src\pages\lecturer\LecturerSubmissions.tsx =====
+import { useEffect, useState } from "react";
+
+type Course = {
+  id: number;
+  title: string;
+  instructorId: number | null;
+};
+
+type Assignment = {
+  id: number;
+  courseId: number;
+  title: string;
+  totalMarks: number;
+};
+
+type Submission = {
+  id: number;
+  assignmentId: number;
+  studentId: number;
+  studentName: string;
+  fileUrl: string;
+  submittedAt: string;
+  status: string;
+};
+
+type Grade = {
+  id: number;
+  submissionId: number;
+  totalMarks: number;
+  marksAwarded: number;
+  feedback: string;
+  gradedAt: string;
+};
+
+function LecturerSubmissions() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [assignments, setAssignments] = useState<Record<number, Assignment[]>>(
+    {}
+  );
+  const [submissions, setSubmissions] = useState<Record<number, Submission[]>>(
+    {}
+  );
+  const [grades, setGrades] = useState<Record<number, Grade>>({});
+  const [gradeMarks, setGradeMarks] = useState<Record<number, string>>({});
+  const [gradeFeedback, setGradeFeedback] = useState<Record<number, string>>(
+    {}
+  );
+  const [error, setError] = useState<string>("");
+
+  const token = localStorage.getItem("token");
+  const lecturerId = Number(localStorage.getItem("userId"));
+
+  const lecturerCourses = courses.filter(
+    (course) => course.instructorId === lecturerId
+  );
+
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
+  // Load courses, then everything that belongs to them
+  async function loadCourses() {
+    if (!token) {
+      setError("You must be logged in to view submissions.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/courses", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const data: Course[] = await response.json();
+
+        setCourses(data);
+        setError("");
+
+        for (const course of data) {
+          if (course.instructorId === lecturerId) {
+            await loadAssignments(course.id);
+            await loadGrades(course.id);
+          }
+        }
+      } else {
+        setError("Could not load courses.");
+      }
+    } catch (error) {
+      setError("ERROR: " + String(error));
+    }
+  }
+
+  // Load assignments
+  async function loadAssignments(courseId: number) {
+    try {
+      const response = await fetch(`/api/assignments/course/${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const data: Assignment[] = await response.json();
+
+        setAssignments((current) => ({
+          ...current,
+          [courseId]: data,
+        }));
+
+        for (const assignment of data) {
+          await loadSubmissions(assignment.id);
+        }
+      }
+    } catch (error) {
+      console.error("Could not load assignments:", error);
+    }
+  }
+
+  // Load submissions
+  async function loadSubmissions(assignmentId: number) {
+    try {
+      const response = await fetch(
+        `/api/assignments/${assignmentId}/submissions`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.ok) {
+        const data: Submission[] = await response.json();
+
+        setSubmissions((current) => ({
+          ...current,
+          [assignmentId]: data,
+        }));
+      }
+    } catch (error) {
+      console.error("Could not load submissions:", error);
+    }
+  }
+
+  // Load saved grades
+  async function loadGrades(courseId: number) {
+    try {
+      const response = await fetch(`/api/grades/course/${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const data: Grade[] = await response.json();
+
+        setGrades((current) => {
+          const updated = { ...current };
+
+          for (const grade of data) {
+            updated[grade.submissionId] = grade;
+          }
+
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error("Could not load grades:", error);
+    }
+  }
+
+  // Grade submission
+  async function gradeSubmission(
+    submissionId: number,
+    assignmentId: number,
+    courseId: number,
+    totalMarks: number
+  ) {
+    if (!token) {
+      alert("You must be logged in.");
+      return;
+    }
+
+    const marksText = gradeMarks[submissionId];
+
+    if (marksText === undefined || marksText === "") {
+      alert("Please enter marks.");
+      return;
+    }
+
+    const marks = Number(marksText);
+
+    if (Number.isNaN(marks) || marks < 0 || marks > totalMarks) {
+      alert(`Marks must be between 0 and ${totalMarks}.`);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/grades", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          submissionId,
+          marksAwarded: marks,
+          feedback: gradeFeedback[submissionId] || "",
+        }),
+      });
+
+      if (response.ok) {
+        alert("Submission graded successfully");
+
+        await loadSubmissions(assignmentId);
+        await loadGrades(courseId);
+
+        setGradeMarks((current) => ({
+          ...current,
+          [submissionId]: "",
+        }));
+
+        setGradeFeedback((current) => ({
+          ...current,
+          [submissionId]: "",
+        }));
+      } else {
+        const message = await response.text();
+
+        alert("Could not grade submission: " + message);
+      }
+    } catch (error) {
+      alert("ERROR: " + String(error));
+    }
+  }
+
+  // Copy submission information
+  async function copySubmissionInfo(
+    submission: Submission,
+    assignment: Assignment
+  ) {
+    const savedGrade = grades[submission.id];
+
+    const submissionInfo = [
+      `Student: ${submission.studentName}`,
+      `Assignment: ${assignment.title}`,
+      `Submission: ${submission.fileUrl}`,
+      `Status: ${submission.status}`,
+      savedGrade
+        ? `Grade: ${savedGrade.marksAwarded}/${savedGrade.totalMarks}`
+        : "Grade: Not graded yet",
+      savedGrade?.feedback
+        ? `Feedback: ${savedGrade.feedback}`
+        : "Feedback: No feedback yet",
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(submissionInfo);
+      alert("Submission information copied.");
+    } catch (error) {
+      alert("Could not copy submission information.");
+      console.error(error);
+    }
+  }
+
+  return (
+    <>
+      {/* HEADER */}
+
+      <div className="dashboard-header">
+        <div>
+          <p className="dashboard-eyebrow">LECTURER PORTAL</p>
+
+          <h1>Submissions</h1>
+
+          <p className="dashboard-description">
+            Review submitted work and record student grades.
+          </p>
+        </div>
+      </div>
+
+      {error && <div className="dashboard-error">{error}</div>}
+
+      {/* STUDENT SUBMISSIONS */}
+
+      <section className="submissions-section">
+        <div className="section-heading">
+          <div>
+            <p className="section-eyebrow">ASSESSMENT MANAGEMENT</p>
+            <h2>Student Submissions</h2>
+            <p>Review submitted work and record student grades.</p>
+          </div>
+        </div>
+
+        {lecturerCourses.length === 0 ? (
+          <div className="dashboard-empty">
+            <p>No lecturer courses available.</p>
+          </div>
+        ) : (
+          lecturerCourses.map((course) => (
+            <div className="submission-course" key={course.id}>
+              <div className="submission-course-header">
+                <h3>{course.title}</h3>
+
+                <span>{assignments[course.id]?.length || 0} assignment(s)</span>
+              </div>
+
+              {!assignments[course.id] || assignments[course.id].length === 0 ? (
+                <p className="muted-text">No assignments for this course.</p>
+              ) : (
+                assignments[course.id].map((assignment) => (
+                  <div className="submission-assignment" key={assignment.id}>
+                    <div className="submission-assignment-header">
+                      <div>
+                        <h4>{assignment.title}</h4>
+
+                        <p>{assignment.totalMarks} total marks</p>
+                      </div>
+                    </div>
+
+                    {!submissions[assignment.id] ||
+                    submissions[assignment.id].length === 0 ? (
+                      <div className="dashboard-empty compact-empty">
+                        <p>No submissions yet.</p>
+                      </div>
+                    ) : (
+                      submissions[assignment.id].map((submission) => {
+                        const savedGrade = grades[submission.id];
+
+                        return (
+                          <article
+                            className="submission-card"
+                            key={submission.id}
+                          >
+                            <div className="submission-card-header">
+                              <div>
+                                <h4>{submission.studentName}</h4>
+
+                                <p>
+                                  Submitted{" "}
+                                  {new Date(
+                                    submission.submittedAt
+                                  ).toLocaleString()}
+                                </p>
+                              </div>
+
+                              <span
+                                className={`status-badge ${
+                                  submission.status === "GRADED"
+                                    ? "status-graded"
+                                    : "status-submitted"
+                                }`}
+                              >
+                                {submission.status}
+                              </span>
+                            </div>
+
+                            {submission.fileUrl && (
+                              <>
+                                <div className="submission-copy-row">
+                                  <button
+                                    type="button"
+                                    className="copy-outline-button"
+                                    onClick={() =>
+                                      copySubmissionInfo(submission, assignment)
+                                    }
+                                  >
+                                    Copy Submission Info
+                                  </button>
+                                </div>
+
+                                <div className="submission-file">
+                                  <span>Submission file</span>
+
+                                  <a
+                                    href={submission.fileUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    Open submission
+                                  </a>
+                                </div>
+                              </>
+                            )}
+
+                            {savedGrade ? (
+                              <div className="grade-result">
+                                <div className="grade-result-header">
+                                  <h5>Grade Result</h5>
+
+                                  <strong>
+                                    {savedGrade.marksAwarded} /{" "}
+                                    {savedGrade.totalMarks}
+                                  </strong>
+                                </div>
+
+                                <p>
+                                  <strong>Feedback:</strong>{" "}
+                                  {savedGrade.feedback ||
+                                    "No feedback provided."}
+                                </p>
+
+                                <p className="grade-date">
+                                  Graded{" "}
+                                  {new Date(
+                                    savedGrade.gradedAt
+                                  ).toLocaleString()}
+                                </p>
+                              </div>
+                            ) : submission.status !== "GRADED" ? (
+                              <div className="grading-section">
+                                <h5>Grade Submission</h5>
+
+                                <div className="grading-fields">
+                                  <div className="dashboard-form-field">
+                                    <label>Marks</label>
+
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      max={assignment.totalMarks}
+                                      placeholder={`Marks out of ${assignment.totalMarks}`}
+                                      value={gradeMarks[submission.id] || ""}
+                                      onChange={(event) =>
+                                        setGradeMarks((current) => ({
+                                          ...current,
+                                          [submission.id]: event.target.value,
+                                        }))
+                                      }
+                                    />
+                                  </div>
+
+                                  <div className="dashboard-form-field">
+                                    <label>Feedback</label>
+
+                                    <input
+                                      type="text"
+                                      placeholder="Feedback for student"
+                                      value={gradeFeedback[submission.id] || ""}
+                                      onChange={(event) =>
+                                        setGradeFeedback((current) => ({
+                                          ...current,
+                                          [submission.id]: event.target.value,
+                                        }))
+                                      }
+                                    />
+                                  </div>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    gradeSubmission(
+                                      submission.id,
+                                      assignment.id,
+                                      course.id,
+                                      assignment.totalMarks
+                                    )
+                                  }
+                                >
+                                  Save Grade
+                                </button>
+                              </div>
+                            ) : (
+                              <p className="muted-text">
+                                Grade information is loading.
+                              </p>
+                            )}
+                          </article>
+                        );
+                      })
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          ))
+        )}
+      </section>
+    </>
+  );
+}
+
+export default LecturerSubmissions;
+
+===== C:\dev\academix\academix-frontend\src\pages\student\StudentAssignments.tsx =====
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import { readError } from "../../utils/readError";
+
+type Enrollment = {
+  id: number;
+  courseId: number;
+  courseTitle: string;
+  status: string;
+};
+
+type Assignment = {
+  id: number;
+  courseId: number;
+  title: string;
+  description: string;
+  dueDate: string;
+  totalMarks: number;
+  courseTitle: string;
+};
+
+type Submission = {
+  id: number;
+  assignmentId: number;
+  fileUrl: string;
+  submittedAt: string;
+  status: string;
+};
+
+type Grade = {
+  id: number;
+  assignmentId: number;
+  totalMarks: number;
+  marksAwarded: number;
+  feedback: string | null;
+  gradedAt: string;
+};
+
+function StudentAssignments() {
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [grades, setGrades] = useState<Grade[]>([]);
+  const [links, setLinks] = useState<Record<number, string>>({});
+  const [error, setError] = useState<string>("");
+
+  const token = localStorage.getItem("token");
+  const studentId = Number(localStorage.getItem("userId"));
+
+  // Find the student's submission or grade for one assignment
+  function findSubmission(assignmentId: number) {
+    return submissions.find(
+      (submission) => submission.assignmentId === assignmentId
+    );
+  }
+
+  function findGrade(assignmentId: number) {
+    return grades.find((grade) => grade.assignmentId === assignmentId);
+  }
+
+  function isGraded(assignmentId: number) {
+    return (
+      Boolean(findGrade(assignmentId)) ||
+      findSubmission(assignmentId)?.status === "GRADED"
+    );
+  }
+
+  // Three groups: still to do, waiting for a grade, graded
+  const todo = assignments
+    .filter((assignment) => !findSubmission(assignment.id))
+    .sort(
+      (a, b) =>
+        new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+    );
+
+  const submitted = assignments.filter(
+    (assignment) =>
+      findSubmission(assignment.id) && !isGraded(assignment.id)
+  );
+
+  const graded = assignments.filter((assignment) =>
+    isGraded(assignment.id)
+  );
+
+  useEffect(() => {
+    loadPage();
+  }, []);
+
+  // Load everything the page needs
+  async function loadPage() {
+    if (!token) {
+      setError("You must be logged in to view your assignments.");
+      return;
+    }
+
+    try {
+      const enrolled = await loadEnrollments();
+      await loadAssignments(enrolled);
+      await loadSubmissions();
+      await loadGrades();
+    } catch (error) {
+      setError("ERROR: " + String(error));
+    }
+  }
+
+  // Load enrollments
+  async function loadEnrollments() {
+    const response = await fetch(`/api/enrollments/student/${studentId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      setError("Could not load your courses.");
+      return [];
+    }
+
+    const data: Enrollment[] = await response.json();
+    return data;
+  }
+
+  // Load the assignments of every active course
+  async function loadAssignments(enrolled: Enrollment[]) {
+    const all: Assignment[] = [];
+
+    for (const enrollment of enrolled) {
+      if (enrollment.status !== "ACTIVE") {
+        continue;
+      }
+
+      const response = await fetch(
+        `/api/assignments/course/${enrollment.courseId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.ok) {
+        const data: Assignment[] = await response.json();
+
+        for (const assignment of data) {
+          all.push({
+            ...assignment,
+            courseTitle: enrollment.courseTitle,
+          });
+        }
+      }
+    }
+
+    setAssignments(all);
+  }
+
+  // Load the student's own submissions
+  async function loadSubmissions() {
+    const response = await fetch("/api/submissions/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (response.ok) {
+      const data: Submission[] = await response.json();
+      setSubmissions(data);
+    }
+  }
+
+  // Load the student's grades
+  async function loadGrades() {
+    const response = await fetch(`/api/grades/student/${studentId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (response.ok) {
+      const data: Grade[] = await response.json();
+      setGrades(data);
+    }
+  }
+
+  // Submit an assignment (the backend takes a link to the work)
+  async function submitAssignment(
+    event: FormEvent<HTMLFormElement>,
+    assignment: Assignment
+  ) {
+    event.preventDefault();
+
+    if (!token) {
+      alert("You must be logged in.");
+      return;
+    }
+
+    const fileUrl = (links[assignment.id] || "").trim();
+
+    if (!fileUrl) {
+      alert("Please enter the link to your work.");
+      return;
+    }
+
+    if (new Date(assignment.dueDate) < new Date()) {
+      const confirmed = window.confirm(
+        "This assignment is overdue and will be marked LATE. Submit anyway?"
+      );
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    try {
+      const response = await fetch(
+        `/api/assignments/${assignment.id}/submit`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ fileUrl }),
+        }
+      );
+
+      if (response.ok) {
+        setLinks((current) => ({
+          ...current,
+          [assignment.id]: "",
+        }));
+
+        alert("Assignment submitted successfully");
+
+        await loadSubmissions();
+      } else if (response.status === 409) {
+        alert("You have already submitted this assignment.");
+
+        await loadSubmissions();
+      } else {
+        const message = await readError(response);
+
+        alert("Could not submit assignment: " + message);
+      }
+    } catch (error) {
+      alert("ERROR: " + String(error));
+    }
+  }
+
+  // Text like "Due in 3 days"
+  function dueText(dueDate: string) {
+    const difference = new Date(dueDate).getTime() - Date.now();
+
+    if (difference < 0) {
+      return "Overdue";
+    }
+
+    const hours = Math.floor(difference / 3600000);
+
+    if (hours < 1) {
+      return "Due in under an hour";
+    }
+
+    if (hours < 48) {
+      return `Due in ${hours} hours`;
+    }
+
+    return `Due in ${Math.floor(hours / 24)} days`;
+  }
+
+  return (
+    <>
+      {/* HEADER */}
+
+      <div className="dashboard-header">
+        <div>
+          <p className="dashboard-eyebrow">STUDENT PORTAL</p>
+
+          <h1>Assignments</h1>
+
+          <p className="dashboard-description">
+            Submit your work, follow your deadlines and see your results.
+          </p>
+        </div>
+      </div>
+
+      {error && <div className="dashboard-error">{error}</div>}
+
+      {/* TO DO */}
+
+      <section className="courses-section">
+        <div className="section-heading">
+          <div>
+            <p className="section-eyebrow">TO DO</p>
+            <h2>Not Submitted Yet</h2>
+            <p>Paste a link to your work (for example a Drive link).</p>
+          </div>
+
+          <span className="section-count">{todo.length}</span>
+        </div>
+
+        {todo.length === 0 ? (
+          <div className="dashboard-empty">
+            <p>Nothing to hand in right now.</p>
+          </div>
+        ) : (
+          <div className="compact-list">
+            {todo.map((assignment) => (
+              <div className="assignment-summary" key={assignment.id}>
+                <div className="assignment-summary-header">
+                  <strong>{assignment.title}</strong>
+
+                  <span
+                    className={`st-badge ${
+                      dueText(assignment.dueDate) === "Overdue"
+                        ? "bad"
+                        : "neutral"
+                    }`}
+                  >
+                    {dueText(assignment.dueDate)}
+                  </span>
+                </div>
+
+                <p>
+                  {assignment.courseTitle} &middot; {assignment.totalMarks}{" "}
+                  marks
+                </p>
+
+                <p>{assignment.description}</p>
+
+                <small>
+                  Due {new Date(assignment.dueDate).toLocaleString()}
+                </small>
+
+                <form
+                  onSubmit={(event) => submitAssignment(event, assignment)}
+                >
+                  <div className="dashboard-form-field dashboard-form-wide">
+                    <label>Link to your work</label>
+
+                    <input
+                      type="url"
+                      placeholder="https://drive.google.com/..."
+                      value={links[assignment.id] || ""}
+                      onChange={(event) =>
+                        setLinks((current) => ({
+                          ...current,
+                          [assignment.id]: event.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="dashboard-form-actions">
+                    <button type="submit">Submit Assignment</button>
+                  </div>
+                </form>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* SUBMITTED */}
+
+      <section className="courses-section">
+        <div className="section-heading">
+          <div>
+            <p className="section-eyebrow">WAITING</p>
+            <h2>Submitted</h2>
+            <p>Handed in and waiting for your lecturer to grade.</p>
+          </div>
+
+          <span className="section-count">{submitted.length}</span>
+        </div>
+
+        {submitted.length === 0 ? (
+          <div className="dashboard-empty">
+            <p>No submissions waiting for a grade.</p>
+          </div>
+        ) : (
+          <div className="compact-list">
+            {submitted.map((assignment) => {
+              const submission = findSubmission(assignment.id);
+
+              return (
+                <div className="assignment-summary" key={assignment.id}>
+                  <div className="assignment-summary-header">
+                    <strong>{assignment.title}</strong>
+
+                    <span
+                      className={`st-badge ${
+                        submission?.status === "LATE" ? "bad" : "good"
+                      }`}
+                    >
+                      {submission?.status === "LATE"
+                        ? "Submitted late"
+                        : "Submitted"}
+                    </span>
+                  </div>
+
+                  <p>
+                    {assignment.courseTitle} &middot; {assignment.totalMarks}{" "}
+                    marks
+                  </p>
+
+                  {submission && (
+                    <>
+                      <small>
+                        Submitted{" "}
+                        {new Date(submission.submittedAt).toLocaleString()}
+                      </small>
+
+                      <p>
+                        <a
+                          href={submission.fileUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Open your submission
+                        </a>
+                      </p>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* GRADED */}
+
+      <section className="courses-section">
+        <div className="section-heading">
+          <div>
+            <p className="section-eyebrow">RESULTS</p>
+            <h2>Graded</h2>
+            <p>A pass is 50% or more.</p>
+          </div>
+
+          <span className="section-count">{graded.length}</span>
+        </div>
+
+        {graded.length === 0 ? (
+          <div className="dashboard-empty">
+            <p>No graded assignments yet.</p>
+          </div>
+        ) : (
+          <div className="compact-list">
+            {graded.map((assignment) => {
+              const grade = findGrade(assignment.id);
+
+              const percentage =
+                grade && grade.totalMarks > 0
+                  ? Math.round((grade.marksAwarded / grade.totalMarks) * 100)
+                  : 0;
+
+              return (
+                <div className="assignment-summary" key={assignment.id}>
+                  <div className="assignment-summary-header">
+                    <strong>{assignment.title}</strong>
+
+                    {grade && (
+                      <span
+                        className={`st-badge ${
+                          percentage >= 50 ? "good" : "bad"
+                        }`}
+                      >
+                        {percentage}%
+                      </span>
+                    )}
+                  </div>
+
+                  <p>
+                    {assignment.courseTitle} &middot; {assignment.totalMarks}{" "}
+                    marks
+                  </p>
+
+                  {grade ? (
+                    <>
+                      <p>
+                        <strong>
+                          {grade.marksAwarded} / {grade.totalMarks}
+                        </strong>
+                      </p>
+
+                      <p>Feedback: {grade.feedback || "No feedback"}</p>
+
+                      <small>
+                        Graded {new Date(grade.gradedAt).toLocaleDateString()}
+                      </small>
+                    </>
+                  ) : (
+                    <p>Your grade is loading.</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+    </>
+  );
+}
+
+export default StudentAssignments;

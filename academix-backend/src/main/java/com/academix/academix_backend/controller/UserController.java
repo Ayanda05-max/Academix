@@ -43,7 +43,9 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id, Authentication auth) {
-        userService.deleteUser(id, auth.getName());
+    public void deleteUser(@PathVariable Long id,
+                           @RequestParam(defaultValue = "false") boolean force,
+                           Authentication auth) {
+        userService.deleteUser(id, auth.getName(), force);
     }
 }

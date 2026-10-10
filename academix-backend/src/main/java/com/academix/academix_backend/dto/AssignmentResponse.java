@@ -8,5 +8,6 @@ public record AssignmentResponse(
         String title,
         String description,
         LocalDateTime dueDate,
-        Integer totalMarks
+        Integer totalMarks,
+        String instructionsFileName
 ) {}

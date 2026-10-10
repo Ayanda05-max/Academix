@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { readError } from "../utils/readError";
 
 function Register() {
   const [firstName, setFirstName] = useState<string>("");
@@ -16,13 +17,17 @@ function Register() {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
 
-  async function handleRegister(
-    event: React.FormEvent<HTMLFormElement>
-  ) {
+  async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (loading) return;
 
     setError("");
     setSuccess("");
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("The passwords do not match.");
@@ -57,7 +62,7 @@ function Register() {
       });
 
       if (response.ok) {
-        setSuccess("Account created successfully.");
+        setSuccess(`Account created for ${firstName} ${lastName} (${email}).`);
 
         setFirstName("");
         setLastName("");
@@ -67,15 +72,13 @@ function Register() {
         setRole("STUDENT");
       } else {
         setError(
-          "Registration failed. Please check the account details and try again."
+          (await readError(response)) ||
+            "Registration failed. Please check the account details and try again."
         );
       }
     } catch (error) {
       console.error(error);
-
-      setError(
-        "Unable to connect to Academix. Please try again."
-      );
+      setError("Unable to connect to Academix. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -84,8 +87,6 @@ function Register() {
   return (
     <div className="auth-page">
       <div className="auth-container register-auth-container">
-        {/* LEFT SIDE */}
-
         <section className="auth-welcome">
           <div className="auth-welcome-content">
             <div className="auth-logo">A</div>
@@ -95,9 +96,8 @@ function Register() {
             <h1>Build your academic community.</h1>
 
             <p className="auth-description">
-              Create accounts for students, lecturers and
-              administrators who use the Academix learning
-              platform.
+              Create accounts for students, lecturers and administrators who
+              use the Academix learning platform.
             </p>
 
             <div className="auth-features">
@@ -118,12 +118,8 @@ function Register() {
             </div>
           </div>
 
-          <p className="auth-welcome-footer">
-            Academix Administration
-          </p>
+          <p className="auth-welcome-footer">Academix Administration</p>
         </section>
-
-        {/* RIGHT SIDE */}
 
         <section className="auth-form-side register-form-side">
           <div className="auth-form-container register-form-container">
@@ -137,13 +133,10 @@ function Register() {
             <h2>Create an account</h2>
 
             <p className="auth-form-description">
-              Enter the user's details and select their role in
-              Academix.
+              Enter the user's details and select their role in Academix.
             </p>
 
             <form onSubmit={handleRegister}>
-              {/* NAME */}
-
               <div className="register-name-row">
                 <div className="form-group">
                   <label htmlFor="firstName">First name</label>
@@ -153,9 +146,7 @@ function Register() {
                     type="text"
                     placeholder="First name"
                     value={firstName}
-                    onChange={(event) =>
-                      setFirstName(event.target.value)
-                    }
+                    onChange={(event) => setFirstName(event.target.value)}
                     autoComplete="given-name"
                     required
                   />
@@ -169,51 +160,37 @@ function Register() {
                     type="text"
                     placeholder="Last name"
                     value={lastName}
-                    onChange={(event) =>
-                      setLastName(event.target.value)
-                    }
+                    onChange={(event) => setLastName(event.target.value)}
                     autoComplete="family-name"
                     required
                   />
                 </div>
               </div>
 
-              {/* EMAIL */}
-
               <div className="form-group">
-                <label htmlFor="registerEmail">
-                  Email address
-                </label>
+                <label htmlFor="registerEmail">Email address</label>
 
                 <input
                   id="registerEmail"
                   type="email"
                   placeholder="Enter email address"
                   value={email}
-                  onChange={(event) =>
-                    setEmail(event.target.value)
-                  }
+                  onChange={(event) => setEmail(event.target.value)}
                   autoComplete="email"
                   required
                 />
               </div>
 
-              {/* PASSWORD */}
-
               <div className="form-group">
-                <label htmlFor="registerPassword">
-                  Password
-                </label>
+                <label htmlFor="registerPassword">Password</label>
 
                 <div className="password-input-wrapper">
                   <input
                     id="registerPassword"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Create a password"
+                    placeholder="At least 8 characters"
                     value={password}
-                    onChange={(event) =>
-                      setPassword(event.target.value)
-                    }
+                    onChange={(event) => setPassword(event.target.value)}
                     autoComplete="new-password"
                     required
                   />
@@ -221,45 +198,25 @@ function Register() {
                   <button
                     type="button"
                     className="password-toggle"
-                    onClick={() =>
-                      setShowPassword((current) => !current)
-                    }
-                    aria-label={
-                      showPassword
-                        ? "Hide password"
-                        : "Show password"
-                    }
-                    title={
-                      showPassword
-                        ? "Hide password"
-                        : "Show password"
-                    }
+                    onClick={() => setShowPassword((current) => !current)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    title={showPassword ? "Hide password" : "Show password"}
                   >
                     <PasswordEye hidden={showPassword} />
                   </button>
                 </div>
               </div>
 
-              {/* CONFIRM PASSWORD */}
-
               <div className="form-group">
-                <label htmlFor="confirmPassword">
-                  Confirm password
-                </label>
+                <label htmlFor="confirmPassword">Confirm password</label>
 
                 <div className="password-input-wrapper">
                   <input
                     id="confirmPassword"
-                    type={
-                      showConfirmPassword
-                        ? "text"
-                        : "password"
-                    }
+                    type={showConfirmPassword ? "text" : "password"}
                     placeholder="Enter the password again"
                     value={confirmPassword}
-                    onChange={(event) =>
-                      setConfirmPassword(event.target.value)
-                    }
+                    onChange={(event) => setConfirmPassword(event.target.value)}
                     autoComplete="new-password"
                     required
                   />
@@ -268,19 +225,13 @@ function Register() {
                     type="button"
                     className="password-toggle"
                     onClick={() =>
-                      setShowConfirmPassword(
-                        (current) => !current
-                      )
+                      setShowConfirmPassword((current) => !current)
                     }
                     aria-label={
-                      showConfirmPassword
-                        ? "Hide password"
-                        : "Show password"
+                      showConfirmPassword ? "Hide password" : "Show password"
                     }
                     title={
-                      showConfirmPassword
-                        ? "Hide password"
-                        : "Show password"
+                      showConfirmPassword ? "Hide password" : "Show password"
                     }
                   >
                     <PasswordEye hidden={showConfirmPassword} />
@@ -288,17 +239,13 @@ function Register() {
                 </div>
               </div>
 
-              {/* ROLE */}
-
               <div className="form-group">
                 <label htmlFor="role">Account role</label>
 
                 <select
                   id="role"
                   value={role}
-                  onChange={(event) =>
-                    setRole(event.target.value)
-                  }
+                  onChange={(event) => setRole(event.target.value)}
                 >
                   <option value="STUDENT">Student</option>
                   <option value="LECTURER">Lecturer</option>
@@ -306,36 +253,17 @@ function Register() {
                 </select>
               </div>
 
-              {/* MESSAGES */}
+              {error && <div className="login-error">{error}</div>}
 
-              {error && (
-                <div className="login-error">
-                  {error}
-                </div>
-              )}
+              {success && <div className="register-success">{success}</div>}
 
-              {success && (
-                <div className="register-success">
-                  {success}
-                </div>
-              )}
-
-              {/* SUBMIT */}
-
-              <button
-                className="login-button"
-                type="submit"
-                disabled={loading}
-              >
-                {loading
-                  ? "Creating account..."
-                  : "Create account"}
+              <button className="login-button" type="submit" disabled={loading}>
+                {loading ? "Creating account..." : "Create account"}
               </button>
             </form>
 
             <p className="auth-help">
-              Account creation is restricted to authorised
-              administrators.
+              Account creation is restricted to authorised administrators.
             </p>
           </div>
         </section>
@@ -343,8 +271,6 @@ function Register() {
     </div>
   );
 }
-
-/* PASSWORD EYE ICON */
 
 function PasswordEye({ hidden }: { hidden: boolean }) {
   if (hidden) {

@@ -60,10 +60,15 @@ public class CourseController {
     public Course publishCourse(@PathVariable Long id, Authentication auth) {
         return courseService.publishCourse(id, auth.getName(), has(auth, "ADMIN"));
     }
-
     @PreAuthorize("hasAuthority('ADMIN')")
-    @DeleteMapping("/{id}")
-    public void deleteCourse(@PathVariable Long id) {
-        courseService.deleteCourse(id);
-    }
+    @PutMapping("/{id}/instructor")
+    public Course assignInstructor(@PathVariable Long id, @RequestParam Long instructorId) {
+    return courseService.assignInstructor(id, instructorId);
+}
+   @PreAuthorize("hasAuthority('ADMIN')")
+   @DeleteMapping("/{id}")
+   public void deleteCourse(@PathVariable Long id,
+                         @RequestParam(defaultValue = "false") boolean force) {
+    courseService.deleteCourse(id, force);
+}
 }

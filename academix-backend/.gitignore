@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+uploads/
+inspect*.txt
+*.bak
+uploads/
+
+application-local.properties
+inspect*.txt
+*.bak
+uploads/

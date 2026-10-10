@@ -2,6 +2,8 @@ package com.academix.academix_backend.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "submissions")
@@ -19,6 +21,7 @@ public class Submission {
     @JoinColumn(name = "student_id", nullable = false)
     private User student;
 
+    // Optional link to the work (kept so link submissions still work)
     @Column(name = "file_url")
     private String fileUrl;
 
@@ -27,6 +30,10 @@ public class Submission {
 
     @Column(nullable = false)
     private String status;
+
+    // Files the student attached. Deleting a submission deletes its file rows too.
+    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<SubmissionFile> files = new ArrayList<>();
 
     // Getters and setters
     public Long getId() { return id; }
@@ -46,4 +53,7 @@ public class Submission {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public List<SubmissionFile> getFiles() { return files; }
+    public void setFiles(List<SubmissionFile> files) { this.files = files; }
 }
