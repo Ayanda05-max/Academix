@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { readError } from "../../utils/readError";
 
 type User = {
   id: number;
@@ -32,10 +33,10 @@ function AdminEnrolments() {
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [loading, setLoading] = useState(true);
+  const [enrolling, setEnrolling] = useState(false);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error">(
-    "success"
-  );
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
+  const messageRef = useRef<HTMLDivElement>(null);
 
   const token = localStorage.getItem("token");
 
@@ -48,12 +49,17 @@ function AdminEnrolments() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    if (message) {
+      messageRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [message]);
+
   function showMessage(text: string, type: "success" | "error") {
     setMessage(text);
     setMessageType(type);
   }
 
-  // Load users, courses and enrolments
   async function loadData() {
     if (!token) {
       showMessage("You must log in first.", "error");
@@ -90,9 +96,7 @@ function AdminEnrolments() {
           );
 
           if (enrollmentResponse.ok) {
-            const enrollmentData: Enrollment[] =
-              await enrollmentResponse.json();
-
+            const enrollmentData: Enrollment[] = await enrollmentResponse.json();
             allEnrollments.push(...enrollmentData);
           }
         }
@@ -109,9 +113,9 @@ function AdminEnrolments() {
     }
   }
 
-  // Enrol a student
   async function addEnrollment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (enrolling) return;
 
     if (!token) {
       showMessage("You must log in first.", "error");
@@ -124,12 +128,25 @@ function AdminEnrolments() {
     }
 
     const studentId = selectedStudentId;
+    const studentName = students.find(
+      (student) => String(student.id) === studentId
+    );
+    const courseTitle = publishedCourses.find(
+      (course) => String(course.id) === selectedCourseId
+    )?.title;
+
+    setEnrolling(true);
+    setMessage("");
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
 
     try {
       const response = await fetch(
         `/api/enroll?studentId=${selectedStudentId}&courseId=${selectedCourseId}`,
         {
           method: "POST",
+          signal: controller.signal,
           headers: { Authorization: `Bearer ${token}` },
         }
       );
@@ -144,31 +161,46 @@ function AdminEnrolments() {
         );
 
         if (enrollmentResponse.ok) {
-          const studentEnrollments: Enrollment[] =
-            await enrollmentResponse.json();
+          const studentEnrollments: Enrollment[] = await enrollmentResponse.json();
 
           setEnrollments((currentEnrollments) => {
             const otherEnrollments = currentEnrollments.filter(
               (enrollment) => enrollment.studentId !== Number(studentId)
             );
-
             return [...otherEnrollments, ...studentEnrollments];
           });
         }
 
-        showMessage("Student enrolled successfully.", "success");
-      } else {
-        const responseMessage = await response.text();
+        const who = studentName
+          ? `${studentName.firstName} ${studentName.lastName}`
+          : "Student";
 
-        showMessage(responseMessage || "Could not enrol student.", "error");
+        showMessage(
+          `${who} was enrolled in ${courseTitle ?? "the course"}.`,
+          "success"
+        );
+      } else {
+        showMessage(
+          (await readError(response)) || "Could not enrol student.",
+          "error"
+        );
       }
     } catch (error) {
-      showMessage("Could not connect to the server.", "error");
-      console.error(error);
+      const timedOut =
+        error instanceof DOMException && error.name === "AbortError";
+
+      showMessage(
+        timedOut
+          ? "The server is taking too long. The student may already be enrolled, so refresh before trying again."
+          : "Could not connect to the server.",
+        "error"
+      );
+    } finally {
+      clearTimeout(timer);
+      setEnrolling(false);
     }
   }
 
-  // Remove an enrolment
   async function deleteEnrollment(enrollment: Enrollment) {
     if (!token) {
       showMessage("You must log in first.", "error");
@@ -179,9 +211,7 @@ function AdminEnrolments() {
       `Remove ${enrollment.studentName} from ${enrollment.courseTitle}?`
     );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
       const response = await fetch(
@@ -197,12 +227,13 @@ function AdminEnrolments() {
           currentEnrollments.filter((item) => item.id !== enrollment.id)
         );
 
-        showMessage("Enrollment removed successfully.", "success");
-      } else {
-        const responseMessage = await response.text();
-
         showMessage(
-          responseMessage || "Could not remove enrollment.",
+          `${enrollment.studentName} was removed from ${enrollment.courseTitle}.`,
+          "success"
+        );
+      } else {
+        showMessage(
+          (await readError(response)) || "Could not remove enrollment.",
           "error"
         );
       }
@@ -213,15 +244,11 @@ function AdminEnrolments() {
   }
 
   function formatDate(date: string) {
-    if (!date) {
-      return "Not available";
-    }
+    if (!date) return "Not available";
 
     const parsedDate = new Date(date);
 
-    if (Number.isNaN(parsedDate.getTime())) {
-      return date;
-    }
+    if (Number.isNaN(parsedDate.getTime())) return date;
 
     return parsedDate.toLocaleDateString("en-ZA", {
       day: "2-digit",
@@ -232,14 +259,10 @@ function AdminEnrolments() {
 
   return (
     <>
-      {/* HEADER */}
-
       <header className="dashboard-header">
         <div>
           <p className="dashboard-eyebrow">ADMIN PORTAL</p>
-
           <h1>Enrolments</h1>
-
           <p className="dashboard-description">
             Assign students to published courses and manage existing
             enrolments.
@@ -249,6 +272,7 @@ function AdminEnrolments() {
 
       {message && (
         <div
+          ref={messageRef}
           className={
             messageType === "success"
               ? "admin-message admin-message-success"
@@ -291,7 +315,6 @@ function AdminEnrolments() {
           <div className="admin-action-panel">
             <div className="admin-action-copy">
               <h3>Enrol a student</h3>
-
               <p>
                 Students can only be enrolled into courses that have been
                 published.
@@ -337,7 +360,9 @@ function AdminEnrolments() {
                 </select>
               </div>
 
-              <button type="submit">Enrol Student</button>
+              <button type="submit" disabled={enrolling}>
+                {enrolling ? "Enrolling..." : "Enrol Student"}
+              </button>
             </form>
           </div>
 
@@ -367,7 +392,6 @@ function AdminEnrolments() {
                       <td>
                         <div className="table-student">
                           <strong>{enrollment.studentName}</strong>
-
                           <span>{enrollment.studentEmail}</span>
                         </div>
                       </td>

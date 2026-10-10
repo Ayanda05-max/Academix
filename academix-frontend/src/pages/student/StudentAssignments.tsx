@@ -25,6 +25,7 @@ type Assignment = {
   dueDate: string;
   totalMarks: number;
   courseTitle: string;
+  instructionsFileName?: string | null;
 };
 
 type Submission = {
@@ -176,6 +177,43 @@ function StudentAssignments() {
     if (response.ok) {
       const data: Grade[] = await response.json();
       setGrades(data);
+    }
+  }
+
+  // Open the lecturer's instructions PDF in a new tab.
+  // The endpoint needs the token, so a plain link would not work.
+  async function openInstructions(assignmentId: number) {
+    if (!token) {
+      alert("You must be logged in.");
+      return;
+    }
+
+    // Open the tab first so the browser does not block it as a popup
+    const tab = window.open("", "_blank");
+
+    try {
+      const response = await fetch(
+        `/api/assignments/${assignmentId}/instructions`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (!response.ok) {
+        tab?.close();
+        const message = await readError(response);
+        alert("Could not open the instructions: " + message);
+        return;
+      }
+
+      const blob = new Blob([await response.blob()], {
+        type: "application/pdf",
+      });
+
+      if (tab) {
+        tab.location.href = URL.createObjectURL(blob);
+      }
+    } catch (error) {
+      tab?.close();
+      alert("ERROR: " + String(error));
     }
   }
 
@@ -366,6 +404,18 @@ function StudentAssignments() {
                 </p>
 
                 <p>{assignment.description}</p>
+
+                {assignment.instructionsFileName && (
+                  <p>
+                    <button
+                      type="button"
+                      onClick={() => openInstructions(assignment.id)}
+                    >
+                      Instructions (PDF)
+                    </button>{" "}
+                    <small>{assignment.instructionsFileName}</small>
+                  </p>
+                )}
 
                 <small>
                   Due {new Date(assignment.dueDate).toLocaleString()}

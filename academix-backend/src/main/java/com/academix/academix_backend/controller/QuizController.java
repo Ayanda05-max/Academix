@@ -1,5 +1,6 @@
 package com.academix.academix_backend.controller;
 
+import com.academix.academix_backend.dto.QuizAttemptResponse;
 import com.academix.academix_backend.dto.QuizCreateRequest;
 import com.academix.academix_backend.dto.QuizResponse;
 import com.academix.academix_backend.dto.QuizScoreResponse;
@@ -52,4 +53,10 @@ public class QuizController {
                                        Authentication auth) {
         return quizService.getResult(quizId, studentId, auth.getName(), role(auth));
     }
+
+    @PreAuthorize("hasAnyAuthority('LECTURER','ADMIN')")
+    @GetMapping("/{quizId}/attempts")
+    public List<QuizAttemptResponse> getAttempts(@PathVariable Long quizId, Authentication auth) {
+        return quizService.getAttempts(quizId, auth.getName(), role(auth));
+}
 }

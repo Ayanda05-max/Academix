@@ -104,3 +104,18 @@ export async function getQuizResult(quizId: number, studentId: number): Promise<
     throw err;
   }
 }
+export interface QuizAttempt {
+  resultId: number;
+  studentId: number;
+  studentName: string | null;
+  studentEmail: string | null;
+  score: number;
+  totalMarks: number;
+  percentage: number;
+  submittedAt: string;
+  answers: (number | null)[] | null;
+}
+
+export function getQuizAttempts(quizId: number) {
+  return request<QuizAttempt[]>(`/quizzes/${quizId}/attempts`);
+}

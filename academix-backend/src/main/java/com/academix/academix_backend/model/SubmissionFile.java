@@ -2,7 +2,7 @@ package com.academix.academix_backend.model;
 
 import jakarta.persistence.*;
 
-// One file attached to a submission. The file itself lives on disk (see FileStorageService).
+
 @Entity
 @Table(name = "submission_files")
 public class SubmissionFile {
@@ -15,11 +15,11 @@ public class SubmissionFile {
     @JoinColumn(name = "submission_id", nullable = false)
     private Submission submission;
 
-    // Random name used on disk
+    
     @Column(name = "stored_name", nullable = false)
     private String storedName;
 
-    // Name the student's file had, shown to the lecturer
+    
     @Column(name = "original_name", nullable = false)
     private String originalName;
 

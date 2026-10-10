@@ -27,7 +27,13 @@ public class Assignment {
     @Column(name = "total_marks", nullable = false)
     private Integer totalMarks;
 
-    // Getters and setters
+    @Column(name = "instructions_original_name")
+private String instructionsOriginalName;
+
+@Column(name = "instructions_stored_name")
+private String instructionsStoredName;
+
+   
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -45,4 +51,10 @@ public class Assignment {
 
     public Integer getTotalMarks() { return totalMarks; }
     public void setTotalMarks(Integer totalMarks) { this.totalMarks = totalMarks; }
+
+    public String getInstructionsOriginalName() { return instructionsOriginalName; }
+public void setInstructionsOriginalName(String v) { this.instructionsOriginalName = v; }
+
+public String getInstructionsStoredName() { return instructionsStoredName; }
+public void setInstructionsStoredName(String v) { this.instructionsStoredName = v; }
 }

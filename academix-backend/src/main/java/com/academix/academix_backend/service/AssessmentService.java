@@ -66,10 +66,14 @@ public class AssessmentService {
                 throw new AccessDeniedException("You can only add assignments to your own courses");
             }
         }
-
+        String title = request.getTitle().trim();
+        if (assignmentRepository.existsByCourse_IdAndTitleIgnoreCase(course.getId(), title)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+            "An assignment named \"" + title + "\" already exists in this course");
+}
         Assignment assignment = new Assignment();
         assignment.setCourse(course);
-        assignment.setTitle(request.getTitle().trim());
+        assignment.setTitle(title);
         assignment.setDescription(request.getDescription().trim());
         assignment.setDueDate(request.getDueDate());
         assignment.setTotalMarks(request.getTotalMarks());
@@ -163,13 +167,15 @@ public class AssessmentService {
         return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
     }
 
-    private AssignmentResponse toResponse(Assignment a) {
+        private AssignmentResponse toResponse(Assignment a) {
         return new AssignmentResponse(
                 a.getId(),
                 a.getCourseId().getId(),
                 a.getTitle(),
                 a.getDescription(),
                 a.getDueDate(),
-                a.getTotalMarks());
+                a.getTotalMarks(),
+                a.getInstructionsOriginalName());
     }
 }
+    

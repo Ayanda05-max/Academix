@@ -1,7 +1,12 @@
 ﻿import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { createQuiz, getLecturerCourses, getQuizzesForCourse } from "../services/quizService";
-import type { CourseOption, Quiz } from "../services/quizService";
+import {
+  createQuiz,
+  getLecturerCourses,
+  getQuizAttempts,
+  getQuizzesForCourse,
+} from "../services/quizService";
+import type { CourseOption, Quiz, QuizAttempt } from "../services/quizService";
 
 type DraftQuestion = {
   text: string;
@@ -25,6 +30,7 @@ function getCurrentUserId(): number | null {
       const id = parsed?.id ?? parsed?.user?.id;
       if (typeof id === "number") return id;
     } catch {
+      continue;
     }
   }
   return null;
@@ -56,6 +62,11 @@ function QuizPage() {
   const [quizzesError, setQuizzesError] = useState("");
   const [openQuizId, setOpenQuizId] = useState<number | null>(null);
 
+  const [attempts, setAttempts] = useState<Record<number, QuizAttempt[]>>({});
+  const [attemptsOpenId, setAttemptsOpenId] = useState<number | null>(null);
+  const [attemptsLoading, setAttemptsLoading] = useState(false);
+  const [attemptsError, setAttemptsError] = useState("");
+
   useEffect(() => {
     let cancelled = false;
     getLecturerCourses()
@@ -63,7 +74,10 @@ function QuizPage() {
         if (cancelled) return;
         const list = Array.isArray(data) ? data : [];
         const me = getCurrentUserId();
-        const mine = me === null ? list : list.filter((c) => c.instructorId === undefined || c.instructorId === me);
+        const mine =
+          me === null
+            ? list
+            : list.filter((c) => c.instructorId === undefined || c.instructorId === me);
         setCourses(mine);
         if (mine.length > 0) setCourseId(mine[0].id);
       })
@@ -96,8 +110,29 @@ function QuizPage() {
       setQuizzes([]);
       return;
     }
+    setAttemptsOpenId(null);
     loadQuizzes(courseId);
   }, [courseId]);
+
+  async function toggleAttempts(quizId: number) {
+    if (attemptsOpenId === quizId) {
+      setAttemptsOpenId(null);
+      return;
+    }
+
+    setAttemptsOpenId(quizId);
+    setAttemptsLoading(true);
+    setAttemptsError("");
+
+    try {
+      const data = await getQuizAttempts(quizId);
+      setAttempts((current) => ({ ...current, [quizId]: data }));
+    } catch (err) {
+      setAttemptsError(errorText(err));
+    } finally {
+      setAttemptsLoading(false);
+    }
+  }
 
   function updateQuestion(index: number, patch: Partial<DraftQuestion>) {
     setQuestions((prev) => prev.map((q, i) => (i === index ? { ...q, ...patch } : q)));
@@ -142,7 +177,9 @@ function QuizPage() {
       const n = i + 1;
       if (!q.text.trim()) return `Question ${n} needs text.`;
       if (q.options.some((o) => !o.trim())) return `Question ${n} has an empty option.`;
-      if (!Number.isInteger(q.marks) || q.marks <= 0) return `Question ${n} marks must be a whole number greater than 0.`;
+      if (!Number.isInteger(q.marks) || q.marks <= 0) {
+        return `Question ${n} marks must be a whole number greater than 0.`;
+      }
     }
     return "";
   }
@@ -172,7 +209,9 @@ function QuizPage() {
           marks: q.marks,
         })),
       });
-      setSuccess(`Quiz "${saved.title}" was created with ${saved.questions.length} question(s), ${saved.totalMarks} marks in total. Students enrolled in this course can now see it.`);
+      setSuccess(
+        `Quiz "${saved.title}" was created with ${saved.questions.length} question(s), ${saved.totalMarks} marks in total. Students enrolled in this course can now see it.`
+      );
       setTitle("");
       setTimeLimit("");
       setQuestions([newQuestion()]);
@@ -185,12 +224,81 @@ function QuizPage() {
     }
   }
 
+  function renderAttempts(quiz: Quiz) {
+    if (attemptsLoading) return <p className="qz-muted">Loading submissions...</p>;
+    if (attemptsError) return <div className="qz-banner qz-error" role="alert">{attemptsError}</div>;
+
+    const list = attempts[quiz.id] ?? [];
+    if (list.length === 0) {
+      return <p className="qz-muted">No students have submitted this quiz yet.</p>;
+    }
+
+    return (
+      <div className="qz-attempts">
+        {list.map((attempt) => (
+          <details className="qz-attempt" key={attempt.resultId}>
+            <summary>
+              <span className="qz-attempt-name">
+                {attempt.studentName ?? `Student ${attempt.studentId}`}
+              </span>
+              <span className="qz-attempt-score">
+                {attempt.score}/{attempt.totalMarks} ({attempt.percentage}%)
+              </span>
+            </summary>
+
+            <p className="qz-muted qz-small">
+              {attempt.studentEmail ? `${attempt.studentEmail} · ` : ""}
+              Submitted {new Date(attempt.submittedAt).toLocaleString()}
+            </p>
+
+            {!attempt.answers || attempt.answers.length === 0 ? (
+              <p className="qz-muted">
+                The written answers were not saved for this submission.
+              </p>
+            ) : (
+              <ol className="qz-review">
+                {quiz.questions.map((q, i) => {
+                  const chosen = attempt.answers?.[i];
+                  const hasAnswer = chosen !== null && chosen !== undefined;
+                  const isCorrect = hasAnswer && chosen === q.correctIndex;
+
+                  return (
+                    <li key={i}>
+                      <div>
+                        {q.text}{" "}
+                        <span className="qz-muted">
+                          ({q.marks} mark{q.marks === 1 ? "" : "s"})
+                        </span>
+                      </div>
+                      <div className={isCorrect ? "qz-correct" : "qz-wrong"}>
+                        Student answered:{" "}
+                        {hasAnswer ? q.options[chosen as number] ?? "Invalid option" : "No answer"}
+                        {isCorrect ? " ✓" : " ✗"}
+                      </div>
+                      {!isCorrect && q.correctIndex !== undefined && (
+                        <div className="qz-correct">
+                          Correct answer: {q.options[q.correctIndex]}
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+          </details>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="qz-page">
       <style>{css}</style>
 
       <h1>Quiz Management</h1>
-      <p className="qz-muted">Create quizzes for your courses. Enrolled students see them straight away.</p>
+      <p className="qz-muted">
+        Create quizzes for your courses and review what students submitted.
+      </p>
 
       {success && <div className="qz-banner qz-success" role="status">{success}</div>}
       {error && <div className="qz-banner qz-error" role="alert">{error}</div>}
@@ -201,7 +309,9 @@ function QuizPage() {
         {coursesLoading ? (
           <p className="qz-muted">Loading your courses...</p>
         ) : courses.length === 0 ? (
-          <p className="qz-muted">You have no courses yet. Create a course first, then add quizzes to it.</p>
+          <p className="qz-muted">
+            You have no courses yet. Create a course first, then add quizzes to it.
+          </p>
         ) : (
           <form onSubmit={handleSubmit}>
             <div className="qz-row">
@@ -216,12 +326,25 @@ function QuizPage() {
 
               <label className="qz-field">
                 <span>Quiz title</span>
-                <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Week 3 Quiz" required />
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Week 3 Quiz"
+                  required
+                />
               </label>
 
               <label className="qz-field qz-narrow">
                 <span>Time limit (minutes, optional)</span>
-                <input type="number" min="1" step="1" value={timeLimit} onChange={(e) => setTimeLimit(e.target.value)} placeholder="No limit" />
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={timeLimit}
+                  onChange={(e) => setTimeLimit(e.target.value)}
+                  placeholder="No limit"
+                />
               </label>
             </div>
 
@@ -232,7 +355,11 @@ function QuizPage() {
                 <div className="qz-question-head">
                   <strong>Question {qi + 1}</strong>
                   {questions.length > 1 && (
-                    <button type="button" className="qz-link" onClick={() => setQuestions((prev) => prev.filter((_, i) => i !== qi))}>
+                    <button
+                      type="button"
+                      className="qz-link"
+                      onClick={() => setQuestions((prev) => prev.filter((_, i) => i !== qi))}
+                    >
                       Remove question
                     </button>
                   )}
@@ -240,7 +367,12 @@ function QuizPage() {
 
                 <label className="qz-field">
                   <span>Question text</span>
-                  <textarea rows={2} value={q.text} onChange={(e) => updateQuestion(qi, { text: e.target.value })} placeholder="Type the question" />
+                  <textarea
+                    rows={2}
+                    value={q.text}
+                    onChange={(e) => updateQuestion(qi, { text: e.target.value })}
+                    placeholder="Type the question"
+                  />
                 </label>
 
                 <p className="qz-muted qz-small">Answer options. Tick the correct one.</p>
@@ -253,9 +385,19 @@ function QuizPage() {
                       onChange={() => updateQuestion(qi, { correctIndex: oi })}
                       aria-label={`Option ${oi + 1} is correct`}
                     />
-                    <input type="text" value={o} onChange={(e) => updateOption(qi, oi, e.target.value)} placeholder={`Option ${oi + 1}`} />
+                    <input
+                      type="text"
+                      value={o}
+                      onChange={(e) => updateOption(qi, oi, e.target.value)}
+                      placeholder={`Option ${oi + 1}`}
+                    />
                     {q.options.length > 2 && (
-                      <button type="button" className="qz-link" onClick={() => removeOption(qi, oi)} aria-label={`Remove option ${oi + 1}`}>
+                      <button
+                        type="button"
+                        className="qz-link"
+                        onClick={() => removeOption(qi, oi)}
+                        aria-label={`Remove option ${oi + 1}`}
+                      >
                         Remove
                       </button>
                     )}
@@ -264,7 +406,9 @@ function QuizPage() {
 
                 <div className="qz-row qz-row-end">
                   {q.options.length < MAX_OPTIONS && (
-                    <button type="button" className="qz-secondary" onClick={() => addOption(qi)}>Add option</button>
+                    <button type="button" className="qz-secondary" onClick={() => addOption(qi)}>
+                      Add option
+                    </button>
                   )}
                   <label className="qz-field qz-narrow">
                     <span>Marks</span>
@@ -281,7 +425,11 @@ function QuizPage() {
             ))}
 
             <div className="qz-actions">
-              <button type="button" className="qz-secondary" onClick={() => setQuestions((prev) => [...prev, newQuestion()])}>
+              <button
+                type="button"
+                className="qz-secondary"
+                onClick={() => setQuestions((prev) => [...prev, newQuestion()])}
+              >
                 Add question
               </button>
               <button type="submit" className="qz-primary" disabled={saving}>
@@ -297,7 +445,8 @@ function QuizPage() {
 
         {courses.length > 0 && (
           <p className="qz-muted">
-            Showing quizzes saved for: <strong>{courseLabel(courses.find((c) => c.id === courseId) ?? courses[0])}</strong>
+            Showing quizzes saved for:{" "}
+            <strong>{courseLabel(courses.find((c) => c.id === courseId) ?? courses[0])}</strong>
           </p>
         )}
 
@@ -315,19 +464,40 @@ function QuizPage() {
                 {quiz.questions.length} question(s) · {quiz.totalMarks} marks ·{" "}
                 {quiz.timeLimit ? `${quiz.timeLimit} min` : "No time limit"}
               </p>
-              <button type="button" className="qz-secondary" onClick={() => setOpenQuizId(openQuizId === quiz.id ? null : quiz.id)}>
-                {openQuizId === quiz.id ? "Hide questions" : "View questions"}
-              </button>
+
+              <div className="qz-quiz-actions">
+                <button
+                  type="button"
+                  className="qz-secondary"
+                  onClick={() => setOpenQuizId(openQuizId === quiz.id ? null : quiz.id)}
+                >
+                  {openQuizId === quiz.id ? "Hide questions" : "View questions"}
+                </button>
+
+                <button
+                  type="button"
+                  className="qz-secondary"
+                  onClick={() => toggleAttempts(quiz.id)}
+                >
+                  {attemptsOpenId === quiz.id ? "Hide submissions" : "View submissions"}
+                </button>
+              </div>
 
               {openQuizId === quiz.id && (
                 <ol className="qz-review">
                   {quiz.questions.map((q, i) => (
                     <li key={i}>
-                      <div>{q.text} <span className="qz-muted">({q.marks} mark{q.marks === 1 ? "" : "s"})</span></div>
+                      <div>
+                        {q.text}{" "}
+                        <span className="qz-muted">
+                          ({q.marks} mark{q.marks === 1 ? "" : "s"})
+                        </span>
+                      </div>
                       <ul>
                         {q.options.map((o, oi) => (
                           <li key={oi} className={q.correctIndex === oi ? "qz-correct" : ""}>
-                            {o}{q.correctIndex === oi ? " ✓" : ""}
+                            {o}
+                            {q.correctIndex === oi ? " ✓" : ""}
                           </li>
                         ))}
                       </ul>
@@ -335,11 +505,11 @@ function QuizPage() {
                   ))}
                 </ol>
               )}
+
+              {attemptsOpenId === quiz.id && renderAttempts(quiz)}
             </div>
           ))}
         </div>
-
-        <p className="qz-muted qz-small"></p>
       </section>
     </div>
   );
@@ -378,9 +548,16 @@ const css = `
 .qz-list { display: grid; gap: 12px; grid-template-columns: 1fr; }
 .qz-quiz { border: 1px solid #d9dee3; border-radius: 8px; padding: 12px; }
 .qz-quiz h3 { margin-top: 0; }
+.qz-quiz-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .qz-review { margin: 12px 0 0; padding-left: 20px; }
 .qz-review ul { margin: 4px 0 10px; padding-left: 18px; }
+.qz-review li { margin-bottom: 10px; }
 .qz-correct { color: #1A6B3C; font-weight: 600; }
+.qz-wrong { color: #C0392B; font-weight: 600; }
+.qz-attempts { margin-top: 12px; display: grid; gap: 8px; }
+.qz-attempt { border: 1px solid #d9dee3; border-radius: 8px; padding: 10px 12px; background: #F8FAFB; }
+.qz-attempt summary { display: flex; justify-content: space-between; gap: 8px; cursor: pointer; font-weight: 600; color: #2C3E50; }
+.qz-attempt-score { color: #1E3A5F; white-space: nowrap; }
 @media (min-width: 700px) { .qz-list { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 520px) {
   .qz-page { padding: 10px; }

@@ -252,3 +252,12 @@
     grid-template-columns: 1fr;
   }
 }
+.dashboard-success {
+  background: #e8f5ee;
+  color: #1a6b3c;
+  border: 1px solid #b7dfc7;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-weight: 500;
+}

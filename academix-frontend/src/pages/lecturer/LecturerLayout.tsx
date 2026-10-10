@@ -7,6 +7,7 @@ import {
   Inbox,
   FileQuestion,
   FolderOpen,
+  TrendingUp,
 } from "lucide-react";
 import "../student/student.css";
 
@@ -81,6 +82,11 @@ function LecturerLayout() {
           <NavLink to="/lecturer/quizzes">
             <FileQuestion size={18} />
             Quizzes
+          </NavLink>
+
+          <NavLink to="/lecturer/performance">
+            <TrendingUp size={18} />
+            Performance
           </NavLink>
 
           <NavLink to="/lecturer/resources">

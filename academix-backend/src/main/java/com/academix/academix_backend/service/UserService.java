@@ -1,15 +1,26 @@
 package com.academix.academix_backend.service;
 
 import com.academix.academix_backend.dto.UserResponse;
+import com.academix.academix_backend.model.Submission;
+import com.academix.academix_backend.model.SubmissionFile;
 import com.academix.academix_backend.model.User;
+import com.academix.academix_backend.repository.EnrollmentRepository;
+import com.academix.academix_backend.repository.GradeRepository;
+import com.academix.academix_backend.repository.NotificationRepository;
+import com.academix.academix_backend.repository.QuizResultRepository;
+import com.academix.academix_backend.repository.SubmissionRepository;
 import com.academix.academix_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,7 +29,23 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-  
+    @Autowired
+    private SubmissionRepository submissionRepository;
+
+    @Autowired
+    private GradeRepository gradeRepository;
+
+    @Autowired
+    private QuizResultRepository quizResultRepository;
+
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
@@ -29,13 +56,10 @@ public class UserService {
         return userRepository.findAll();
     }
 
-
-
     public List<UserResponse> listUsers() {
         return userRepository.findAll().stream().map(this::toResponse).toList();
     }
 
-    
     public UserResponse getUser(Long id, String callerEmail, boolean isAdmin) {
         checkSelfOrAdmin(id, callerEmail, isAdmin);
         return toResponse(getUserById(id));
@@ -64,21 +88,62 @@ public class UserService {
         return toResponse(userRepository.save(user));
     }
 
-    public void deleteUser(Long id, String callerEmail) {
+    @Transactional
+    public void deleteUser(Long id, String callerEmail, boolean force) {
         User caller = findByEmail(callerEmail);
         if (caller.getId().equals(id)) {
             throw bad("You cannot delete your own account");
         }
+
         User user = getUserById(id);
+        List<Submission> submissions = submissionRepository.findByStudentId(id);
+
+        if (!submissions.isEmpty() && !force) {
+            int count = submissions.size();
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "This user has " + count + (count == 1 ? " submission." : " submissions."));
+        }
+
+        removeUserData(id, submissions);
+
         try {
             userRepository.delete(user);
+            userRepository.flush();
         } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "This user has submissions and cannot be deleted");
+            throw bad("This user is still linked to other records and cannot be deleted");
         }
     }
 
-    
+    private void removeUserData(Long userId, List<Submission> submissions) {
+        List<String[]> filesOnDisk = new ArrayList<>();
+        for (Submission submission : submissions) {
+            String folder = "submissions/" + submission.getAssignment().getId() + "/" + userId;
+            for (SubmissionFile file : submission.getFiles()) {
+                filesOnDisk.add(new String[] {folder, file.getStoredName()});
+            }
+        }
+
+        gradeRepository.deleteAll(gradeRepository.findByStudentId(userId));
+        quizResultRepository.deleteAll(quizResultRepository.findByStudentId(userId));
+        submissionRepository.deleteAll(submissions);
+        enrollmentRepository.deleteAll(enrollmentRepository.findByStudentId(userId));
+        notificationRepository.deleteAll(
+                notificationRepository.findByUserIdOrderByCreatedAtDesc(userId));
+
+        if (!filesOnDisk.isEmpty()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    for (String[] file : filesOnDisk) {
+                        try {
+                            fileStorageService.delete(file[0], file[1]);
+                        } catch (RuntimeException ignored) {
+                        }
+                    }
+                }
+            });
+        }
+    }
 
     private void checkSelfOrAdmin(Long id, String callerEmail, boolean isAdmin) {
         if (isAdmin) return;

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { readError } from "../../utils/readError";
 
 type User = {
   id: number;
@@ -27,7 +28,6 @@ function AdminUsers() {
     setMessageType(type);
   }
 
-  // Load users
   async function loadUsers() {
     if (!token) {
       showMessage("You must log in first.", "error");
@@ -54,39 +54,55 @@ function AdminUsers() {
     }
   }
 
-  // Delete user
-  async function deleteUser(id: number) {
+  async function deleteUser(id: number, force = false) {
     if (!token) {
       showMessage("You must log in first.", "error");
       return;
     }
 
     const user = users.find((item) => item.id === id);
+    const name = user ? `${user.firstName} ${user.lastName}` : "this user";
 
-    const confirmed = window.confirm(
-      `Are you sure you want to delete ${
-        user ? `${user.firstName} ${user.lastName}` : "this user"
-      }?`
-    );
+    if (!force) {
+      const confirmed = window.confirm(
+        `Are you sure you want to delete ${name}?`
+      );
 
-    if (!confirmed) {
-      return;
+      if (!confirmed) {
+        return;
+      }
     }
 
     try {
-      const response = await fetch(`/api/users/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `/api/users/${id}${force ? "?force=true" : ""}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response.ok) {
         setUsers((currentUsers) =>
-          currentUsers.filter((user) => user.id !== id)
+          currentUsers.filter((item) => item.id !== id)
         );
 
-        showMessage("User deleted successfully.", "success");
+        showMessage(`${name} was deleted.`, "success");
+      } else if (response.status === 409 && !force) {
+        const reason = await readError(response);
+
+        const proceed = window.confirm(
+          `${reason}\n\nDeleting ${name} will also permanently delete those submissions, their uploaded files, grades, quiz results, enrolments and notifications. This cannot be undone.\n\nDelete anyway?`
+        );
+
+        if (proceed) {
+          await deleteUser(id, true);
+        }
       } else {
-        showMessage("Could not delete user.", "error");
+        showMessage(
+          (await readError(response)) || "Could not delete user.",
+          "error"
+        );
       }
     } catch (error) {
       showMessage("Could not connect to the server.", "error");
@@ -94,7 +110,6 @@ function AdminUsers() {
     }
   }
 
-  // Copy user information
   async function copyUserInfo(user: User) {
     const userInfo = [
       `Name: ${user.firstName} ${user.lastName}`,
@@ -132,8 +147,6 @@ function AdminUsers() {
 
   return (
     <>
-      {/* HEADER */}
-
       <header className="dashboard-header">
         <div>
           <p className="dashboard-eyebrow">ADMIN PORTAL</p>

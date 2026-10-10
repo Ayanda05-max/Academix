@@ -1,5 +1,6 @@
 package com.academix.academix_backend.service;
 
+import com.academix.academix_backend.dto.QuizAttemptResponse;
 import com.academix.academix_backend.dto.QuizCreateRequest;
 import com.academix.academix_backend.dto.QuizResponse;
 import com.academix.academix_backend.dto.QuizScoreResponse;
@@ -15,6 +16,8 @@ import com.academix.academix_backend.repository.EnrollmentRepository;
 import com.academix.academix_backend.repository.QuizRepository;
 import com.academix.academix_backend.repository.QuizResultRepository;
 import com.academix.academix_backend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +35,12 @@ import java.util.Map;
 @Service
 public class QuizService {
 
+    private static final Logger log = LoggerFactory.getLogger(QuizService.class);
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final TypeReference<List<Map<String, Object>>> QUESTION_LIST =
+            new TypeReference<>() {};
+    private static final TypeReference<List<Integer>> ANSWER_LIST =
             new TypeReference<>() {};
 
     private final QuizRepository quizRepository;
@@ -41,21 +48,22 @@ public class QuizService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final NotificationService notificationService;
 
     @Autowired
     public QuizService(QuizRepository quizRepository,
                        QuizResultRepository quizResultRepository,
                        CourseRepository courseRepository,
                        UserRepository userRepository,
-                       EnrollmentRepository enrollmentRepository) {
+                       EnrollmentRepository enrollmentRepository,
+                       NotificationService notificationService) {
         this.quizRepository = quizRepository;
         this.quizResultRepository = quizResultRepository;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.enrollmentRepository = enrollmentRepository;
+        this.notificationService = notificationService;
     }
-
-    // ----- Create (lecturer of the course, or admin) -----
 
     public QuizResponse createQuiz(QuizCreateRequest request, String email, boolean isAdmin) {
         if (request.getCourseId() == null) throw bad("courseId is required");
@@ -114,12 +122,16 @@ public class QuizService {
         quiz.setTimeLimit(request.getTimeLimit());
         quiz.setTotalMarks(total);
         quiz.setQuestions(toJson(stored));
-        return toResponse(quizRepository.save(quiz), true);
-    }
 
-    // ----- List quizzes of a course -----
-    // Admin: any course (with answers). Lecturer: own course (with answers).
-    // Student: enrolled in a published course (answers hidden).
+        Quiz saved = quizRepository.save(quiz);
+
+        try {
+            notificationService.notifyNewQuiz(course.getId(), course.getTitle(), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Quiz saved but notification failed: {}", e.getMessage());
+        }
+        return toResponse(saved, true);
+    }
 
     public List<QuizResponse> getQuizzesForCourse(Long courseId, String email, String role) {
         Course course = findCourse(courseId);
@@ -139,8 +151,6 @@ public class QuizService {
                 .map(q -> toResponse(q, staff))
                 .toList();
     }
-
-    // ----- Submit answers (enrolled student, one attempt) -----
 
     public QuizScoreResponse submit(Long quizId, QuizSubmitRequest request, String email) {
         Quiz quiz = findQuiz(quizId);
@@ -179,11 +189,9 @@ public class QuizService {
         result.setScore(score);
         result.setTotalMarks(quiz.getTotalMarks());
         result.setSubmittedAt(LocalDateTime.now());
+        result.setAnswers(toJson(answers));
         return toScore(quizResultRepository.save(result));
     }
-
-    // ----- Read a result -----
-    // Student: own. Lecturer: students of their own course. Admin: anyone.
 
     public QuizScoreResponse getResult(Long quizId, Long studentId, String email, String role) {
         Quiz quiz = findQuiz(quizId);
@@ -204,7 +212,31 @@ public class QuizService {
         return toScore(result);
     }
 
-    // ----- helpers -----
+    public List<QuizAttemptResponse> getAttempts(Long quizId, String email, String role) {
+        Quiz quiz = findQuiz(quizId);
+        User user = findUser(email);
+
+        if ("LECTURER".equals(role) && !user.getId().equals(quiz.getCourse().getInstructorId())) {
+            throw new AccessDeniedException("You can only view submissions of your own courses");
+        }
+
+        return quizResultRepository.findByQuizId(quizId).stream().map(r -> {
+            User student = userRepository.findById(r.getStudentId()).orElse(null);
+            double percentage = r.getTotalMarks() == 0
+                    ? 0.0
+                    : Math.round(r.getScore() * 1000.0 / r.getTotalMarks()) / 10.0;
+            return new QuizAttemptResponse(
+                    r.getId(),
+                    r.getStudentId(),
+                    student == null ? null : student.getFirstName() + " " + student.getLastName(),
+                    student == null ? null : student.getEmail(),
+                    r.getScore(),
+                    r.getTotalMarks(),
+                    percentage,
+                    r.getSubmittedAt(),
+                    parseAnswers(r.getAnswers()));
+        }).toList();
+    }
 
     private Quiz findQuiz(Long id) {
         return quizRepository.findById(id)
@@ -235,12 +267,12 @@ public class QuizService {
         return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
     }
 
-    private String toJson(List<Map<String, Object>> questions) {
+    private String toJson(Object value) {
         try {
-            return MAPPER.writeValueAsString(questions);
+            return MAPPER.writeValueAsString(value);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Could not save the questions");
+                    "Could not save the data");
         }
     }
 
@@ -250,6 +282,15 @@ public class QuizService {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "This quiz has invalid question data");
+        }
+    }
+
+    private List<Integer> parseAnswers(String json) {
+        if (json == null || json.isBlank()) return null;
+        try {
+            return MAPPER.readValue(json, ANSWER_LIST);
+        } catch (Exception e) {
+            return null;
         }
     }
 
