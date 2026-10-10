@@ -17,3 +17,5 @@ academix-backend/src/main/resources/application.properties
 academix-backend/bin/
 
 *.bak
+
+inspect*.txt
